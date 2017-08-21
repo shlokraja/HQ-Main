@@ -1,0 +1,271 @@
+{{#yield-body}}
+<form id="productForm" class="row">
+    <br />
+    <table id="vp_editor" data-selected_source={{selected_source}} data-outlet_name={{outlet_name}} data-restaurant_name="{{restaurant_name}}" data-session={{session}} data-date={{date}} data-city={{city}} class="large-12">
+        <thead>
+            <tr>
+                <th>Oulet Name</th>
+                <th>Restaurant Name</th>
+                <th>Session</th>
+                <th>Master Id</th>
+                <th>Food Item</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        {{#data}}
+        <tr id="tr-content" data-vp_id={{vp_id}} data-old_qty={{quantity}}>
+            <td>{{outlet_name}}</td>
+            <td>{{restaurant_name}}</td>
+            <td>{{session}}</td>
+            <td>{{master_id}}</td>
+            <td>{{food_item}}</td>
+            <td>
+                <div class="row">
+                    <div class="col-xs-9">
+                        <input type="number" onchange="return quantity_changes(this);" class="form-control" min="0" max="99" maxlength="2" {{#quantity}} value={{quantity}} {{/quantity}} />
+                    </div>
+                </div>
+            </td>
+            {{/data}}
+        </tr>
+    </table>
+    <br />
+    <button type="button" id="btn_back" class="small secondary btn-customised">Back</button>
+    <button type="button" id="btn_add" data-icon="plus" class="small secondary btn-customised">Add Row</button>
+    <button type="button" id="btn_submit" class="small secondary btn-customised">Submit</button>
+</form>
+{{/yield-body}}
+
+{{#yield-styles}}
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+var count=1;
+$('#btn_add').click(function(e){
+    var dynamic_fields='<tr class="tr-dynamic-content"> <div class="row"> \
+                            <td> \
+                             <div class="col-xs-15"> \
+                             <input type="text" onblur="return empty_validation(this)" required="required"  name="outlet" id="txt_dynamic_outlet_'+ count +'" class="form-control" placeholder="Outlet short name" /> \
+                            </div> \
+                        </td> \
+                        <td> \
+                             <div class="col-xs-15"> \
+                             <input type="text" onblur="return empty_validation(this)" required="required" id="txt_dynamic_Restaurant_'+ count +'" class="form-control" placeholder="Restaurant name" /> \
+                            </div> \
+                        </td> \
+                        <td> \
+                             <div class="col-xs-15"> \
+                             <input type="text" onblur="return empty_validation(this)" required="required" id="txt_dynamic_session_'+ count +'" class="form-control" placeholder="Session" /> \
+                            </div> \
+                        </td> \
+                        <td> \
+                             <div class="col-xs-15"> \
+                             <input type="text" onblur="return empty_validation(this)" required="required" id="txt_dynamic_master_id_'+ count +'" class="form-control" placeholder="Master id" /> \
+                            </div> \
+                        </td> \
+                        <td> \
+                             <div class="col-xs-15"> \
+                             <input type="text" onblur="return empty_validation(this)" required="required" id="txt_dynamic_food_item_id_'+ count +'" class="form-control" placeholder="Food item name" /> \
+                            </div> \
+                        </td> \
+                        <td> \
+                             <div class="col-xs-15"> \
+                             <input type="number" onblur="return empty_validation(this)" required="required" id="txt_dynamic_quantity_'+ count +'"  class="form-control" placeholder="Quantity" /> \
+                            </div> \
+                        </td> \
+                         <td> \
+                             <div class="col-xs-15"> \
+                                <button data-icon="ui-icon-circle-minus" onclick="return remove_row(this)" class="small secondary">Remove \
+                                </button> \
+                            </div> \
+                        </td> \
+                         </div> </tr>';
+
+    var selected_session=$('#vp_editor').attr('data-session');
+    var selected_restaurant=$('#vp_editor').attr('data-restaurant_name');
+    var selected_outlet=$('#vp_editor').attr('data-outlet_name');
+
+    $('#vp_editor').append(dynamic_fields);
+
+    if(selected_session!=0)
+    {
+        $('#vp_editor').find("#txt_dynamic_session_"+count).val(selected_session);// .prop('disabled', true);
+    }
+    if(selected_restaurant!=0)
+    {
+        $('#vp_editor').find("#txt_dynamic_Restaurant_"+count).val(selected_restaurant); //.prop('disabled', true);
+    }
+     if(selected_outlet!=0)
+    {
+        $('#vp_editor').find("#txt_dynamic_outlet_"+count).val(selected_outlet); //.prop('disabled', true);
+    }
+
+    count++;
+});
+
+
+$('#btn_submit').click(function(e){
+
+var changed_quantity_values=[];
+var new_vpa_values=[];
+var is_valid=true;
+var row_identifier=0;
+    $("#vp_editor tr.tr-dynamic-content").each(function (ix, element) {
+       var $tds = $(this).find('td');
+       var  outlet_name =$.trim( $tds.eq(0).find("input").val());
+       var  restaurant_name =$.trim( $tds.eq(1).find("input").val());
+       var  session =$.trim( $tds.eq(2).find("input").val());
+       var  master_id =$.trim( $tds.eq(3).find("input").val());
+       var  food_item =$.trim( $tds.eq(4).find("input").val());
+       var  Quantity =$.trim( $tds.eq(5).find("input").val());
+       var date=$('#vp_editor').attr('data-date');
+       var city=$('#vp_editor').attr('data-city');
+
+        if(outlet_name==""||restaurant_name==""||session==""||master_id==""||food_item==""||Quantity=="")
+        {
+        $.alert({
+        title: 'Notification!',
+        content: "Please fill all required values",
+        });
+        is_valid=false;
+        return false;
+        }
+       row_identifier++;
+       var new_vpa={
+       "row_no":row_identifier,
+       "outlet_name":outlet_name,
+       "restaurant_name":restaurant_name,
+       "session":session,
+       "master_id":master_id,
+       "food_item":food_item,
+       "Quantity":Quantity,
+       "date":date,
+       "city":city
+       };
+       new_vpa_values.push(new_vpa);
+});
+
+$("#vp_editor tr.tr-changed-content").each(function (ix, element) {
+       var $tds = $(this).find('td');
+       var restaurant_name =$.trim($tds.eq(1).text());
+       var vp_id=$(this).attr("data-vp_id");
+       var old_quantity=$(this).attr("data-old_qty");
+       var current_quantity = $.trim($tds.eq(5).find("input").val());
+       var date=$('#vp_editor').attr('data-date');
+       var city = $('#vp_editor').attr('data-city');
+       if(current_quantity!=old_quantity)
+       {
+        var changed_quantity= {
+            "vp_id":vp_id,
+            "current_quantity":current_quantity,
+            "old_quantity":old_quantity,
+            "restaurant_name":restaurant_name,
+            "date":date
+        };
+        changed_quantity_values.push(changed_quantity);
+       }
+});
+if(is_valid)
+{
+$('#loader').show()
+$.post('/volume_planning/validate_new_row', {"changed_quantity_values": changed_quantity_values,"new_vpa_values" : new_vpa_values},
+    function(returnedData){
+
+    if(returnedData!="success")
+    {
+    $.dialog({
+        title: 'Notification!',
+        content: returnedData,
+        });
+    }else{
+        $.post('/volume_planning/put_edit_information', { "changed_quantity_values": changed_quantity_values, "new_vpa_values" : new_vpa_values,"selected_date":$('#vp_editor').attr('data-date'),"selected_city":$('#vp_editor').attr('data-city'),"selected_source": $('#vp_editor').attr('data-selected_source')},
+         function(returnedData){
+$('#loader').hide()
+         $.alert({
+        title: 'Notification!',
+        content: 'Success',
+    confirm: function(){
+//location.href = location.origin + "/volume_planning?date="+ $('#vp_editor').attr('data-date') +"&city="+$('#vp_editor').attr('data-city') ;
+location.href = location.origin + "/volume_planning" ;
+return false;
+    }
+        });
+
+
+        }).fail(function(xhr,jquery,error){
+$('#loader').hide()
+         console.log(xhr.responseText);
+        });
+    }
+
+         //location.reload();
+}).fail(function(xhr,jquery,error){
+$('#loader').hide()
+      console.log(xhr.responseText);
+});
+}
+
+});
+
+function quantity_changes(value)
+{
+$(value.closest('tr')).addClass('tr-changed-content');
+}
+
+function remove_row(value)
+{
+$(value.closest('tr')).remove();
+}
+
+function empty_validation(value)
+{
+ if (($(value).val())== ""){
+              $(value).css("border","1px solid #ff0000");
+              return false;
+        }
+        else{
+            $(value).css("border","");
+        }
+}
+
+$('input[type=number]').on('keypress',function(evt){
+    if($(this).val().length>1){
+        return false;
+    }
+
+    if (evt.keyCode == 13) {
+                iname = $(this).val();
+                if (iname !== 'Submit') {
+                    var fields = $(this).parents('form:eq(0),body').find('button, input, textarea, select');
+                    var index = fields.index(this);
+                    if (index > -1 && (index + 1) < fields.length) {
+                        fields.eq(index + 1).focus();
+                    }
+                    return false;
+                }
+            }
+});
+
+$(document).ready(function(){
+$('#btn_add').button({
+  icons: { primary: "ui-icon-circle-plus", secondary: "ui-icon-circle-plus" }
+});
+
+$('#btn_submit').button({
+  icons: { primary: "ui-icon-circle-check", secondary: "ui-icon-circle-check" }
+});
+
+$('#btn_back').button({
+  icons: { primary: "ui-icon-circle-arrow-w", secondary: "ui-icon-circle-arrow-w" }
+});
+
+$("#btn_back").click(function()
+{
+    location.href = location.origin + "/volume_planning";
+    history.back();
+    return false;
+});
+});
+{{/yield-scripts}}
+

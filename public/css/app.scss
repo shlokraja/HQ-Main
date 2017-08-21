@@ -1,0 +1,149 @@
+@import "partials";
+@import "mixin";
+
+body
+{
+	background-color: $theme-color;
+}
+ #header
+ {
+ 	background-color: $primary-color;
+ 	img{
+ 		padding: 10px 0px;
+ 	}
+ }
+
+#login{
+
+	 .login-box {
+	  background: $menu-background-color;
+	  border: 1px solid #ddd; 
+	  margin: 100px 0;
+	  padding: 20px 20px 0 20px;
+
+	  h3{
+	  	text-align: center;
+	  	@include title;
+	  }
+
+	.login-button,{
+		@include theme-btn;
+	}
+	.login-button:hover, .login-button:focus{
+		background-color: $menu-background-color;
+		color:$primary-color;
+		@include border;
+	}
+	}
+}
+
+
+// Menu Styles
+
+.menu-container{
+	background-color: $menu-background-color;
+	.title-bar{
+		background-color:$menu-background-color; 
+		.title-bar-title{
+			color: $primary-color;
+		}
+	}
+
+}
+
+.top-bar, .top-bar ul{
+	background-color: $menu-background-color;
+}
+.top-bar{
+	width: 100%;
+	ul
+	{
+		li{
+			width: 20%;
+			a{
+				color: $primary-color;
+				text-align: center;
+				width:100%;
+				display: block;
+				font-size: $general-font-size;
+			}
+		}
+	}
+}
+
+.menu{
+	li:hover{
+	background-color: $primary-color;
+	a{
+		color:$secondary-color;
+	}
+}
+}
+
+
+// Content Specifications
+
+.content{
+	padding: 20px 0px;
+	a{
+		margin-left:15px;
+	}
+
+}
+
+.general-button{
+		@include theme-btn;
+	}
+
+.general-button:hover, .general-button:focus{
+		background-color: $menu-background-color;
+		color:$primary-color;
+		@include border;
+	}
+
+
+
+// Grid OVerflow Mobile View Hack
+
+
+@media #{$information-phone} {
+ .mobile-grid-container{
+ 	overflow-x:scroll;
+ 	width:320px;
+ 	display: block;
+ }
+}
+
+// Grid OVerflow Mobile View Hack
+
+
+// Animations //
+
+
+// Error Animation
+
+.invalid {
+  animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+// Error Animation

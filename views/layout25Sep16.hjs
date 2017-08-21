@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/foundation.min.css" />
+    <script src="/js/vendor/modernizr.js"></script>
+    <style>
+      body {
+        font-family: 'AzoSans-Regular';
+      }
+
+      button, a, h1, h2, h3 {
+       font-family: 'AzoSans-Regular' !important;
+      }
+
+      @font-face {
+        font-family: 'AzoSans-Bold';
+        src: url('/fonts/AzoSans-Bold.otf')  format('opentype');
+      }
+
+      @font-face {
+        font-family: 'AzoSans-Regular';
+        src: url('/fonts/AzoSans-Regular.otf')  format('opentype');
+      }
+      {{{yield-styles}}}
+    </style>
+  </head>
+  <body>
+
+  <div class="row">
+    <div class="large-12 columns">
+      <div class="nav-bar right">
+      </div>
+      <h1><a href="/">{{title}}</a></h1>
+      {{{yield-loginlogout}}}
+      <hr/>
+    </div>
+  </div>
+
+  {{{yield-body}}}
+
+  <footer class="row">
+    <div class="large-12 columns">
+      <hr/>
+    </div>
+  </footer>
+
+  <script src="/js/vendor/jquery.js"></script>
+  <script src="/js/vendor/firebase.js"></script>
+  <script src="/js/vendor/highcharts.js"></script>
+  <script src="/js/vendor/jquery.datetimepicker.full.min.js"></script>
+  <script src="/js/foundation.min.js"></script>
+  <script src="http://underscorejs.org/underscore-min.js"></script>
+  <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+  <link rel="stylesheet" type="text/css" href="/css/jquery.datetimepicker.css"/ >
+  <script>
+    var CLIENT_ID = '273587317115-dm0q6vvmolh1h3f1ajau9snd06au4qdt.apps.googleusercontent.com';
+    var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
+    $(document).foundation();
+    {{{yield-scripts}}}
+
+  </script>
+  {{{yield-tags}}}
+  </body>
+</html>

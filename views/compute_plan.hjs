@@ -1,0 +1,787 @@
+{{#yield-body}}
+<div class="row padding_fix">
+<div class="band">Band - {{header_data.band}} ({{header_data.start_time}} - {{header_data.end_time}})</div>
+<div class="date">Date- {{friendlyDate}} <span class="holiday"></span></div>
+<div class="outlet">Outlet - {{header_data.name}}</div>
+</div>
+<div class="row padding_fix">
+<aside class="large-4 columns">
+<div class="menu_title">Select Menu Plan</div>
+<table id="item_table">
+<thead>
+<tr>
+<th>Select Item Id</th>
+<th style="width:110px;">Item Name</th>
+<th style="width:70px;">Qty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="last_row">
+  <td>Total</td>
+  <td></td>
+  <td class="total_count"></td>
+</tr>
+</tbody>
+</table>
+<img id="add_row" src="/img/Add Item.png">
+<br />
+<ul id="active_menu_charts" class="tabs" data-tab>
+  <li class="tab-title active"><a href="#restaurants">Restaurants</a></li>
+  <li class="tab-title"><a href="#cuisines">Cuisines</a></li>
+  <li class="tab-title"><a href="#veg-non_veg">Veg/Non-veg</a></li>
+</ul>
+<div class="tabs-content">
+  <div class="content active" id="restaurants">
+
+  </div>
+  <div class="content" id="cuisines">
+
+  </div>
+  <div class="content" id="veg-non_veg">
+
+  </div>
+</div>
+<br />
+<button id="save_menu_plan" class="small info">Save</button>
+<button id="cancel_menu_plan" class="small secondary">Cancel</button>
+</aside>
+
+<div id="samplediv" class="hbt" style="display: none">
+<div class="hbt-data">
+</div>
+Restaurants
+<div class="rest_chart">
+  <div class="stock">
+  <div class="stock_text">Stock</div>
+  <div class="rest_chart_stock"></div>
+  </div>
+  <div class="sold">
+  <div class="sold_text">Sold</div>
+  <div class="rest_chart_sold"></div>
+  </div>
+</div>
+Cuisines
+<div class="cuisine_chart">
+  <div class="stock">
+  <div class="stock_text">Stock</div>
+  <div class="cuisine_chart_stock"></div>
+  </div>
+  <div class="sold">
+  <div class="sold_text">Sold</div>
+  <div class="cuisine_chart_sold"></div>
+  </div>
+</div>
+Veg Non-veg
+<div class="veg-non_veg">
+  <div class="stock">
+  <div class="stock_text">Stock</div>
+  <div class="veg-non_veg_stock"></div>
+  </div>
+  <div class="sold">
+  <div class="sold_text">Sold</div>
+  <div class="veg-non_veg_sold"></div>
+  </div>
+</div>
+</div>
+
+<div class="large-8 columns" role="content">
+<ul class="tabs" data-tab>
+  <li class="tab-title active"><a href="#recent">Recent</a></li>
+  <li class="tab-title"><a href="#fourweek">4 week</a></li>
+  <li class="tab-title"><a href="#lastyr">Last yr</a></li>
+  <li class="tab-title"><a href="#allproducts">All products</a></li>
+</ul>
+<div class="tabs-content">
+  <div class="content active" id="recent">
+  </div>
+  <div class="content" id="fourweek">
+  </div>
+  <div class="content" id="lastyr">
+  </div>
+  <div class="content" id="allproducts">
+    <table>
+      <thead>
+      <tr>
+      <td>Item id</td>
+      <td>Item Name</td>
+      <td>Food Vendor</td>
+      <td>Selling price</td>
+      <td>Foodbox fee</td>
+      <td>Veg/Non-veg</td>
+      <td>Cuisine</td>
+      </tr>
+      </thead>
+      <tbody>
+        {{#all_products}}
+        <tr>
+        <td>{{id}}</td>
+        <td>{{item_name}}</td>
+        <td>{{restaurant_name}}</td>
+        <td><img class="rupee_img" src="/img/Rupee.png" />{{mrp}}</td>
+        <td><img class="rupee_img" src="/img/Rupee.png" />{{foodbox_fee}}</td>
+        <td>{{#lambdas.veg_non_veg}}{{veg}}{{/lambdas.veg_non_veg}}</td>
+        <td>{{cuisine}}</td>
+        </tr>
+        {{/all_products}}
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+#active_menu_charts li a {
+  font-size: 12px;
+  padding: 5px;
+}
+
+.menu_title, .stock_text, .sold_text {
+  text-align: center;
+}
+
+.stock, .sold, .stock_text, .sold_text {
+  display: inline-block;
+  text-align: center;
+}
+
+#save_menu_plan, #cancel_menu_plan {
+  float: right;
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  color: black !important;
+  background-color: transparent !important;
+}
+
+#save_menu_plan:hover, #cancel_menu_plan:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+aside {
+  border: 1px solid black;
+}
+
+.rupee_img {
+  height: 20px;
+}
+
+#add_row {
+  height: 20px;
+  text-align: center;
+  margin: 0 auto;
+  display: block;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+
+#item_table {
+  margin-bottom: 2px;
+}
+
+.band, .outlet, .date {
+  display: inline-block;
+}
+
+.band {
+  float: left;
+}
+
+.bolder {
+  font-weight: bold;
+}
+
+.date {
+  margin-left: 225px;
+}
+
+.outlet {
+  float: right;
+}
+
+.hbt {
+  border: 1px solid black;
+  padding: 2px;
+}
+
+.padding_fix {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-bottom: 12px;
+}
+.tab-title.active a {
+  border: 1px solid;
+}
+
+.holiday {
+  color: grey;
+}
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+
+var food_dropdown = [];
+var food_item_map = {};
+food_dropdown.push({
+  value: '-',
+  text: '-'
+});
+{{#food_items}}
+food_dropdown.push({
+  value: {{food_item_id}},
+  text: '{{fv_name}}:{{food_item_id}}'
+});
+food_item_map['{{food_item_id}}'] = {
+  name: '{{name}}',
+  veg: '{{veg}}',
+  cuisine: '{{cuisine}}',
+  fv_name: '{{fv_name}}',
+  item_tag: '{{item_tag}}',
+  outlet_id: {{outlet_id}},
+};
+{{/food_items}}
+
+var dropDownText = '<select class="food_item_selector">';
+food_dropdown.map(function(item) {
+  dropDownText += '<option value='+item.value+'>'+item.text+'</option>'
+});
+dropDownText += '</select>';
+$("#item_table .last_row").before('<tr><td>'+dropDownText+'</td><td class="item_name"></td><td><input type="number" class="qty" /></td></tr>');
+
+// Event handler for food dropdown change
+$("#item_table").on("change", "tbody .food_item_selector", function(item) {
+  var food_item_name = food_item_map[$(this).val()]["name"];
+  $(this).parent().parent().find(".item_name").html(food_item_name);
+  // Update the charts
+  updateMaps();
+});
+
+// Event handler for total item count
+$("#item_table").on("input", "tbody .qty", function(item) {
+  var total_count = 0;
+  $("#item_table tbody .qty").each(function(item) {
+    if ($(this).val()) {
+      total_count += parseInt($(this).val());
+    }
+  });
+  $("#item_table .last_row .total_count").text(total_count);
+  // Update the charts
+  updateMaps();
+});
+
+// Event handler for add row change
+$("#add_row").click(function(ev) {
+  var jqDropDown = $(dropDownText);
+  $("#item_table tbody tr").map(function(item) {
+    var food_item_id = $(this).find(".food_item_selector").val();
+    $(jqDropDown).find("option[value="+food_item_id+"]").remove();
+  });
+
+  var row = $('<tr><td>'+$(jqDropDown)[0].outerHTML+'</td><td class="item_name"></td><td><input type="number" class="qty" /></td></tr>');
+  $("#item_table .last_row").before(row);
+});
+
+function updateMaps() {
+  var restaurantMap = {};
+  var totalRestaurants = 0;
+
+  var cuisineMap = {};
+  var totalCuisines = 0;
+
+  var veg_non_vegMap = {};
+
+  $("#item_table tbody tr").each(function(index) {
+    // not calculating the last row
+    if ($(this).hasClass("last_row")) {
+      return;
+    }
+    var food_item_id = $(this).find(".food_item_selector").val();
+    var qty = $(this).find(".qty").val();
+    if (food_item_id == "-" || qty == "") {
+      return;
+    }
+    qty = parseInt(qty);
+    if (restaurantMap.hasOwnProperty(food_item_map[food_item_id]["fv_name"])) {
+      restaurantMap[food_item_map[food_item_id]["fv_name"]]+= qty;
+    } else {
+      restaurantMap[food_item_map[food_item_id]["fv_name"]] = qty;
+    }
+    totalRestaurants+=qty;
+
+    var cuisines = food_item_map[food_item_id]["cuisine"].split(',');
+    cuisines = cuisines.map(function(item) {
+      return item.trim();
+    });
+
+    cuisines.map(function(item) {
+      if (cuisineMap.hasOwnProperty(item)) {
+        cuisineMap[item]+= qty;
+      } else {
+        cuisineMap[item] = qty;
+      }
+      totalCuisines+=qty;
+    });
+
+    if (veg_non_vegMap.hasOwnProperty(food_item_map[food_item_id]["veg"])) {
+      veg_non_vegMap[food_item_map[food_item_id]["veg"]]+= qty;
+    } else {
+      veg_non_vegMap[food_item_map[food_item_id]["veg"]] = qty;
+    }
+  });
+
+  // Computing restaurant data
+  var restaurantData = [];
+  Object.keys(restaurantMap).map(function(rest_name) {
+    var normalized_value = restaurantMap[rest_name] / totalRestaurants * 100;
+    restaurantData.push({
+      name: rest_name,
+      y: normalized_value
+    });
+  });
+
+  // Computing cuisine data
+  var cuisineData = [];
+  Object.keys(cuisineMap).map(function(cuisine_name) {
+    var normalized_value = cuisineMap[cuisine_name] / totalCuisines * 100;
+    cuisineData.push({
+      name: cuisine_name,
+      y: normalized_value
+    });
+  });
+
+  // Computing veg-non veg data
+  var veg_non_vegData = [];
+  Object.keys(veg_non_vegMap).map(function(flag) {
+    var normalized_value = veg_non_vegMap[flag] / totalRestaurants * 100;
+    var nameText = "veg";
+    if (flag == "false") {
+      nameText = "non-veg";
+    }
+    veg_non_vegData.push({
+      name: nameText,
+      y: normalized_value
+    });
+  });
+
+  var restaurantChart = $("#restaurants").highcharts();
+  restaurantChart.series[0].setData(restaurantData);
+  var cuisineChart = $("#cuisines").highcharts();
+  cuisineChart.series[0].setData(cuisineData);
+  var veg_non_vegChart = $("#veg-non_veg").highcharts();
+  veg_non_vegChart.series[0].setData(veg_non_vegData);
+}
+
+function getMapDefault(category) {
+  var colors = [];
+  if (category == 'restaurants') {
+    colors = ['#5D8A2E', '#CFBD6E', '#3D2514'];
+  } else if (category == 'cuisines') {
+    colors = ['#66CCAA', '#775828', '#2E0F1E'];
+  } else if (category == 'veg-nonveg-special') {
+    colors = ['#911308', '#CBFFC2', '#700058'];
+  } else {
+    colors = ['#CBFFC2', '#911308', '#700058'];
+  }
+
+
+  return {
+    chart: {
+        title: null,
+        height: 200,
+        width: 200,
+        type: 'pie'
+    },
+    title: {
+      text: null
+    },
+    colors: colors,
+    tooltip: {
+        pointFormat: '<b>{point.percentage:.1f}%</b>'
+    },
+    plotOptions: {
+        pie: {
+            allowPointSelect: true,
+            cursor: 'pointer',
+            dataLabels: {
+                enabled: false
+            },
+            showInLegend: true
+        }
+    },
+    series: [{
+        colorByPoint: true,
+        data: []
+    }]
+  };
+}
+
+function getTableString() {
+  return '<table>\
+    <thead>\
+    <tr>\
+      <th>Hour</th>\
+      <th>Item id</th>\
+      <th>Item name</th>\
+      <th>Stock</th>\
+      <th>Sold</th>\
+    </tr>\
+    </thead>\
+    <tbody>\
+    </tbody>\
+    </table>';
+}
+
+function getRecentData() {
+  $.get('/menu_planning/get_menu_data/recent?menu_band_id={{menu_band_id}}')
+  .done(function(data) {
+    handleChartData("#recent", data);
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function get4weekData() {
+  $.get('/menu_planning/get_menu_data/4week?menu_band_id={{menu_band_id}}')
+  .done(function(data) {
+    handleChartData("#fourweek", data);
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function getLastYrData() {
+  $.get('/menu_planning/get_menu_data/lastyr?menu_band_id={{menu_band_id}}')
+  .done(function(data) {
+    handleChartData("#lastyr", data);
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function handleChartData(selector, data) {
+  var dataMap = {};
+  // Constructing a map with the date as the key
+  data.map(function(item) {
+    if (dataMap.hasOwnProperty(item.day)) {
+      dataMap[item.day].push({
+        food_item_id: item.food_item_id,
+        fv_name: item.fv_name,
+        short_name: item.short_name,
+        name: item.name,
+        item_tag: item.item_tag,
+        veg: item.veg,
+        cuisine: item.cuisine,
+        sale_count: item.sale_count,
+        stock_count: item.stock_count,
+        hour: item.hour
+      });
+    } else {
+      dataMap[item.day] = [{
+        food_item_id: item.food_item_id,
+        fv_name: item.fv_name,
+        short_name: item.short_name,
+        name: item.name,
+        item_tag: item.item_tag,
+        veg: item.veg,
+        cuisine: item.cuisine,
+        sale_count: item.sale_count,
+        stock_count: item.stock_count,
+        hour: item.hour
+      }];
+    }
+  });
+
+  // And then iterating that map and printing out the table
+  Object.keys(dataMap).map(function(key) {
+
+  // create the inner divs and loop through them
+
+  var date = new Date(key);
+  var targetDiv = $("#samplediv").clone();
+  $(targetDiv).show();
+  $(targetDiv).attr("id","");
+  $(targetDiv).find(".hbt-data").append('<div><strong>'+date.toDateString()+'</strong></div>');
+  var tableDiv = $(getTableString());
+  dataMap[key].map(function(item) {
+    var boldClass = "";
+    if (item.stock_count == item.sale_count) {
+      boldClass = "bolder";
+    }
+    $(tableDiv).find('tbody').append('<tr data-food_item_id='+item.food_item_id+'><td>'+item.hour+'00</td><td>'+item.short_name+'-'+item.food_item_id+'</td><td>'+item.name+'</td><td class="stock_count '+boldClass+'">'+item.stock_count+'</td><td class="sale_count '+boldClass+'">'+item.sale_count+'</td></tr>');
+  });
+  $(targetDiv).find(".hbt-data").append(tableDiv);
+
+  var restaurantMap_sold = {};
+  var totalRestaurants_sold = 0;
+
+  var cuisineMap_sold = {};
+  var totalCuisines_sold = 0;
+
+  var veg_non_vegMap_sold = {};
+
+  var restaurantMap_stock = {};
+  var totalRestaurants_stock = 0;
+
+  var cuisineMap_stock = {};
+  var totalCuisines_stock = 0;
+
+  var veg_non_vegMap_stock = {};
+
+  $(targetDiv).find(".hbt-data table tbody tr").each(function(index) {
+    var food_item_id = parseInt($(this).attr("data-food_item_id"));
+    var sale_count = parseInt($(this).find(".sale_count").text());
+    var stock_count = parseInt($(this).find(".stock_count").text());
+    if (restaurantMap_sold.hasOwnProperty(food_item_map[food_item_id]["fv_name"])) {
+      restaurantMap_sold[food_item_map[food_item_id]["fv_name"]]+= sale_count;
+    } else {
+      restaurantMap_sold[food_item_map[food_item_id]["fv_name"]] = sale_count;
+    }
+    totalRestaurants_sold+=sale_count;
+    if (restaurantMap_stock.hasOwnProperty(food_item_map[food_item_id]["fv_name"])) {
+      restaurantMap_stock[food_item_map[food_item_id]["fv_name"]]+= stock_count;
+    } else {
+      restaurantMap_stock[food_item_map[food_item_id]["fv_name"]] = stock_count;
+    }
+    totalRestaurants_stock+=stock_count;
+
+    var cuisines = food_item_map[food_item_id]["cuisine"].split(',');
+    cuisines = cuisines.map(function(item) {
+      return item.trim();
+    });
+
+    cuisines.map(function(item) {
+      if (cuisineMap_sold.hasOwnProperty(item)) {
+        cuisineMap_sold[item]+= sale_count;
+      } else {
+        cuisineMap_sold[item] = sale_count;
+      }
+      totalCuisines_sold+= sale_count;
+
+      if (cuisineMap_stock.hasOwnProperty(item)) {
+        cuisineMap_stock[item]+= stock_count;
+      } else {
+        cuisineMap_stock[item] = stock_count;
+      }
+      totalCuisines_stock+= stock_count;
+    });
+
+    if (veg_non_vegMap_sold.hasOwnProperty(food_item_map[food_item_id]["veg"])) {
+      veg_non_vegMap_sold[food_item_map[food_item_id]["veg"]]+= sale_count;
+    } else {
+      veg_non_vegMap_sold[food_item_map[food_item_id]["veg"]] = sale_count;
+    }
+    if (veg_non_vegMap_stock.hasOwnProperty(food_item_map[food_item_id]["veg"])) {
+      veg_non_vegMap_stock[food_item_map[food_item_id]["veg"]]+= stock_count;
+    } else {
+      veg_non_vegMap_stock[food_item_map[food_item_id]["veg"]] = stock_count;
+    }
+  });
+
+  // Computing restaurant data
+  var restaurantData_sold = [];
+  Object.keys(restaurantMap_sold).map(function(rest_name) {
+    var normalized_value = restaurantMap_sold[rest_name] / totalRestaurants_sold * 100;
+    restaurantData_sold.push({
+      name: rest_name,
+      y: normalized_value
+    });
+  });
+  var restaurantData_stock = [];
+  Object.keys(restaurantMap_stock).map(function(rest_name) {
+    var normalized_value = restaurantMap_stock[rest_name] / totalRestaurants_stock * 100;
+    restaurantData_stock.push({
+      name: rest_name,
+      y: normalized_value
+    });
+  });
+
+  // Computing cuisine data
+  var cuisineData_sold = [];
+  Object.keys(cuisineMap_sold).map(function(cuisine_name) {
+    var normalized_value = cuisineMap_sold[cuisine_name] / totalCuisines_sold * 100;
+    cuisineData_sold.push({
+      name: cuisine_name,
+      y: normalized_value
+    });
+  });
+  var cuisineData_stock = [];
+  Object.keys(cuisineMap_stock).map(function(cuisine_name) {
+    var normalized_value = cuisineMap_stock[cuisine_name] / totalCuisines_stock * 100;
+    cuisineData_stock.push({
+      name: cuisine_name,
+      y: normalized_value
+    });
+  });
+
+  // Computing veg-non veg data
+  var veg_non_vegData_sold = [];
+  Object.keys(veg_non_vegMap_sold).map(function(flag) {
+    var normalized_value = veg_non_vegMap_sold[flag] / totalRestaurants_sold * 100;
+    var nameText = "veg";
+    if (flag == "false") {
+      nameText = "non-veg";
+    }
+    veg_non_vegData_sold.push({
+      name: nameText,
+      y: normalized_value
+    });
+  });
+  var veg_non_vegData_stock = [];
+  Object.keys(veg_non_vegMap_stock).map(function(flag) {
+    var normalized_value = veg_non_vegMap_stock[flag] / totalRestaurants_stock * 100;
+    var nameText = "veg";
+    if (flag == "false") {
+      nameText = "non-veg";
+    }
+    veg_non_vegData_stock.push({
+      name: nameText,
+      y: normalized_value
+    });
+  });
+
+  $(targetDiv).find(".rest_chart_sold").highcharts(getMapDefault('restaurants'));
+  var restaurantChart_sold = $(targetDiv).find(".rest_chart_sold").highcharts();
+  restaurantChart_sold.series[0].setData(restaurantData_sold);
+
+  $(targetDiv).find(".cuisine_chart_sold").highcharts(getMapDefault('cuisines'));
+  var cuisineChart_sold = $(targetDiv).find(".cuisine_chart_sold").highcharts();
+  cuisineChart_sold.series[0].setData(cuisineData_sold);
+
+  $(targetDiv).find(".veg-non_veg_sold").highcharts(getMapDefault('veg-nonveg'));
+  var veg_non_vegChart_sold = $(targetDiv).find(".veg-non_veg_sold").highcharts();
+  veg_non_vegChart_sold.series[0].setData(veg_non_vegData_sold);
+
+  $(targetDiv).find(".rest_chart_stock").highcharts(getMapDefault('restaurants'));
+  var restaurantChart_stock = $(targetDiv).find(".rest_chart_stock").highcharts();
+  restaurantChart_stock.series[0].setData(restaurantData_stock);
+
+  $(targetDiv).find(".cuisine_chart_stock").highcharts(getMapDefault('cuisines'));
+  var cuisineChart_stock = $(targetDiv).find(".cuisine_chart_stock").highcharts();
+  cuisineChart_stock.series[0].setData(cuisineData_stock);
+
+  $(targetDiv).find(".veg-non_veg_stock").highcharts(getMapDefault('veg-nonveg'));
+  var veg_non_vegChart_stock = $(targetDiv).find(".veg-non_veg_stock").highcharts();
+  veg_non_vegChart_stock.series[0].setData(veg_non_vegData_stock);
+
+  $(selector).append(targetDiv);
+  });
+}
+
+//Adding the holiday
+gapi.load('auth2', authorizeClient);
+function authorizeClient() {
+  gapi.auth.authorize(
+        {client_id: CLIENT_ID, scope: SCOPES, immediate: false},
+        handleAuthResult);
+}
+
+function handleAuthResult(authResult) {
+  if (!authResult.error) {
+    loadCalendarApi();
+  } else {
+    console.error(authResult);
+  }
+}
+
+function loadCalendarApi() {
+  gapi.client.load('calendar', 'v3', listUpcomingEvents);
+}
+
+/**
+ * Print the summary and start datetime/date of the next ten events in
+ * the authorized user's calendar. If no events are found an
+ * appropriate message is printed.
+ */
+function listUpcomingEvents() {
+  var timeMin = new Date('{{date}}');
+  var timeMax = new Date('{{date}}');
+  timeMax.setDate(timeMax.getDate() + 1);
+  var calendarIds = [
+    'en.usa#holiday@group.v.calendar.google.com',
+    'en.indian#holiday@group.v.calendar.google.com',
+    'en.uk#holiday@group.v.calendar.google.com'
+  ];
+
+  var request = null;
+  calendarIds.map(function(calendarId) {
+    request = gapi.client.calendar.events.list({
+      'calendarId': calendarId,
+      'timeMin': timeMin.toISOString(),
+      'timeMax': timeMax.toISOString(),
+      'showDeleted': false,
+      'singleEvents': true,
+      'maxResults': 1,
+      'orderBy': 'startTime'
+    });
+
+    request.execute(function(resp) {
+      var events = resp.items;
+
+      if (events.length > 0) {
+        for (i = 0; i < events.length; i++) {
+          var event = events[i];
+          var when = event.start.dateTime;
+          if (!when) {
+            when = event.start.date;
+          }
+          $(".date .holiday").append('<span>'+event.summary+';</span>');
+        }
+      }
+    });
+  });
+}
+
+$("#save_menu_plan").click(function() {
+  var menu_plan_data = [];
+  $("#item_table tbody tr").each(function(index) {
+    // not calculating the last row
+    if ($(this).hasClass("last_row")) {
+      return;
+    }
+    var food_item_id = $(this).find(".food_item_selector").val();
+    var qty = $(this).find(".qty").val();
+    if (food_item_id == "-" || qty == "") {
+      return;
+    }
+
+    menu_plan_data.push({food_item_id: food_item_id, qty: qty});
+  });
+
+  $.ajax({
+    type: 'POST',
+    url: '/menu_planning/menu_plan/{{menu_band_id}}',
+    data: JSON.stringify({"menu_plan_data": menu_plan_data,
+      "targetDate": "{{date}}"}),
+    success: function(data) {
+      console.log(data);
+      // going to the original menu planning page
+      location.pathname = "/menu_planning/1";
+     },
+    error: function(jqxhr, textStatus, error) {
+      var err_msg = textStatus + ", " + jqxhr.responseText;
+      console.error("Saving menu plan failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+  });
+});
+
+$('#restaurants').highcharts(getMapDefault('restaurants'));
+$('#cuisines').highcharts(getMapDefault('cuisines'));
+$('#veg-non_veg').highcharts(getMapDefault('veg-nonveg-special'));
+
+updateMaps();
+getRecentData();
+get4weekData();
+getLastYrData();
+{{/yield-scripts}}
+

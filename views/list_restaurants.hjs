@@ -1,0 +1,53 @@
+{{#yield-body}}
+
+{{#restaurant_created}}
+<div class="row">
+<div data-alert class="alert-box success round">Successfully created a restaurant <a href="#" class="close">&times;</a>
+</div>
+</div>
+{{/restaurant_created}}
+
+{{#restaurant_updated}}
+<div class="row">
+<div data-alert class="alert-box success round">Successfully updated a restaurant <a href="#" class="close">&times;</a>
+</div>
+</div>
+{{/restaurant_updated}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+    <ul class="side-nav">
+      <li><a href="/restaurant/create">Create restaurant</a></li>
+    </ul>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Restaurant list</h5>
+    <table id="restaurants">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th width="200">Address</th>
+          <th width="150">Contact name</th>
+          <th width="150">Phone no.</th>
+          <th width="150">ST no.</th>
+          <th width="150">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#restaurants}}
+        <tr>
+          <td><a href="/restaurant/get/{{id}}">{{name}}</a></td>
+          <td>{{address}}</td>
+          <td>{{contact_name}}</td>
+          <td>{{phone_no}}</td>
+          <td>{{st_no}}</td>
+          <td><a href="/restaurant/update/{{id}}">Update</a></td>
+        </tr>
+        {{/restaurants}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{/yield-body}}

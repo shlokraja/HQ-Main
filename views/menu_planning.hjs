@@ -1,0 +1,127 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+<ul class="side-nav">
+</ul>
+</aside>
+
+<div class="large-9 columns" role="content">
+  Outlet - <select id="outlet_selector">
+  {{#outlets}}
+    <option value="{{id}}">{{name}}</option>
+  {{/outlets}}
+  </select>
+
+  <div id="menu_plans_div">
+  <table id="menu_plans">
+  <thead>
+  <tr>
+  <th>Date</th>
+  <th>Menu band</th>
+  <th>Status</th>
+  </tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+  </table>
+  </div>
+  <br />
+  <button class="send_plans button success small">Send Saved Plans</button>
+  <div class="note">No plans are sent until you click the send saved plans button</div>
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+#menu_plans_div {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.send_plans {
+  float: right;
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  color: black !important;
+  background-color: transparent !important;
+  margin-right:221px;
+}
+.send_plans:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+.note {
+  clear: both;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+#outlet_selector {
+  display: block;
+  width: 500px;
+}
+
+#menu_plans_div {
+  width: 500px;
+}
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+function getMenuPlans(outlet_id) {
+  $.get('/menu_planning/menu_plans/' + outlet_id)
+  .done(function(data) {
+    var targetDiv = $("#menu_plans tbody");
+    $(targetDiv).empty();
+    // Add the rows in the table
+    data.map(function(item) {
+      var statusText = item["status"];
+      if (item["status"] == "pending") {
+        statusText = "<a href=\"/menu_planning/compute_plan/"+item["id"]+"?date="+item["date"]+"\">pending</a>"
+      }
+      $(targetDiv).append('<tr><td>'+ getFriendlyDate(item["date"])+'</td><td>'+item["name"]+'</td><td>'+statusText+'</td></tr>');
+    });
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function getFriendlyDate(time) {
+  var date_obj = new Date(time);
+  var date = date_obj.toDateString().substring(0,date_obj.toDateString().length-5);
+  return date;
+}
+
+$(".send_plans").click(function(ev) {
+  $.ajax({
+    type: 'POST',
+    url: '/menu_planning/send_plans/',
+    success: function(data) {
+      console.log(data);
+      location.reload(true);
+     },
+    error: function(jqxhr, textStatus, error) {
+      var err_msg = textStatus + ", " + jqxhr.responseText;
+      console.error("Saving issue failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+  });
+});
+
+$("#outlet_selector").val('{{outlet_id}}');
+getMenuPlans('{{outlet_id}}');
+
+// Changing the data set on outlet change
+$("#outlet_selector").change(function() {
+  getMenuPlans($(this).val());
+});
+
+{{/yield-scripts}}
+

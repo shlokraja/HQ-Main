@@ -1,0 +1,88 @@
+{{#yield-body}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+  </aside>
+
+  <div class="large-9 columns" role="content">
+    <h5>Enter times with their images</h5>
+    <a id="add_row" href="#">Add slot</a>
+
+    <div id="main_section" class="content">
+    <div class="row">
+      <div class="small-2 columns">
+        <label class="right inline">Start of Day</label>
+      </div>
+      <div class="small-2 columns">
+        <input type="text" class="start_time" name="start_time" placeholder="HH:mm"/>
+      </div>
+      <div class="small-2 columns">
+        <label class="right inline">End of Day</label>
+      </div>
+      <div class="small-2 columns">
+        <input type="text" class="end_time" name="end_time" placeholder="HH:mm"/>
+      </div>
+      <div class="small-2 columns">
+        <label class="right inline">Slot name</label>
+      </div>
+      <div class="small-2 columns">
+        <input type="text" class="slot_name" name="slot_name" />
+      </div>
+    </div>
+    </div>
+    <input type="submit" id="submit_special_timings" value="Create" class="button success round small" />
+  </div>
+</div>
+{{/yield-body}}
+
+
+{{#yield-scripts}}
+  $("#submit_special_timings").click(function(){
+    // iterate through array
+    // put start_time, end_time and slot_name into each element
+    // post
+    var data = [];
+    var form_incomplete = false;
+    var time_regex = /^([01]\d|2[0-3]):?([0-5]\d)$/g;
+    $("#main_section").children().each(function(){
+      var start_time = $(this).find(".start_time").first().val();
+      var end_time = $(this).find(".end_time").first().val();
+      var slot_name = $(this).find(".slot_name").first().val();
+      if (!start_time.match(time_regex) || !start_time.match(time_regex)) {
+        alert('The times entered are not in proper format. Please enter in HH:mm format');
+        form_incomplete = true;
+      }
+      if(start_time == "" || end_time == "" || slot_name == "") {
+        alert('Please fill all the fields before proceeding.');
+        form_incomplete = true;
+      }
+      data.push(start_time+','+end_time+','+slot_name);
+    });
+    if (form_incomplete) {
+      return false;
+    }
+    var form = $("<form></form>");
+    form.attr("method", "post");
+    form.attr("action", "/outlet/special_timings_page/{{outlet_id}}");
+
+    form.append(createHiddenElement("data",data.join(';')));
+
+    $(document.body).append(form);
+    form.submit();
+  });
+
+  $("#add_row").click(function() {
+    $("#main_section").append($($("#main_section .row")[0]).clone());
+  });
+
+  function createHiddenElement(name, value) {
+
+    var hiddenField = document.createElement("input");
+    hiddenField.setAttribute("type", "hidden");
+    hiddenField.setAttribute("name", name);
+    hiddenField.setAttribute("value", value);
+
+    return hiddenField;
+  }
+{{/yield-scripts}}

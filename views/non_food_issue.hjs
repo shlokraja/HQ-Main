@@ -1,0 +1,117 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+<ul class="side-nav">
+  <li><a href="/issue_tracker">Sort Issues</a></li>
+  <li><a href="/issue_tracker/non_food_issue">Create Non-food Issue</a></li>
+  <li><a href="/issue_tracker/act_issue">Act on Issues</a></li>
+</ul>
+</aside>
+
+<div class="large-9 columns" role="content">
+<div id="non_food_issue">
+  Select outlet
+  <select class="outlet_id">
+  {{#outlets}}
+  <option value={{id}}>{{name}}</option>
+  {{/outlets}}
+  </select>
+  Date and Time of incident
+  <input type="text" class="datetimepicker" />
+  Reporter
+  <input type="text" class="reporter" placeholder="Enter name of person" />
+  Select Issue Category
+  <select class="category form-control"></select>
+  <span>Note</span><textarea class="form-control" rows="10"></textarea>
+  <button onClick="saveIssue();" class="save_issue small success">Add</button>
+</div>
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+.save_issue {
+  float:right;
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  color: black !important;
+  background-color: transparent !important;
+}
+
+.save_issue:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+{{/yield-styles}}
+
+{{#yield-scripts}}
+// Setting the datetime picker
+$("#non_food_issue .datetimepicker").datetimepicker();
+
+// Getting the non-food types
+$.get('/outlet/non_food_types', {dataType: 'html'})
+.done(function(data) {
+  data = data.replace(/"/g,'');
+  var non_food_issue_types = (data.substr(1,data.length-2)).split(',');
+  // populating the non-food issues area
+  $("#non_food_issue textarea").val("");
+  targetDiv = $("#non_food_issue .category");
+  $(targetDiv).empty();
+  // creating the categories and subcategories first
+  var non_food_categories = {};
+  for (var i = 0; i < non_food_issue_types.length; i++) {
+    var main_category = non_food_issue_types[i].split(':')[0];
+    var sub_category = non_food_issue_types[i].split(':')[1];
+    if (non_food_categories.hasOwnProperty(main_category)) {
+      non_food_categories[main_category].push(sub_category);
+    } else {
+      non_food_categories[main_category] = [sub_category];
+    }
+  }
+  // Adding them to the dropdown
+  for (var key in non_food_categories) {
+    var text = '<optgroup label="'+key+'">';
+    for (var i = 0; i < non_food_categories[key].length; i++) {
+      text += '<option>'+non_food_categories[key][i]+'</option>';
+    }
+    text += '</optgroup>';
+    $(targetDiv).append(text);
+  }
+})
+.fail(function(jqxhr, textStatus, error) {
+  var err_msg = textStatus + ", " + jqxhr.responseText;
+  console.error("Request Failed: " + err_msg);
+});
+
+function saveIssue() {
+ var non_food_issue_subtype = $("#non_food_issue .category").val();
+ var non_food_parent_category = $("#non_food_issue .category :selected").parent().attr('label');
+ var type = non_food_parent_category+':'+non_food_issue_subtype;
+ var note = $("#non_food_issue textarea").val();
+ var outlet_id = $("#non_food_issue .outlet_id").val();
+ var reporter = $("#non_food_issue .reporter").val();
+ var datetime = $("#non_food_issue .datetimepicker").val();
+ $.ajax({
+    type: 'POST',
+    url: '/issue_tracker/non_food_issue/',
+    data: JSON.stringify({"outlet_id": outlet_id,
+      "type": type,
+      "note": note,
+      "reporter": reporter,
+      "datetime": datetime}),
+    success: function(data) {
+      console.log(data);
+      $("#non_food_issue").append("<div>Successfully added the issue</div>")
+     },
+    error: function(jqxhr, textStatus, error) {
+      var err_msg = textStatus + ", " + jqxhr.responseText;
+      console.error("Saving issue failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+  });
+}
+{{/yield-scripts}}
+

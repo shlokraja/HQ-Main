@@ -1,0 +1,39 @@
+{{#yield-body}}
+
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+    <ul class="side-nav">
+      <li><a href="/food_item/create">Create food item</a></li>
+    </ul>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Food item list</h5>
+    <table id="food_items">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th width="200">Restaurant ID</th>
+          <th width="150">Expiry time</th>
+          <th width="150">Veg</th>
+          <th width="150">Location</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#food_items}}
+        <tr>
+          <td>{{name}}</td>
+          <td>{{restaurant_id}}</td>
+          <td>{{expiry_time}}</td>
+          <td>{{veg}}</td>
+          <td>{{location}}</td>
+          <td><a href="/food_item/update/{{id}}">Update</a></td>
+        </tr>
+        {{/food_items}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{/yield-body}}

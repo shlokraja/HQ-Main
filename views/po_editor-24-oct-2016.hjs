@@ -1,0 +1,197 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+</aside>
+
+{{#checkPOExists}}
+  <div>PO is already created for this</div>
+{{/checkPOExists}}
+
+<div id="po_editor_div" class="large-9 columns" role="content">
+  <div id="header"> {{header_data.outlet_name}} | {{header_data.restaurant_name}}</div>
+  <table id="po_editor">
+  <thead>
+  <tr>
+  <th>Id</th>
+  <th>Name</th>
+  <th>Qty</th>
+  </tr>
+  </thead>
+  <tbody>
+  {{#data}}
+    <tr>
+      <td class="food_item_id" data-id="{{food_item_id}}" >{{master_id}}</td>
+      <td>{{name}}</td>
+      <td><input class="qty" type="number" value={{quantity}} min=0 /></td>
+      <td><img class="remove_item" src="/img/Stop.png" /></td>
+    </tr>
+  {{/data}}
+  </tbody>
+  </table>
+  <img id="add_row" src="/img/Add Item.png">
+  <br />
+  <div id="err_msg"></div>
+  <button id="save_po" class="button small success">Save</button>
+</div>
+
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+.remove_item {
+  height: 20px;
+  cursor: pointer;
+}
+
+#err_msg {
+  color: red;
+}
+
+.label_marker {
+  display: inline-block;
+  font-weight: bold;
+}
+
+.qty {
+  width:60px !important;
+}
+
+#save_po {
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  background-color: transparent !important;
+  color: black !important;
+  margin: 0 auto;
+  display: block;
+}
+
+#add_row {
+  height: 20px;
+  margin: 0 auto;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+{{#checkPOExists}}
+  $("#po_editor_div").remove();
+{{/checkPOExists}}
+
+console.log("po exists- {{checkPOExists}}");
+
+var selectDropDown = "<select class=\"food_item_selector\">";
+selectDropDown += "<option>-</option>";
+{{#food_items}}
+selectDropDown += "<option value='{{master_id}}' data-id='{{id}}'>{{name}}</option>";
+{{/food_items}}
+selectDropDown += "</select>";
+
+function isChrome() {
+  var isChromium = window.chrome,
+      vendorName = window.navigator.vendor,
+      isOpera = window.navigator.userAgent.indexOf("OPR") > -1,
+      isIEedge = window.navigator.userAgent.indexOf("Edge") > -1;
+  if(isChromium !== null && isChromium !== undefined && vendorName === "Google Inc." && isOpera == false && isIEedge == false) {
+     return true;
+  } else {
+     // not Google chrome
+     return false;
+  }
+}
+
+var ts = '{{target_ts}}';
+if (isChrome()) {
+  var dateObj = new Date(ts);
+  $("#header").append(" | " + dateObj.toLocaleString());
+} else {
+  var dateObj = new Date(ts.split(' ')[0]);
+  $("#header").append(" | " + dateObj.toDateString());
+}
+
+$("#save_po").click(function() {
+  // Get the data from the table
+  var data = [];
+  var bad_data = false;
+  $("#po_editor tbody tr").each(function() {
+    var food_item_id = parseInt($(this).find(".food_item_id").attr("data-id"));
+    var qty = parseInt($(this).find(".qty").val());
+    if (qty < 0) {
+      $("#err_msg").text("Quantity cannot be less than 0");
+      bad_data = true;
+      return;
+    }
+    if (qty > 0) {
+      data.push({
+        food_item_id: food_item_id,
+        qty: qty
+      });
+    }
+  });
+
+  if (bad_data) {
+    return;
+  }
+
+  $.ajax({
+     type: 'POST',
+     url: '/po_editor/',
+     data: JSON.stringify({"data": data,
+       "outlet_id": {{outlet_id}},
+       "restaurant_id": {{restaurant_id}},
+       "menu_band_id": {{menu_band_id}},
+       "target_ts": '{{target_ts}}' }),
+     success: function(data) {
+       $("#po_editor_div").append("<div>Succcesfully created the PO</div>");
+       var menu_band_value = getParameterByName("menu_band_id");
+       if (menu_band_value == "-1") {
+         location.href = location.origin + "/emergency_po";
+       } else {
+         location.href = location.origin + "/menu_planning/1";
+       }
+     },
+     error: function(jqxhr, textStatus, error) {
+       var err_msg = textStatus + ", " + jqxhr.responseText;
+       console.error("Updating tags failed: " + err_msg);
+     },
+     contentType: "application/json",
+     dataType: 'text'
+   });
+
+});
+
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+$("#po_editor_div").on("click", ".remove_item", function(item) {
+  $(this).parent().parent().remove();
+});
+
+// Adding a new row
+$("#add_row").click(function() {
+  //while adding, remove the items from the drop down which are already present
+  var jqDropDown = $(selectDropDown);
+  $("#po_editor tbody tr").map(function(item) {
+    var master_id = $(this).find(".food_item_id").text();
+    $(jqDropDown).find("option[value="+master_id+"]").remove();
+  });
+  $("#po_editor tbody").append("<tr><td class=\"food_item_id\"></td><td>"+jqDropDown[0].outerHTML+"</td><td><input class=\"qty\" type=\"number\" min=0 /></td><td><img class=\"remove_item\" src=\"/img/Stop.png\" /></td></tr>");
+});
+
+// Changing the food item id with the item name drop down change
+$("#po_editor").on("change", "tbody .food_item_selector", function(item) {
+  var master_id = $(this).val();
+  var food_item_id = $('option:selected', this).attr('data-id');
+  // Setting the value of food item id
+  $(this).parent().parent().find(".food_item_id").text(master_id);
+  $(this).parent().parent().find(".food_item_id").attr("data-id", food_item_id);
+});
+{{/yield-scripts}}
+

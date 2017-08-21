@@ -1,0 +1,458 @@
+{{#yield-body}}
+
+<div class="row">
+    <aside class="large-4 columns"></aside>
+    <div id="err_daterange"></div>
+    <br />
+    <div id="po_editor_div" class="small-6 large-6 columns" role="content">
+        <b>Creating Volume Plan</b> <br /><br />
+
+        <span class="formlabel">City</span>
+        <select id="city_id">
+            <option value="0">All</option>
+            {{#city}}
+            <option value={{short_name}}>{{name}}</option>
+            {{/city}}
+        </select>
+        <span class="formlabel">Outlet</span>
+        <select id="outlet_id" name="outlet">
+            <option value="0">All</option>
+            {{#outlets}}
+            <option value={{id}}>{{name}}</option>
+            {{/outlets}}
+        </select>
+        <span class="formlabel">Restaurant</span>
+        <select id="restaurant_id" name="restaurant">
+            <option value="0">All</option>
+            {{#fvs}}
+            <option value={{id}}>{{name}}</option>
+            {{/fvs}}
+        </select>
+        <span class="formlabel">Session</span>
+        <select id="session_id" name="sessionname">
+            <option value="0">All</option>
+            {{#session}}
+            <option value={{name}}>{{name}}</option>
+            {{/session}}
+        </select>
+        <div id="err_msg"></div>
+        <div id="from_date">
+            <span class="formlabel">From Date</span>
+            <input type="text" id="from" />
+        </div>
+        <div id="err_msg1"></div>
+        <div id="to_date">
+            <span class="formlabel">To Date</span>
+            <input type="text" id="to" />
+        </div>
+        <br />
+        <div class="selector">
+            <button id="create_po" type="submit" class="small secondary">Generate Volume Plan</button>
+        </div>
+        <div class="selector po_status_btn">
+            <button id="po_status" class="small secondary">Check PO Status</button>
+        </div>
+        <br />
+        <br />
+    </div>
+</div>
+{{/yield-body}}
+{{#yield-styles}}
+#po_editor_div select, #po_editor_div input {
+    height:auto;
+    padding:0.5em;
+}
+.formlabel {
+font-size:14px;
+margin-bottom:8px;
+    display:block;
+}
+#logout {
+    float: right;
+}
+
+.remove_item {
+    height: 20px;
+    cursor: pointer;
+}
+
+.label_marker {
+    display: inline-block;
+  font-weight: bold;
+}
+
+#output_div {
+    overflow: auto;
+}
+.selector {
+    display: inline-block;
+  margin-right: 25px;
+}
+
+#err_msg {
+    color: red;
+}
+
+#err_msg1 {
+    color: red;
+
+}
+#err_daterange {
+    color: red;
+}
+#create_po {
+  box-shadow: none;
+    transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: capitalize;
+  background-color: #008cba !important;
+    color: #ffffff !important;
+    margin: 0 auto;
+    display: block;
+    font-size: 0.85em;
+    padding: 0.85em 1.5em;
+}
+
+#create_po:hover {
+  background-color: #086e90 !important;
+    color: #ffffff !important;
+    cursor:pointer;
+}
+
+#po_status{
+    box-shadow: none;
+    transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: capitalize;
+  background-color: #008cba !important;
+    color: #ffffff !important;
+    margin: 0 auto;
+    display: block;
+    font-size: 0.85em;
+    padding: 0.85em 1.5em;
+}
+
+#po_status:hover {
+  background-color: #086e90 !important;
+    color: #ffffff !important;
+    cursor:pointer;
+}
+
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+$.blockUI({ message: '<h2>Just a moment...</h2>' });
+$.unblockUI();
+  $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+
+ $(function() {
+
+           $( "#from" ).datepicker({
+	                 dateFormat: "yy-mm-dd",
+			             minDate: new Date()
+				                 });
+		    $( "#to" ).datepicker({
+             dateFormat: "yy-mm-dd",
+            minDate: new Date()
+
+            });
+
+         });
+
+         
+
+fv_outlet_combos = [];
+{{#food_items}}
+fv_outlet_combos.push({
+    outlet_id: {{outlet_id}},
+    restaurant_id: {{restaurant_id}}
+});
+{{/food_items}}
+session_perout = [];
+{{#session}}
+  session_perout.push({
+    outlet_id: {{outlet_id}},
+    id: {{id}}
+});
+{{/session}}
+all_city = [];
+{{#outlets}}
+all_city.push({
+    city_id:'{{city}}',
+    id: {{id}},
+    name:'{{name}}'
+});
+{{/outlets}}
+all_rest = [];
+{{#restaurants}}
+all_rest.push({
+    city_id:'{{city}}',
+    outlet_id:{{outlet_id}},
+    restaurant_id:{{restaurant_id}}
+});
+{{/restaurants}}
+
+var all_ots = {};
+{{#outlets}}
+all_ots['{{id}}'] = '{{name}}';
+
+{{/outlets}}
+var all_sess = {};
+{{#session}}
+  all_sess[{{id}}] = '{{name}}';
+{{/session}}
+var all_fvs = {};
+{{#fvs}}
+  all_fvs[{{id}}] = '{{name}}';
+{{/fvs}}
+$("#city_id").change(function() {
+
+var selected_id = $(this).val();
+
+if(selected_id == "0")
+{
+$("#outlet_id").empty();
+$("#outlet_id").append("<option value='0'>All</option>");
+all_rest.map(function(item) {
+$("#outlet_id").append("<option value='"+item.outlet_id+"'>"+all_ots[item.outlet_id]+"</option>");
+
+});
+var code = {};
+$("select[id='outlet_id'] > option").each(function () {
+    if(code[this.text]) {
+        $(this).remove();
+} else {
+        code[this.text] = this.value;
+}
+});
+
+$("restaurant_id").empty();
+$("#restaurant_id").append("<option value='0'>All</option>");
+all_rest.map(function(item) {
+$("#restaurant_id").append("<option value='"+item.restaurant_id+"'>"+all_fvs[item.restaurant_id]+"</option>");
+
+});
+
+var code = {};
+$("select[id='restaurant_id'] > option").each(function () {
+    if(code[this.text]) {
+        $(this).remove();
+} else {
+        code[this.text] = this.value;
+}
+});
+
+$("#session_id").empty();
+   $("#session_id").append("<option value='0'>All</option>");
+  session_perout.map(function(sessout) {
+  $("#session_id").append("<option value='"+sessout.name+"'>"+all_sess[sessout.id]+"</option>")
+
+});
+
+var code_sess = {};
+$("select[name='sessionname'] > option").each(function () {
+    if(code_sess[this.text]) {
+        $(this).remove();
+} else {
+        code_sess[this.text] = this.value;
+}
+});
+
+
+}
+
+else {
+
+var selected_id = $(this).val();
+$("#outlet_id").empty();
+$("#outlet_id").append("<option value='0'>All</option>");
+all_city.map(function(item) {
+
+if(item.city_id == selected_id) {
+
+$("#outlet_id").append("<option value='"+item.id+"'>"+all_ots[item.id]+"</option>");
+    }
+
+    });
+
+    $("#restaurant_id").empty();
+    $("#restaurant_id").append("<option value='0'>All</option>");
+    all_rest.map(function(item) {
+
+    if(item.city_id == selected_id) {
+
+$("#restaurant_id").append("<option value='"+item.restaurant_id+"'>"+all_fvs[item.restaurant_id]+"</option>");
+    }
+    });
+
+    var code = {};
+    $("select[id='restaurant_id'] > option").each(function () {
+    if(code[this.text]) {
+    $(this).remove();
+    } else {
+    code[this.text] = this.value;
+    }
+    });
+
+    }
+
+    });
+
+
+    $("#outlet_id").change(function() {
+
+
+    var selected_id = $(this).val();
+    if(selected_id == "0")
+    {
+
+    $("#restaurant_id").empty();
+    $("#restaurant_id").append("<option value='0'>All</option>");
+  fv_outlet_combos.map(function(item) {
+
+ $("#restaurant_id").append("<option value='"+item.restaurant_id+"'>"+all_fvs[item.restaurant_id]+"</option>");
+
+});
+
+var code = {};
+$("select[name='restaurant'] > option").each(function () {
+    if(code[this.text]) {
+        $(this).remove();
+} else {
+        code[this.text] = this.value;
+}
+});
+
+}
+else
+{
+var selected_id = $(this).val();
+  $("#restaurant_id").empty();
+   $("#restaurant_id").append("<option value='0'>All</option>");
+  fv_outlet_combos.map(function(item) {
+
+    if (item.outlet_id == selected_id) {
+      $("#restaurant_id").append("<option value='"+item.restaurant_id+"'>"+all_fvs[item.restaurant_id]+"</option>");
+}
+
+
+});
+
+}
+  var selected_id = $(outlet_id).val();
+
+  if(selected_id == "0")
+{
+ $("#session_id").empty();
+   $("#session_id").append("<option value='0'>All</option>");
+  session_perout.map(function(sessout) {
+  $("#session_id").append("<option value='"+sessout.name+"'>"+all_sess[sessout.id]+"</option>")
+
+});
+
+var code_sess = {};
+$("select[name='sessionname'] > option").each(function () {
+    if(code_sess[this.text]) {
+        $(this).remove();
+} else {
+        code_sess[this.text] = this.value;
+}
+});
+
+}
+else
+{
+var selected_id = $(outlet_id).val();
+  $("#session_id").empty();
+   $("#session_id").append("<option value='0'>All</option>");
+  session_perout.map(function(sessout) {
+  if(sessout.outlet_id == selected_id)  {
+
+  $("#session_id").append("<option value='"+sessout.name+"'>"+all_sess[sessout.id]+"</option>");
+}
+
+});
+
+}
+
+});
+
+$("#outlet_id").trigger("change");
+$("#city_id").trigger("change");
+
+$("#create_po").click(function() {
+if((document.getElementById("from").value == "") && (document.getElementById("to").value == ""))
+{
+$("#err_msg").text("Please select From date");
+$("#err_msg1").text("Please select To date");
+
+}
+else{
+$("#err_msg").text("");
+$("#err_msg1").text("");
+
+}
+
+if(document.getElementById("from").value == "")
+{
+$("#err_msg").text("Please select From date");
+return;
+}
+else{
+$("#err_msg").text("");
+}
+if(document.getElementById("to").value == "")
+{
+$("#err_msg1").text("Please select To date");
+return;
+}
+else {
+$("#err_msg1").text("");
+}
+
+var from_date = $("#from_date .datetimepicker").val();
+  var to_date = $("#to_date .datetimepicker").val();
+
+if(from_date > to_date)
+{
+$("#err_daterange").text("selected from and to date Ranges are not valid");
+return;
+
+}
+else{
+$("#err_daterange").text("");
+
+}
+ var outlet_id = $("#outlet_id").val();
+  var restaurant_id = $("#restaurant_id").val();
+
+  var from_date = $("#from").val();
+  var to_date = $("#to").val();
+
+var e = document.getElementById("session_id");
+var session_id = e.options[e.selectedIndex].text;
+
+var city_id = $("#city_id").val();
+
+   location.href = location.origin + "/volume_plan_creation?outlet_id=" +
+            outlet_id + "&restaurant_id=" + restaurant_id + "&session_id=" + session_id + "&city_id=" + city_id + "&from=" + from_date + "&to=" + to_date;
+
+});
+
+$(".datetimepicker").on("keypress", function(){
+                     return false;
+});
+$(document).ready(function ()
+    {
+    $('#from').attr("readonly","true");
+    $('#to').attr("readonly","true");
+});
+
+$("#po_status").click(function() {
+
+     location.href = "/po_status";
+     return false;
+});
+
+
+{{/yield-scripts}}

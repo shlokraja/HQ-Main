@@ -1,0 +1,68 @@
+{{#yield-body}}
+<div class="row">
+    <div id="err_daterange"></div>
+    <br />
+
+    <div id="po_preview_div" data-table_source={{table_source}} data-date={{date}} data-city={{city}} class="small-6 large-6 columns" role="content">
+
+        <br />
+        <div id="div_data"></div>
+        <div class="large-12" id="div_actual_data"></div>
+        <button id="btn_back" class="button small info btn-customised">Back</button>
+        <a href="#" id="btn_edit_preview" class="button small info btn-customised">Edit Preview</a>
+    </div>
+</div>
+{{/yield-body}}
+{{#yield-styles}}
+
+    #saveas {
+    float: left;
+    }
+    #template {
+    float: right;
+    }
+    #err_msg {
+    color: red;
+    }
+    .selector {
+    display: inline-block;
+    margin-right: 25px;
+    }
+
+    #err_msg {
+    color: red;
+    }
+
+    #err_upload{
+    color: red;
+    }
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+    $(document).ready(function(){
+
+    var decoded = $("<textarea />").html("{{preview_data}}").text();
+    $('#div_actual_data').html(decoded)
+    var source= "{{table_source}}";
+    if(source!='volume_plan_automation_temp')
+    {
+    $('#btn_edit_preview').hide();
+    $('<p>Volume plan for {{city_fullname}} on {{date}}</p>').appendTo('#div_data');
+    }else{
+    $('#btn_edit_preview').show();
+    }
+
+    var city = "{{city}}";
+    var date ="{{date}}";
+    var table_source="{{table_source}}"
+    var EditScreenLink = '/volume_planning/edit?city=' + city + '&date=' + date+ '&source=' + table_source;
+    $("#btn_edit_preview").attr('href',EditScreenLink);
+
+    })
+    $("#btn_back").click(function(){    
+    history.back();
+    return false;
+    })
+
+{{/yield-scripts}}

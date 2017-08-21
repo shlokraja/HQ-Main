@@ -1,0 +1,130 @@
+{{#yield-body}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+    <a href="/outlet/special_timings_page/{{outlet.id}}">Set special timing slots</a>
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Outlet Details</h5>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Name
+        </div>
+        <div class="small-9 columns">
+          {{outlet.name}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Address
+        </div>
+        <div class="small-9 columns">
+        {{outlet.address}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Start of day
+        </div>
+        <div class="small-9 columns">
+          {{outlet.start_of_day}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          End of day
+        </div>
+        <div class="small-9 columns">
+          {{outlet.end_of_day}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          # ordering screens
+        </div>
+        <div class="small-9 columns">
+          {{outlet.num_ordering_screens}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          # live ordering screens
+        </div>
+        <div class="small-9 columns">
+          {{outlet.num_live_ordering_screens}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Payment methods
+        </div>
+        <div class="small-9 columns" id="payment_methods">
+          {{outlet.payment_methods}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Active
+        </div>
+        <div class="small-9 columns">
+          {{outlet.active}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Force print bill
+        </div>
+        <div class="small-9 columns">
+          {{outlet.force_print_bill}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          Is 24 hr outlet
+        </div>
+        <div class="small-9 columns">
+          {{outlet.is24hr}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">
+          City Code
+        </div>
+        <div class="small-9 columns">
+          {{outlet.city}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{/yield-body}}
+
+
+{{#yield-scripts}}
+  // Stripping the 1st and last character as they come up { }
+  payment_methods = $("#payment_methods").text().trim();
+  payment_methods = payment_methods.substring(1,payment_methods.length-1);
+  $("#payment_methods").text(payment_methods);
+{{/yield-scripts}}

@@ -1,0 +1,186 @@
+{{#yield-loginlogout}}
+<a id="logout" href="/logout">Logout</a>
+<span class="menu">|</span>
+<a id="accounts" href="/accounts">Home</a>
+{{/yield-loginlogout}}
+{{#yield-body}}
+
+<section class="content">
+    <input type="hidden" value="{{user}}" id="usertype" />
+    <div class="row">
+        <div class="large-12 columns" id="reports_div">
+            <div class="row">
+                <div class="large-4 small-6 columns">
+                    <label>Year</label>
+                    <select id="year_id"></select>
+                    <div class="error" id="year_msg"></div>
+                </div>
+                <div class="large-4 small-6 columns">
+                    <label>Month</label>
+                    <select id="month_id"></select>
+                    <div class="error" id="month_msg"></div>
+                </div>
+
+                <div class="large-4 small-6 columns">
+                    <label>Restaurant</label>
+                    <select id="restaurant_id" name="restaurant">
+                        {{#restaurants}}
+                        <option value={{id}}>{{name}}</option>
+                        {{/restaurants}}
+                    </select>
+                    <div class="error" id="res_msg"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-12 columns">
+                    <a id="get_invoice" name="Generate Invoice" class="medium button general-button btn-customised">Generate Invoice</a>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+
+{{/yield-body}}
+{{#yield-styles}}
+#invoice{
+background-color: #231f20;
+color:#fff !important;
+}
+.menu
+{
+float: right;
+margin-left: 10px;
+margin-right: 10px;
+}
+#accounts
+{
+padding-left: 20px;
+float:right;
+}
+.left
+{
+float:left;
+}
+.right
+{
+float:right;
+margin-right: 17px;
+}
+.full-width
+{
+width:100%;
+}
+#logout {
+    float: right;
+}
+.error{
+    color: red;
+    }
+.show{
+display:block;
+}
+.hide{
+display:none;
+}
+#saveas {
+  float: right;
+  margin-left: 30px;
+}
+
+{{/yield-styles}}
+
+
+{{#yield-scripts}}
+
+    $.blockUI({ message: '<h2>Just a moment...</h2>' });
+    $.unblockUI();
+    $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+
+    var min = new Date().getFullYear(),
+        max = min,
+        select = document.getElementById('year_id');
+
+    for (var i = min-1; i<=max; i++){
+        //Validation to retrieve data after October 2016
+        if (Number(i) >= 2016) {
+            var opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = i;
+            select.appendChild(opt);
+        }
+    }
+    loadMonth();
+    $("#year_id").change(function() {
+        document.getElementById("month_id").innerHTML = '';
+        loadMonth();
+    });
+    $("#get_invoice").click(function() {
+        var month_id = $("#month_id").val();
+        var year_id = $("#year_id").val();
+        var restaurant_id = $("#restaurant_id").val();
+        if((document.getElementById("month_id").value == "0") && (document.getElementById("year_id").value == "0") && (document.getElementById("restaurant_id").value == "0"))
+        {
+            $("#month_msg").text("Please select month");
+            $("#year_msg").text("Please select year");
+            $("#res_msg").text("Please select restaurant");
+            return;
+        }
+        else{
+            $("#month_msg").text("");
+            $("#year_msg").text("");
+            $("#res_msg").text("");
+        }
+        var url='/invoice/get_invoice_details?month_id=' + month_id+ '&year_id=' + year_id+ '&restaurant_id=' + restaurant_id;
+        $("#get_invoice").attr('href', url);
+        console.log(url);
+        $.get(url)
+          .done(function(data) {
+              console.log(data);
+              //alert(data);
+          })
+            .fail(function(jqxhr, textStatus, error) {
+                var err_msg = textStatus + ", " + jqxhr.responseText;
+                console.error("Request Failed: " + err_msg);
+            });
+    });
+
+    function loadMonth() {
+        var year_id = $("#year_id").val();
+        var current_month = new Date().getMonth();
+        var current_year = new Date().getFullYear();
+        var month = document.getElementById('month_id');
+
+        var month_count = 12;
+
+        if (year_id == current_year) {
+            month_count = current_month;
+        }
+        for (iIndex = 0; iIndex <= month_count; iIndex++) {
+            var iIndex, sMonth;
+            sMonth = moment.localeData().months(moment([0, iIndex]), "");
+            var opt = document.createElement('option');
+            var value = iIndex + 1;
+            var month_value = value < 10 ? '0' + value : value;
+            //Validation to retrieve data after October 2016
+
+            if (Number(year_id) == 2016 && Number(month_value) <= 12) {
+                if (Number(month_value) >= 10) {
+                    opt.value = month_value;
+                    opt.innerHTML = sMonth;
+                    month.appendChild(opt);
+                }
+            }
+            else if (Number(year_id) > 2016 && Number(month_value) <= 12) {
+                opt.value = month_value;
+                opt.innerHTML = sMonth;
+                month.appendChild(opt);
+            }
+
+        }
+    }
+
+{{/yield-scripts}}

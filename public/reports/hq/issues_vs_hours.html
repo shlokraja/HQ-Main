@@ -1,0 +1,87 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+  <style>
+    #Main {
+      vertical-align: top;
+      font-size: 15px;
+    }
+    #Header table {
+      font-size: 15px;
+    }
+    table {
+      border-collapse: collapse;
+      border: 1px solid #666666;
+      font: normal 12px verdana, arial, helvetica, sans-serif;
+      color: #363636;
+      background: #f6f6f6;
+      text-align:left;
+    }
+    thead, tfoot {
+    text-align:left;
+    height:30px;
+    background: #e0e0e0;
+    }
+    thead th, tfoot th {
+    padding:5px;
+    }
+    table a {
+    color: #333333;
+    text-decoration:none;
+    }
+    table a:hover {
+    text-decoration:underline;
+    }
+    tr:nth-child(even) {
+    background: #f1f1f1;
+    }
+    tbody th, tbody td {
+    padding:5px;
+    }
+  </style>
+
+  <div id="Main">
+    <div id="Header">
+      <table>
+        <thead>
+          <tr>
+            <th>Outlet: {{:outlet_name}} </th>
+            <th> {{:date}} </th>
+            <th> Timing: {{if is24hr}} 24 Hrs {{else}} {{:start_time}} to {{:end_time}} {{/if}} </th>
+          </tr>
+        </thead>
+      </table>
+    </div><!-- e: Header -->
+    <div id="Data">
+      <table>
+        <thead>
+          <tr>
+            <th>FV Name</th>
+            <th>Item</th>
+            <th>Time</th>
+            <th>Source</th>
+            <th>Problem</th>
+            <th>Note</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{for items}}
+            <tr>
+              <td>{{:fv_name}}</td>
+              <td> {{:item_id}} - {{:item_name}}</td>
+              <td>{{:time}}</td>
+              <td>{{:source}}</td>
+              <td>{{:problem}}</td>
+              <td>{{:note}}</td>
+            </tr>
+          {{/for}}
+        </tbody>
+      </table>
+    </div>
+    <div id="Footer">
+    </div>
+  </div><!-- e: Main-->
+</body>
+</html>

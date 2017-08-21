@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/foundation.min.css" />
+    <link href="/css/jquery-confirm.css" rel="stylesheet" />
+    <script src="/js/vendor/modernizr.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+
+    <style>
+      body {
+        font-family: 'AzoSans-Regular';
+      }
+
+      button, a, h1, h2, h3 {
+       font-family: 'AzoSans-Regular' !important;
+      }
+
+      @font-face {
+        font-family: 'AzoSans-Bold';
+        src: url('/fonts/AzoSans-Bold.otf')  format('opentype');
+      }
+
+        @font-face {
+            font-family: 'AzoSans-Regular';
+            src: url('/fonts/AzoSans-Regular.otf') format('opentype');
+        }
+
+        .header h1 {
+            padding-top: 10px;
+        }
+
+        .header hr {
+            margin: 0em;
+        }
+        .loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+.loading-bar {
+  display: inline-block;
+  width: 6px;
+  height: 35px;
+  border-radius: 4px;
+  animation: loading 1s ease-in-out infinite;
+   z-index: 1000;
+}
+.loading-bar:nth-child(1) {
+  background-color: #3498db;
+  animation-delay: 0;
+}
+.loading-bar:nth-child(2) {
+  background-color: #c0392b;
+  animation-delay: 0.09s;
+}
+.loading-bar:nth-child(3) {
+  background-color: #f1c40f;
+  animation-delay: .18s;
+}
+.loading-bar:nth-child(4) {
+  background-color: #27ae60;
+  animation-delay: .27s;
+}
+
+@keyframes loading {
+  0% {
+    transform: scale(1);
+  }
+  20% {
+    transform: scale(1, 2.2);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+.header-theme {
+color: #43b02a;
+font-weight: bold;
+}
+.header-theme:hover, header-theme:focus {
+color: #43b02a;
+}
+        {{{yield-styles}}}
+    </style>
+</head>
+<body>
+
+    <div class="row">
+        <div class="large-12 columns nav-bar left">
+            <img style="height: 100px;width: 235px;" src="/img/frshlylogo.png" />
+        </div>
+    </div>
+    <div class="row header">
+       
+        <div class="small-6 columns">
+            <h1><a class="header-theme" href="/"></a></h1>
+        </div>
+        <div class="small-6 columns">
+                <div> {{{yield-loginlogout}}}</div>
+            </div>
+        
+            <hr />
+        </div>
+       
+    <div style="margin-top: 30px;">
+
+        {{{yield-body}}}
+    </div>
+    <footer class="row">
+        <div class="large-12 columns">
+
+        </div>
+    </footer>
+
+
+    <script src="/js/vendor/firebase.js"></script>
+    <script src="/js/vendor/highcharts.js"></script>
+    <script src="/js/vendor/jquery.datetimepicker.full.min.js"></script>
+    <script src="/js/vendor/jquery-confirm.js"></script>
+    <script src="/js/foundation.min.js"></script>
+    <script src="/js/vendor/gridviewScroll.min.js"></script>
+    <script src="/js/vendor/jquery.ui.datepicker.min.js"></script>
+    <script src="/js/vendor/download.js"></script>
+    <script src="/js/vendor/jquery.blockUI.js"></script>
+
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/jquery.datetimepicker.css"/ >
+    <script>
+    var CLIENT_ID = '273587317115-dm0q6vvmolh1h3f1ajau9snd06au4qdt.apps.googleusercontent.com';
+    var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
+    $(document).ready(function () {
+       
+    });
+    $(document).foundation();
+    {{{yield-scripts}}}
+    $.blockUI({ message: '<h2>Just a moment...</h2>' });
+    $.unblockUI();
+    $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+    </script>
+    {{{yield-tags}}}
+</body>
+</html>

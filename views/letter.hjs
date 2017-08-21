@@ -1,0 +1,139 @@
+{{#yield-loginlogout}}
+<a id="logout" href="/logout">Logout</a>
+<span class="menu">|</span>
+<a id="accounts" href="/accounts">Home</a>
+{{/yield-loginlogout}}
+{{#yield-body}}
+<div class="row">
+    <div id="invoice_reports_div" class="large-12 columns" role="content">
+        <input type="hidden" value="{{user}}" id="usertype" />
+        <div id="err_daterange" class="error"></div>
+        <br />
+        <div class="row">
+            <div class="small-6 columns">
+                <span class="formlabel">City</span>
+                <select class="ftr" id="city_id">
+                    <option value="0">--Select--</option>
+                    {{#city}}
+                    <option value={{short_name}}>{{name}}</option>
+                    {{/city}}
+                </select>
+                <div class="error" id="city_msg"></div>
+            </div>
+            <div class="small-6 columns">
+                <span class="formlabel">Date</span>
+                <input class="ftr" id="selected_date" type="text" class="datechange">
+
+                <div class="error" id="err_to_msg"></div>
+            </div>
+            <div class="selector">
+                <a id="get_letter" class="button small info btn-customised" target="_blank">Generate Letter</a>
+                <button id="send_letter" class="button small info hide" target="_blank">Send Letter</button>
+            </div>
+            <div id="message" class="hide"></div>
+        </div>
+
+    </div>
+</div>
+
+{{/yield-body}}
+{{#yield-styles}}
+#accounts
+{
+padding-left: 20px;
+float:right;
+}
+.left
+{
+float:left;
+}
+.right
+{
+float:right;
+margin-right: 17px;
+}
+.full-width
+{
+width:100%;
+}
+#logout {
+    float: right;
+}
+.error{
+    color: red;
+    }
+.show{
+display:block;
+}
+.hide{
+display:none;
+}
+#saveas {
+  float: right;
+  margin-left: 30px;
+}
+
+{{/yield-styles}}
+
+
+{{#yield-scripts}}
+$.blockUI({ message: '<h2>Just a moment...</h2>' });
+$.unblockUI();
+$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+
+ $( "#selected_date" ).datepicker({
+    dateFormat: "yy-mm-dd",
+    maxDate: new Date
+
+    });
+
+$(".ftr").change(function() {
+ var city_id = $("#city_id").val();
+ var selected_date = $("#selected_date").val();
+ if((document.getElementById("city_id").value == "0") && (document.getElementById("selected_date").value == ""))
+{
+ $("#city_msg").text("Please select city");
+  $("#err_to_msg").text("Please select date");
+    return;
+}
+else{
+$("#city_msg").text("");
+$("#err_to_msg").text("");
+
+var url='/letter/get_letter_details?city=' + city_id+ '&selected_date=' + selected_date;
+console.log(url);
+$("#get_letter").attr('href', url);
+
+}
+});
+
+
+ $("#send_letter").click(function() {
+ var city_id = $("#city_id").val();
+ var selected_date = $("#selected_date").val();
+ if((document.getElementById("city_id").value == "0") && (document.getElementById("selected_date").value == ""))
+{
+ $("#city_msg").text("Please select city");
+  $("#err_to_msg").text("Please select date");
+    return;
+}
+else{
+$("#city_msg").text("");
+$("#err_to_msg").text("");
+}
+var url='/letter/send_letter_details?city=' + city_id+ '&selected_date=' + selected_date;
+console.log(url);
+$.get(url)
+  .done(function(data) {
+    console.log(data);
+    })
+    .fail(function(jqxhr, textStatus, error) {
+    var err_msg =  jqxhr.responseText;
+    $("#message").removeClass('hide');
+    $("#message").removeClass('show');
+    $("#message").text(err_msg);
+    console.error("Request Failed: " + err_msg);
+  });
+  });
+
+{{/yield-scripts}}

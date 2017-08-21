@@ -1,0 +1,598 @@
+{{#yield-loginlogout}}
+
+<a id="logout" href="/logout">Logout</a>
+<span class="menu">|</span>
+<a id="accounts" href="/accounts">Home</a>
+{{/yield-loginlogout}}
+{{#yield-body}}
+<input type="hidden" value="{{user}}" id="usertype" />
+<div class="row">
+    <aside class="large-4 columns"></aside>
+    <div id="err_daterange"></div>
+    <br />
+    <div class="small-12 large-12 columns" role="content">
+        <div class="row">
+            <div class="small-6 columns">
+                <span class="formlabel">City</span>
+                <select id="city_id">
+                    <option value="0">--Select--</option>
+                    {{#city}}
+                    <option class={{short_name}} value={{short_name}}>{{name}}</option>
+                    {{/city}}
+                </select>
+
+                <div id="city_msg"></div>
+            </div>
+            <div class="small-6 columns">
+                <span class="formlabel">Restaurant</span>
+                <select id="restaurant_id">
+                    <option value="0">--Select--</option>
+                    {{#restaurants}}
+                    <option class={{city}} value={{id}}>{{name}}</option>
+                    {{/restaurants}}
+                </select>
+                <div id="res_msg"></div>
+            </div>
+        </div>
+    </div>
+    <div id="transaction_div" class="small-12 large-12 columns" role="content">
+        <input type="hidden" id="transaction_id" value="0" />
+        <div class="row">
+            <div id="from_date" class="small-6 columns">
+                <span class="formlabel">From Date</span>
+                <input type="text" id="from" class="datechange" />
+                <div id="err_msg"></div>
+            </div>
+
+
+            <div id="to_date" class="small-6 columns">
+                <span class="formlabel">To Date</span>
+                <input type="text" id="to" class="datechange" />
+                <div id="err_msg1"></div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div id="payment_date" class="small-6 columns">
+                <span class="formlabel">Payment Date</span>
+                <input type="text" id="paymentdate" />
+                <div id="payment_err_msg"></div>
+            </div>
+
+
+            <div id="payment_amount" class="small-6 columns">
+                <span class="formlabel">Payment Amount</span>
+                <input type="text" id="paymentamount" class="numeric" />
+                <div id="amt_msg" class="error"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div id="ref_no" class="small-6 columns">
+                <span class="formlabel">
+                    Reference Number
+                </span>
+                <input type="text" id="reference_number" />
+                <div id="ref_msg" class="error"></div>
+            </div>
+            <div id="remark" class="small-6 columns">
+                <span class="formlabel">
+                    Remarks
+                </span>
+                <input type="text" id="remarks" maxlength="250" />
+            </div>
+        </div>
+    </div>
+    <div class="">
+        <div class="small-12 columns">
+            <input type="button" id="save_payment" name="Update Payment" value="Update Payment" class="medium button general-button btn-customised">
+
+            <input type="button" id="cancel_btn" name="Cancel" value="Cancel" class="medium button general-button btn-customised">
+        </div>
+    </div>
+
+    <div id="transaction_grid_div" class="small-12 large-12 columns hide" role="content">
+        <div class="grid">
+            <b>Transcation Details</b> <br /><br />
+            <a id="new_payment" href="#" onclick="new_payment()" class="align-right">New</a>
+            <table id="payment_editor" cellspacing="0" style="width:100%;border-collapse:collapse;">
+                <tr class="GridviewScrollHeader">
+                    <th scope="col">Payment Date</th>
+                    <th scope="col">From Date</th>
+                    <th scope="col">To Date</th>
+                    <th scope="col">Debit</th>
+                    <th scope="col">Credit</th>
+                    <th scope="col">Remarks</th>
+                    <th scope="col">Edit</th>
+                </tr>
+            </table>
+            <br />
+        </div>
+    </div>
+</div>
+{{/yield-body}}
+{{#yield-styles}}
+#transaction{
+background-color: #231f20;
+color:#fff !important;
+width: 165px !important;
+}
+
+
+#logout {
+    float: right;
+}
+#accounts
+{
+padding-left: 20px;
+float: right;
+}
+    #transaction_div select, #transaction_div input {
+    height:auto;
+    padding:0.5em;
+    }
+    .formlabel {
+    font-size:14px;
+    margin-bottom:8px;
+    display:block;
+    }
+.align-right
+{
+float:right;
+}
+.align-left
+{
+float:left;
+}
+    #logout {
+    float: right;
+    }
+
+    .remove_item {
+    height: 20px;
+    cursor: pointer;
+    }
+
+    .label_marker {
+    display: inline-block;
+    font-weight: bold;
+    }
+
+    #output_div {
+    overflow: auto;
+    }
+
+
+    #err_msg {
+    color: red;
+    }
+
+    #err_msg1 {
+    color: red;
+
+    }
+    #payment_err_msg
+    {
+    color:red;
+    }
+    #err_daterange ,#city_msg,#res_msg,.error{
+    color: red;
+    }
+
+
+
+.show{
+display:block;
+}
+.hide{
+display:none;
+}
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+    $.blockUI({ message: '<h2>Just a moment...</h2>' });
+    $.unblockUI();
+    $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+
+    $(function() {
+    $("#transaction_grid_div").addClass("hide");
+   // $("#transaction_div").addClass("hide");
+    $( "#from" ).datepicker({
+    dateFormat: "dd-mm-yy",
+    maxDate: new Date
+
+    });
+    $( "#to" ).datepicker({
+    dateFormat: "dd-mm-yy",
+    maxDate: new Date
+
+
+    });
+    $( "#paymentdate" ).datepicker({
+    dateFormat: "dd-mm-yy",
+    maxDate: new Date
+
+
+    });
+
+
+    });
+
+     var allOptions = $('#restaurant_id option')
+     $("#city_id").trigger("change");
+
+    function city_wise_restaurant()
+    {
+    $('#restaurant_id option').remove()
+        var classN = $('#city_id option:selected').prop('class');
+        var opts = allOptions.filter('.' + classN);
+        $.each(opts, function (i, j) {
+            $(j).appendTo('#restaurant_id');
+        });
+    }
+
+    $("#city_id").change(function() {
+    city_wise_restaurant();
+    });
+
+
+$(".datechange").trigger("change");
+
+    $(".datechange").change(function() {
+    $("#err_daterange").text('');
+    if((document.getElementById("from").value != "") && (document.getElementById("to").value != ""))
+   {
+    var from_date = db_date($("#from").val());
+    var to_date =db_date($("#to").val());
+    var account_id=$("#restaurant_id").val();
+    if(new Date(from_date) <= new Date(to_date))
+    {
+    var url='/transaction/get_payment_information?&account_id=' + account_id+ '&from_date=' + from_date+ '&to_date=' + to_date;
+    console.log(url);
+    $.get(url)
+    .done(function(data) {
+    console.log(data);
+    if(data.payment_details!=null){
+        $("#paymentamount").val(Number(data.payment_details).toFixed(0));
+        $("#amt_msg").text("");
+    }
+    })
+    .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+    });
+    }
+
+    else{
+     $("#err_daterange").text("selected from and to date Ranges are not valid");
+    return;
+    }
+    }
+    });
+
+    $("#save_payment").click(function() {
+    if((document.getElementById("from").value == "") && (document.getElementById("to").value == "") && (document.getElementById("paymentdate").value == "")&& ($("#paymentamount").val()=="")&& ($("#reference_number").val()==""))
+    {
+    $("#err_msg").text("Please select From date");
+    $("#err_msg1").text("Please select To date");
+    $("#payment_err_msg").text("Please select payment date");
+    $("#city_msg").text("Please select city");
+    $("#res_msg").text("Please select restaurant");
+    $("#amt_msg").text("Please enter amount");
+    $("#ref_msg").text("Please enter reference number");
+    }
+    else{
+    $("#err_msg").text("");
+    $("#err_msg1").text("");
+    $("#payment_err_msg").text("");
+    $("#city_msg").text("");
+    $("#res_msg").text("");
+    $("#amt_msg").text("");
+    $("#ref_msg").text("");
+
+    }
+
+    if($("#city_id").val()=="0")
+    {
+    $("#city_msg").text("Please select city");
+    return;
+    }
+    else{
+    $("#city_msg").text("");
+    }
+    if($("#restaurant_id").val()=="0")
+    {
+    $("#res_msg").text("Please select Restaurant");
+    return;
+    }
+    else{
+    $("#res_msg").text("");
+    }
+
+    if(document.getElementById("from").value == "")
+    {
+    $("#err_msg").text("Please select From date");
+    return;
+    }
+    else{
+    $("#err_msg").text("");
+    }
+    if(document.getElementById("to").value == "")
+    {
+    $("#err_msg1").text("Please select To date");
+    return;
+    }
+    else {
+    $("#err_msg1").text("");
+    }
+
+    if(document.getElementById("paymentdate").value == "")
+    {
+    $("#payment_err_msg").text("Please select payment date");
+    return;
+    }
+    else {
+    $("#payment_err_msg").text("");
+    }
+
+    if($("#paymentamount").val()=="")
+    {
+    $("#amt_msg").text("Please enter amount");
+    return;
+    }
+    else{
+    $("#amt_msg").text("");
+    }
+    if($("#reference_number").val()=="")
+    {
+    $("#ref_msg").text("Please enter reference number");
+    return;
+    }
+    else{
+    $("#ref_msg").text("");
+    }
+
+    var from_date = $("#from").val();
+    var to_date = $("#to").val();
+    var payment_date=$("#paymentdate").val();
+    if(new Date(from_date) > new Date(to_date))
+    {
+    $("#err_daterange").text("selected from and to date Ranges are not valid");
+    return;
+
+    }
+    else{
+    $("#err_daterange").text("");
+
+    }
+
+    var account_id = $("#restaurant_id").val();
+    var from_date = db_date($("#from").val());
+    var to_date =db_date($("#to").val());
+    var city_id = $("#city_id").val();
+    var paymentdate=db_date($("#paymentdate").val());
+    var paymentamount=$("#paymentamount").val();
+    var reference_number=$("#reference_number").val();
+    var remarks=$("#remarks").val();
+    var transaction_id=$("#transaction_id").val();
+    var transaction_url="save_transaction_information";
+    if(transaction_id!="0")
+    {
+    transaction_url="update_transaction_information";
+    }
+    $.ajax({
+    type: 'POST',
+    url: location.origin + '/transaction/'+transaction_url,
+    data: JSON.stringify({ "transaction_id":transaction_id,"account_id": account_id,"from_date": from_date,"to_date": to_date,"payment_date": paymentdate,"payment_amount": paymentamount,"reference_no":reference_number, "remarks":remarks}),
+    success: function (data)
+    {
+    console.log(data);
+    alert(data);
+    if(data=="Payment updated successfully")
+    {
+    //gridload();
+   // gridshow();
+    $("#city_id").val('0');
+    $("#restaurant_id").val('0');
+
+    clear();
+    }
+
+    },
+    error: function (jqxhr, textStatus, error)
+    {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("save save_transaction_information failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+    });
+
+    });
+
+    $(".datetimepicker").on("keypress", function(){
+    return false;
+    });
+    $(document).ready(function ()
+    {
+    $('#from').attr("readonly","true");
+    $('#to').attr("readonly","true");
+    $('#paymentdate').attr("readonly","true");
+    });
+
+    function clear()
+    {
+
+    $("#from").val('');
+    $("#to").val('');
+    $("#paymentdate").val('');
+    $("#paymentamount").val('');
+    $("#reference_number").val('');
+    $("#remarks").val('');
+    $("#err_msg").text("");
+    $("#err_msg1").text("");
+    $("#payment_err_msg").text("");
+    $("#city_msg").text("");
+    $("#res_msg").text("");
+    $("#amt_msg").text("");
+    $("#ref_msg").text("");
+    $("#city_id").val('0');
+    $("#restaurant_id").val('0');
+    }
+    $("#cancel_btn").click(function() {
+    clear();
+
+    // gridshow();
+
+    });
+
+    // Check Numeric Values
+    var specialKeys = new Array();
+    specialKeys.push(8); //Backspace
+    $(function () {
+    $(".numeric").bind("keypress", function (e) {
+    var keyCode = e.which ? e.which : e.keyCode
+    var ret = ((keyCode >= 48 && keyCode <= 57) || specialKeys.indexOf(keyCode) != -1);
+    $(".error").css("display", ret ? "none" : "inline");
+    return ret;
+    });
+    $(".numeric").bind("paste", function (e) {
+    return false;
+    });
+    $(".numeric").bind("drop", function (e) {
+    return false;
+    });
+    });
+   function gridviewScroll() {
+            $('#payment_editor').gridviewScroll({
+                width: 1000,
+                height: 400,
+                freezesize: 6
+            });
+        }
+ $("#restaurant_id").change(function() {
+//gridload();
+//gridshow();
+});
+
+
+    $.date = function(dateObject) {
+    var d = new Date(dateObject);
+    var day = d.getDate();
+    var month = d.getMonth() + 1;
+    var year = d.getFullYear();
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = day + "-" + month + "-" + year;
+
+    return date;
+};
+
+function db_date(selector) {
+    var from = selector.split("-");
+    var date= from[2]+"-"+from[1]+"-"+ from[0];
+    return date;
+}
+function gridshow()
+{
+$("#transaction_grid_div").removeClass("hide");
+$("#transaction_grid_div").addClass("show");
+$("#transaction_div").addClass("hide");
+$("#transaction_id").val('0');
+}
+
+function transactionshow()
+{
+ $("#transaction_grid_div").addClass("hide");
+ $("#transaction_div").removeClass("hide");
+ $("#transaction_div").addClass("show");
+}
+function gridload()
+{
+var selected_id=$("#restaurant_id").val();
+$("#payment_editor td").parent().remove();
+ $.ajax({
+    type: 'POST',
+    url: location.origin + '/transaction/get_transaction_information',
+    data: JSON.stringify({ "account_id": selected_id,"id":""}),
+    success: function (data)
+    {
+    console.log(data);
+    var result=JSON.parse(data);
+    for (var item in result) {
+    console.log(item);
+    $('#payment_editor tbody').append('<tr class="GridviewScrollIte"><td style="line-height: 30px;">'+$.date(result[item].payment_date)+'</td><td>'+$.date(result[item].from_date)+'</td><td>'+$.date(result[item].to_date)+'</td><td>'+result[item].debit+'</td><td>'+result[item].credit+'</td><td>'+result[item].remarks+'</td><td><a href="#" id="Edit_' + result[item].id +'" onclick="update_transaction(this.id)"> Edit</a></td></tr>');
+    }
+    //alert(data);
+    },
+    error: function (jqxhr, textStatus, error)
+    {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("get_transaction_information failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+    });
+}
+function update_transaction(id)
+{
+   var transaction_id=id.replace('Edit_', '');
+    $.ajax({
+    type: 'POST',
+    url: location.origin + '/transaction/get_transaction_information',
+    data: JSON.stringify({ "id": transaction_id,"account_id":""}),
+    success: function (data)
+    {
+    console.log(data);
+    var result=JSON.parse(data);
+    $("#from").val($.date(result[0].from_date));
+    $("#to").val($.date(result[0].to_date));
+    $("#paymentdate").val($.date(result[0].payment_date));
+    $("#paymentamount").val(result[0].debit);
+    $("#reference_number").val(result[0].reference_number);
+    $("#remarks").val(result[0].remarks);
+    $("#transaction_id").val(result[0].id);
+    //transactionshow();
+    },
+    error: function (jqxhr, textStatus, error)
+    {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("save save_transaction_information failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+    });
+}
+function revert_transaction(id)
+{
+ var transaction_id=id.replace('Revert_', '');
+    $.ajax({
+    type: 'POST',
+    url: location.origin + '/transaction/revert_transaction_information',
+    data: JSON.stringify({ "id": transaction_id}),
+    success: function (data)
+    {
+    console.log(data);
+    clear();
+    },
+    error: function (jqxhr, textStatus, error)
+    {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("save save_transaction_information failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+    });
+}
+function new_payment()
+{
+$("#transaction_id").val('0');
+//transactionshow();
+
+}
+{{/yield-scripts}}

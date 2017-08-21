@@ -1,0 +1,260 @@
+{{#yield-body}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Create food item</h5>
+    <form id="create_food_item" action="/food_item/create" method="POST" enctype="multipart/form-data">
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="name" class="right inline">Name *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="name" name="name" placeholder="Chicken biriyani" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="item_tag" class="right inline">Item Tag *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="item_tag" name="item_tag" placeholder="AJP-345" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="restaurant_id" class="right inline">Restaurant id</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="restaurant_id" name="restaurant_id" value="{{restaurant_id}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="outlet_id" class="right inline">Outlet id *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="outlet_id" name="outlet_id" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="expiry_time" class="right inline">Expiry time *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="expiry_time" name="expiry_time" placeholder="3h" pattern="^\d+h$" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="veg" class="right inline">Veg</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="veg" name="veg">
+              <option value="t">Yes</option>
+              <option value="f">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="heating_required" class="right inline">Heating required</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="heating_required" name="heating_required">
+              <option value="t">Yes</option>
+              <option value="f">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="location" class="right inline">Location</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="location" name="location">
+              <option>dispenser</option>
+              <option>outside</option>
+              <option>supplies</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="cuisine" class="right inline">Cuisine</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="cuisine" name="cuisine" placeholder="north indian, south indian" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="side_order" class="right inline">Side Order</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="side_order" name="side_order" placeholder="Please collect raitha" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="ingredient1" class="right inline">Ingredient 1</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="ingredient1" name="ingredient1" placeholder="Ingredient 1" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="ingredient2" class="right inline">Ingredient 2</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="ingredient2" name="ingredient2" placeholder="Ingredient 2" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="ingredient3" class="right inline">Ingredient 3</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="ingredient3" name="ingredient3" placeholder="Ingredient 3" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="category" class="right inline">Category</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="category" name="category">
+              <option>staple</option>
+              <option>fast moving</option>
+              <option>slow moving</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="packaging_cost" class="right inline">Packaging cost</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="packaging_cost" name="packaging_cost" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="production_cost" class="right inline">Production cost</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="production_cost" name="production_cost" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="purchase_price" class="right inline">Purchase price</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="purchase_price" name="purchase_price" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="selling_price" class="right inline">Selling price</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="selling_price" name="selling_price" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="mrp" class="right inline">MRP</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="mrp" name="mrp" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="service_tax_percent" class="right inline">Service tax %</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="service_tax_percent" name="service_tax_percent" placeholder="4" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="vat_percent" class="right inline">VAT %</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="vat_percent" name="vat_percent" placeholder="3" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="foodbox_fee" class="right inline">Foodbox fee</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="foodbox_fee" name="foodbox_fee" placeholder="" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="restaurant_fee" class="right inline">Restaurant fee</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="restaurant_fee" name="restaurant_fee" placeholder="" />
+          </div>
+        </div>
+      </div>
+      <input type="submit" form="create_food_item" value="Create" class="button success round" />
+    </form>
+  </div>
+
+</div>
+{{/yield-body}}

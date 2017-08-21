@@ -1,0 +1,161 @@
+{{#yield-loginlogout}}
+<a id="logout" href="/logout">Logout</a>
+{{/yield-loginlogout}}
+
+{{#yield-body}}
+<div class="row">
+
+<div id="reports_div" class="large-12 columns" role="content">
+  <div class="selector">
+  Outlet
+  <select id="outlet_id">
+  {{#outlets}}
+  <option value={{id}}>{{name}}</option>
+  {{/outlets}}
+  </select>
+  </div>
+
+  <div class="selector">
+  Report Type
+  <select id="report_type">
+  {{#reports}}
+  <option value={{id}}>{{name}}</option>
+  {{/reports}}
+  </select>
+  </div>
+  
+  <div class="selector">
+  From :
+  <input id="from_date" type="text" class="datetimepicker" />
+  </div>
+  
+  <div class="selector">
+  To:
+  <input id="to_date" type="text" class="datetimepicker" />
+  </div>
+
+  <div class="selector">
+  <button id="get_reports" class="small secondary">Generate Reports</button>
+  </div>
+  <br />
+
+  <div id="output_div" class="panel">
+  <table id="report_output">
+      <thead>
+        <tr>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+  <a href='#' id="saveas" class="button small info">Export to csv</a>
+  
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+
+
+#get_reports1 {
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  background-color: transparent !important;
+  color: black !important;
+  margin: 0 auto;
+  display: block;
+}
+
+#logout {
+  float: right;
+}
+
+#output_div {
+  overflow: auto;
+}
+
+.selector {
+  display: inline-block;
+  margin-right: 25px;
+}
+
+.datetimepicker{
+  width:100px !important;
+}
+
+#report_type {
+  width: 150px;
+  display: block;
+}
+
+#saveas {
+  float: right;
+}
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+$("#reports_div .datetimepicker").datetimepicker({format:'Y-m-d', timepicker: false});
+
+$("#get_reports").click(function() {
+  var from_date = $("#from_date").val();
+  var to_date = $("#to_date").val();
+  var outlet_id = $("#outlet_id").val();
+  var report_type = $("#report_type").val();
+  
+  
+  $.get('/accounts/report?from_date=' + from_date
+    + '&to_date=' + to_date
+    + '&outlet_id=' + outlet_id
+    + '&report_type=' + report_type)
+  .done(function(data) {
+    // Clearing off previous values
+    $("#report_output thead tr").empty();
+    $("#report_output tbody").empty();
+    // Add the rows in the table
+    var fields = data["fields"];
+    var fieldNames = _.keys(fields);
+    // Table headers
+    var thead = $("#report_output thead tr");
+    fieldNames.map(function(fname) {
+      $(thead).append("<td>" + fields[fname] + "</td>");
+    });
+
+    // Table rows
+    var rows = data["rows"];
+    var tbody = $("#report_output tbody");
+    rows.map(function(row){
+      var trow = $('<tr />');
+      $(tbody).append(trow);
+      fieldNames.map(function(fname){
+        trow.append($("<td>" + row[fname] + "</td>"));
+      });
+    });
+    // Aggregates
+    var total = data["aggregates"];
+    if(total){
+      var trow = $('<tr />');
+      $(tbody).append(trow);
+      fieldNames.map(function(fname){
+        trow.append($("<td><b>" + total[fname] + "</b></td>"));
+      });
+    }
+    var csvLink = '/accounts/report?from_date=' + from_date
+    + '&to_date=' + to_date
+    + '&outlet_id=' + outlet_id
+    + '&report_type=' + report_type
+    + '&csv=true';
+
+    $("#saveas").attr('href', csvLink);
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+});
+
+{{/yield-scripts}}
+

@@ -1,0 +1,63 @@
+{{#yield-body}}
+
+<div class="small-6">
+    <form method="POST" action="/volume_planning/get_edit_information" id="productForm" class="row">
+        <div class="small-12">
+            <label class="col-xs-6 control-label">Outlet</label>
+            <div class="col-xs-6 selectContainer">
+                <select id="outlet_info" class="form-control" name="outlet_info">
+                    <option class="dropdown" value="0">All</option>
+                    {{#outlets}}
+                    <option value={{outlet_short_name}} _{{outlet_id}}>{{outlet_name}}</option>
+                    {{/outlets}}
+                </select>
+            </div>
+        </div>
+
+        <div class="small-12">
+            <label class="col-xs-6 control-label">Restaurant</label>
+            <div class="col-xs-6 selectContainer">
+                <select id="restaurant_info" class="form-control" name="restaurant_info">
+                    <option value="0">All</option>
+                    {{#fvs}}
+                    <option value="{{res_name}}_{{restaurant_id}}">{{res_name}}</option>
+                    {{/fvs}}
+                </select>
+            </div>
+        </div>
+
+        <div class="small-12">
+            <label class="col-xs-6 control-label">Session</label>
+            <div class="col-xs-6 selectContainer">
+                <select id="session_id" class="form-control" name="session">
+                    <option value="0">All</option>
+                    {{#session}}
+                    <option value={{session}}>{{session}}</option>
+                    {{/session}}
+                </select>
+            </div>
+        </div>
+        <input type="hidden" id="date_field" name="date_field" value={{date}}>
+        <input type="hidden" id="city_field" name="city_field" value={{city}}>
+        <input type="hidden" id="selected_source" name="selected_source" value={{selected_source}}>
+        <div class="form-group">
+            <div class="col-xs-5 col-xs-offset-3">
+                <button id="btn_back" type="submit" class="small secondary btn-customised">Back</button>
+                <button id="btn_submit" type="submit" class="small secondary btn-customised">Edit</button>
+            </div>
+        </div>
+    </form>
+</div>
+{{/yield-body}}
+
+{{#yield-scripts}}
+$(document).ready(function(){
+$("#btn_back").click(function()
+{
+ location.href = location.origin + "/volume_planning";
+ history.back();
+ return false;
+});
+
+});
+{{/yield-scripts}}

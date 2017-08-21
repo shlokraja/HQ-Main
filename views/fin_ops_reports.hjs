@@ -1,0 +1,665 @@
+{{#yield-loginlogout}}
+<a id="logout" href="/logout">Logout</a>
+<span class="menu">|</span>
+<a id="accounts" href="/accounts">Home</a>
+{{/yield-loginlogout}}
+{{#yield-body}}
+<section class="content">
+    <input type="hidden" value="{{user}}" id="usertype" />
+    <div class="row">
+        <div class="large-12 columns" id="reports_div">
+            <div class="row">
+                <div class="large-4 small-6 columns">
+                    <label>Restaurant Name</label>
+                    <select id="restaurant_id">
+                        {{#restaurants}}
+                        <option value={{id}}>{{name}}</option>
+                        {{/restaurants}}
+                    </select>
+                    <div class="error" id="res_msg"></div>
+                </div>
+                <div class="large-4 small-6 columns">
+                    <label>Report Type</label>
+                    <select id="report_type">
+                        <option value="restaurant_payment">Restaurant payment</option>
+                        <option value="vat">Vat</option>
+                        <option value="st">Service Tax</option>  
+			<option value="gst">GST</option> /* GSt  changes*/                      
+                        <option  value="restaurant_payment_gst">Restaurant payment GST </option>
+                    </select>
+                </div>
+                <div class="large-2 small-6 columns">
+                    <label>From Date</label>
+                    <input id="from_date" type="text" class="datetimepicker" />
+                    <div class="error" id="err_from_msg"></div>
+
+                </div>
+                <div class="large-2 small-6 columns">
+                    <label>To Date</label>
+                    <input id="to_date" type="text" class="datetimepicker" />
+                    <div class="error" id="err_to_msg"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-12 columns">
+                    <input type="button" id="get_reports" name="Generate Reports" value="Generate Reports" class="medium button general-button btn-customised">
+                    <a href="#" class="hide" id="saveas" title="Export to CSV">Export to CSV</a>
+                </div>
+            </div>
+            <div class="row">
+                <div id="report_div" class="panel1 large-12 columns report_div_gst hide width-for-small_only">
+                    <table border="1" id="report_output" class="full-width">
+                        <tr class="GridviewScrollHeader">
+                            <th colspan="2"></th>
+                            <th colspan="3" class="center">Qty</th>
+                            <th colspan="4" class="center">Sales</th>
+                            <th colspan="3" class="center">Frshly Fee</th>
+                            <th colspan="3" class="center">Taxes to be paid by Restaurant</th>
+                            <th colspan="3" class="center">Restaurant Liability</th>
+                            <th>Frshly Liability</th>
+                            <th colspan="5" class="center">Payment Details</th>
+                        </tr>
+                        <tr class="GridviewScrollHeader">
+                            <th>Date</th>
+                            <th>Restaurant Name</th>
+                            <th>Taken</th>
+                            <th>Sold</th>
+                            <th>Wastage</th>
+                            <th>Gross Sales (excl.tax)</th>
+                            <th>Total VAT</th>
+                            <th>Total ST (incl.abatement)</th>
+                            <th>Net Sales</th>
+                            <th>Transaction Fee</th>
+                            <th>ST on Transaction Fee</th>
+                            <th>Total Transaction Fee</th>
+                            <th>VAT on Gross Sales</th>
+                            <th>ST on Gross Sales</th>
+                            <th>TDS on Transaction fee</th>
+                            <th>Transaction Fee</th>
+                            <th>Service Tax</th>
+                            <th>Total Cost</th>
+                            <th>Cost of Food</th>
+                            <th>Transfer to Restaurant from Escrow</th>
+                            <th>Payment</th>
+                            <th>Payment Date</th>
+                            <th>Remarks</th>
+                            <th>Outstanding</th>
+
+                        </tr>
+                        <tfoot></tfoot>
+                    </table>
+
+                </div>
+                <div class="row">
+                <div id="report_div_gst" class="panel1 large-12 columns report_div hide width-for-small_only">
+                    <table border="1" id="report_output_gst" class="full-width">
+                        <tr class="GridviewScrollHeader">
+                            <th colspan="2"></th>
+                            <th colspan="3" class="center">Qty</th>
+                            <th colspan="3" class="center">Sales</th>
+                            <th colspan="3" class="center">Frshly Fee</th>
+                            <th colspan="2" class="center">Taxes to be paid by Restaurant</th>
+                            <th colspan="3" class="center">Restaurant Liability</th>
+                            <th>Frshly Liability</th>
+                            <th colspan="5" class="center">Payment Details</th>
+                        </tr>
+                        <tr class="GridviewScrollHeader">
+                            <th>Date</th>
+                            <th>Restaurant Name</th>
+                            <th>Taken</th>
+                            <th>Sold</th>
+                            <th>Wastage</th>
+                            <th>Gross Sales (excl.tax)</th>
+                            <th>Total GST</th>                            
+                            <th>Net Sales</th>
+                            <th>Transaction Fee</th>
+                            <th>GST on Transaction Fee</th>
+                            <th>Total Transaction Fee</th>
+                            <th>GST on Gross Sales</th>                            
+                            <th>TDS on Transaction fee</th>
+                            <th>Transaction Fee</th>
+                            <th>Service Tax</th>
+                            <th>Total Cost</th>
+                            <th>Cost of Food</th>
+                            <th>Transfer to Restaurant from Escrow</th>
+                            <th>Payment</th>
+                            <th>Payment Date</th>
+                            <th>Remarks</th>
+                            <th>Outstanding</th>
+                        </tr>
+                        <tfoot></tfoot>
+                    </table>
+
+                </div>
+                <div id="Vat_report_output_div" class="large-12 columns hide width-for-small_only">
+                    <table border="1" id="Vat_report_output" class="full-width">
+                        <tr class="GridviewScrollHeader">
+                            <th colspan="2"></th>
+                            <th colspan="4" class="center">Sales</th>
+                        </tr>
+                        <tr class="GridviewScrollHeader">
+                            <th scope="col">Date</th>
+                            <th scope="col">Restaurant Name</th>
+                            <th scope="col">Gross Sales (excl.tax)</th>
+                            <th scope="col">Total VAT</th>
+                            <th scope="col">Total ST (incl. abatement)</th>
+                            <th scope="col">Net Sales</th>
+                        </tr>
+                       
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+                <div id="st_report_output_div" class="large-12 columns hide width-for-small_only">
+                    <table border="1" id="st_report_output" class="full-width">
+
+                        <tr class="GridviewScrollHeader">
+                            <th colspan="2"></th>
+                            <th colspan="5" class="center">Frshly Fee</th>
+                        </tr>
+                        <tr class="GridviewScrollHeader">
+                            <th scope="col">Date</th>
+                            <th scope="col">Restaurant Name</th>
+                            <th scope="col">Transaction Fee</th>
+                            <th scope="col">ST on Transaction Fee</th>
+                            <th scope="col">Total Transaction Fee</th>
+                            <th scope="col">TDS</th>
+                            <th scope="col">Net pay to restaurant</th>
+                        </tr>
+
+                       
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+		<!--gst changes -->
+                 <div id="gst_report_output_div" class="large-12 columns hide width-for-small_only">
+                    <table border="1" id="gst_report_output" class="full-width">
+                        <tr class="GridviewScrollHeader">
+                            <th colspan="2"></th>
+                            <th colspan="3" class="center">Sales</th>
+                        </tr>
+                        <tr class="GridviewScrollHeader">
+                            <th scope="col">Date</th>
+                            <th scope="col">Restaurant Name</th>
+                            <th scope="col">Gross Sales (excl.tax)</th>
+                            <th scope="col">Total GST </th>                            
+                            <th scope="col">Net Sales</th>
+                        </tr>                       
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{{/yield-body}}
+{{#yield-styles}}
+#fin_ops_report{
+background-color: #231f20;
+color:#fff !important;
+
+}
+#logout,#accounts {
+    float: right;
+}
+.center
+{
+text-align: center !important;
+}
+#accounts
+{
+padding-left: 20px;
+}
+
+.left
+{
+float:left;
+}
+.right
+{
+float:right;
+margin-right: 17px;
+}
+.full-width
+{
+width:100%;
+}
+.error{
+    color: red;
+    font-size: 12px;
+    }
+.show{
+display:block;
+}
+.hide{
+display:none;
+}
+#saveas {
+  float: right;
+  margin-left: 30px;
+}
+
+
+.selector {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.div_body
+{
+    margin-top: 10px !important;
+}
+.bold
+{
+font-weight:bold;
+}
+
+
+
+{{/yield-styles}}
+
+
+{{#yield-scripts}}
+$.blockUI({ message: '<h2>Just a moment...</h2>' });
+$.unblockUI();
+$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+ $("#report_div").addClass("hide");
+ $("#report_div_gst").addClass("hide"); //gst changes
+ $("#Vat_report_output_div").addClass("hide");
+ $("#st_report_output_div").addClass("hide");
+ $("#saveas").addClass("hide");
+
+if($("#usertype").val()!="HQ")
+{
+remove_option();
+}
+else{
+$("#restaurant_id").append("<option value='0'>Summary</option>");
+}
+
+$("#report_type").change(function() {
+if( $("#report_type").val() != "restaurant_payment" )
+{
+remove_option();
+if ( $("#report_type").val() == "restaurant_payment_gst")
+{
+    $("#restaurant_id").append("<option value='0'>Summary</option>");    
+}
+}
+else{
+$("#restaurant_id").append("<option value='0'>Summary</option>");
+}
+
+});
+function remove_option()
+{
+$("#restaurant_id option[value='0']").remove();
+}
+
+ var dateFormat= "dd-mm-yy";
+    var maxDate= new Date;
+    if ($("#usertype").val() != "HQ") {
+    var date="01-12-2016";
+
+    $( "#from_date" ).datepicker({
+        dateFormat:dateFormat,
+        maxDate: maxDate,
+        minDate:date
+    });
+    $( "#to_date" ).datepicker({dateFormat:dateFormat,
+        maxDate: maxDate,
+        minDate:date});
+    }
+    else{
+     $("#from_date").datepicker({
+            dateFormat:dateFormat,
+            maxDate: maxDate
+        });
+        $("#to_date").datepicker({
+            dateFormat: dateFormat,
+            maxDate: maxDate
+
+        });
+    }
+
+
+$("#get_reports").click(function() {
+  var restaurant_id = $("#restaurant_id").val();
+    var from_date = db_date($("#from_date").val());
+    var to_date =db_date($("#to_date").val());
+    var report_type= $("#report_type").val();
+    $("#report_output td").parent().remove();
+    $("#report_output_gst td").parent().remove();
+    $("#Vat_report_output td").parent().remove();
+    $("#st_report_output td").parent().remove();
+    $("#gst_report_output td").parent().remove();
+ $("#report_div").addClass("hide");
+ $("#report_div_gst").addClass("hide"); 
+$("#Vat_report_output_div").addClass("hide");
+ $("#st_report_output_div").addClass("hide");
+ $("#gst_report_output_div").addClass("hide");
+if((document.getElementById("from_date").value == "") && (document.getElementById("to_date").value == "") &&
+(document.getElementById("restaurant_id").value == "0"))
+    {
+    $("#err_from_msg").text("Please select From date");
+    $("#err_to_msg").text("Please select To date");
+    $("#res_msg").text("Please select restaurant");
+   }
+    else{
+    $("#err_from_msg").text("");
+    $("#err_msg1").text("");
+    $("#res_msg").text("");
+    }
+
+
+    if($("#restaurant_id").val()=="0" && !($("#report_type").val() == "restaurant_payment" || $("#report_type").val() == "restaurant_payment_gst"))
+    {
+    $("#res_msg").text("Please select Restaurant");
+    return;
+    }
+    else{
+    $("#res_msg").text("");
+    }
+
+    if(document.getElementById("from_date").value == "")
+    {
+    $("#err_from_msg").text("Please select From date");
+    return;
+    }
+    else{
+    $("#err_from_msg").text("");
+    }
+    if(document.getElementById("to_date").value == "")
+    {
+    $("#err_to_msg").text("Please select To date");
+    return;
+    }
+    else {
+    $("#err_to_msg").text("");
+    }
+
+    if(from_date > to_date)
+    {
+    $("#err_daterange").text("selected from and to date Ranges are not valid");
+    return;
+
+    }
+    else{
+    $("#err_daterange").text("");
+
+    }
+
+    // GST Validations
+    var gst_date='2017-07-01';
+
+    if (report_type=='vat' || report_type=='st' || report_type=='restaurant_payment')
+    {
+        if (from_date < gst_date && to_date >= gst_date)
+        {
+            alert("Report not Available for period overlapping GST and ST");
+            return;
+        }
+
+        if((report_type =='vat' || report_type=='st' || report_type=='restaurant_payment') && (from_date>=  gst_date || to_date>=gst_date) )
+        {
+            alert("Report not applicable for  period > 30-06-2017.Please select GST report. ");
+            return;
+        }        
+    }
+    if (report_type=="restaurant_payment_gst" || report_type=="gst" )
+    {
+        if (from_date < gst_date && to_date >= gst_date)
+        {
+            alert("Report not Available for period overlapping GST and ST");
+            return;
+        }
+
+        if((from_date< gst_date || to_date<gst_date) )
+        {
+            alert("GST Report is not Applicable for the period < 01-07-2017.");
+            return;
+        }
+
+    }
+
+    $.ajax({
+    type: 'POST',
+    url: location.origin + '/fin_ops_reports/get_restaurant_details',
+    data: JSON.stringify({ "restaurant_id":restaurant_id,"from_date": from_date,"to_date": to_date,"report_type":report_type}),
+    success: function (data)
+    {
+    console.log(data);
+    if(data!="NoData")
+    {
+    var csvLink = '/fin_ops_reports/downloadcsv?restaurant_id=' + restaurant_id + '&from_date=' + from_date+ '&to_date=' + to_date+ '&report_type=' + report_type;
+
+    var result=JSON.parse(data);
+    for (var item in result) {
+    console.log(item);
+
+    if (report_type == "vat")
+    {
+        $("#report_div").addClass("hide");
+        $("#report_div_gst").addClass("hide"); 
+        $("#Vat_report_output_div").removeClass("hide");
+        $("#Vat_report_output_div").addClass("show");
+        $("#st_report_output_div").addClass("hide");
+        $("#gst_report_output_div").addClass("hide");
+        if(result[item].Date!="Total"){
+          $('#Vat_report_output tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].Date+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Vat+'</td><td>'+result[item].ST_with_Abatement+'</td><td>'+result[item].Net_Sales+'</td></tr>');
+        }else{
+        if(item!=0){
+          $('#Vat_report_output tfoot').append('<tr class="GridviewScrollItem bold"><td colspan="2" style="line-height: 30px;">Total</td><td>'+result[item].Gross+'</td><td>'+result[item].Vat+'</td><td>'+result[item].ST_with_Abatement+'</td><td>'+result[item].Net_Sales+'</td></tr>');
+          $("#saveas").removeClass("hide");
+          $("#saveas").addClass("show");
+        }
+        else{
+        no_data_records();
+         }
+     }
+    freezecolumn();
+    }
+    else if (report_type == "gst")
+    {
+        $("#report_div").addClass("hide");        
+        $("#Vat_report_output_div").addClass("hide");
+        $("#st_report_output_div").addClass("hide");
+        $("#gst_report_output_div").removeClass("hide");
+        $("#gst_report_output_div").addClass("show");
+        if(result[item].Date!="Total"){
+          $('#gst_report_output tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].Date+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].Gross+'</td><td>'+result[item].gst+'</td><td>'+result[item].Net_Sales+'</td></tr>');
+        }else{
+        if(item!=0){
+          $('#gst_report_output tfoot').append('<tr class="GridviewScrollItem bold"><td colspan="2" style="line-height: 30px;">Total</td><td>'+result[item].Gross+'</td><td>'+result[item].gst+'</td><td>'+result[item].Net_Sales+'</td></tr>');
+          $("#saveas").removeClass("hide");
+          $("#saveas").addClass("show");
+        }
+        else{
+        no_data_records();
+         }
+     }
+    freezecolumn();
+    }
+    else if (report_type == "st")
+    {
+    $("#report_div").addClass("hide");
+    $("#report_div_gst").addClass("hide"); 
+    $("#Vat_report_output_div").addClass("hide");
+    $("#gst_report_output_div").addClass("hide");
+    $("#st_report_output_div").removeClass("hide");
+    $("#st_report_output_div").addClass("show");
+    if(result[item].Date!="Total"){
+    $('#st_report_output tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].Date+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].Foodbox_Fee+'</td><td>'+result[item].Foodbox_st+'</td><td>'+result[item].Total_Foodbox+'</td><td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Net_pay_to_restaurant+'</td></tr>');
+        }
+        else{
+        if(item!=0){
+        $('#st_report_output tbody').append('<tr class="GridviewScrollItem bold"><td colspan="2" style="line-height: 30px;">Total</td><td>'+result[item].Foodbox_Fee+'</td><td>'+result[item].Foodbox_st+'</td><td>'+result[item].Total_Foodbox+'</td><td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Net_pay_to_restaurant+'</td></tr>');
+        $("#saveas").removeClass("hide");
+        $("#saveas").addClass("show");
+        }
+        else{
+        no_data_records();
+         }
+        }
+ freezecolumn();
+    }
+    else if (report_type=="restaurant_payment") { 
+      $("#report_div").removeClass("hide");
+        $("#report_div").addClass("show");
+        $("#Vat_report_output_div").addClass("hide");
+        $("#report_div_gst").addClass("hide");
+        $("#st_report_output_div").addClass("hide");
+        $("#gst_report_output_div").addClass("hide");
+        if(result[item].ReportDate!=null){
+                $('#report_output tbody').append('<tr class="GridviewScrollItem"><td>'+result[item].ReportDate+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Vat+'</td><td>'+result[item].ST_with_Abatement+'</td><td>'+result[item].Net_Sales+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_st+'</td><td>'+result[item].Total_Foodbox+'</td><td>'+result[item].Vat_on_Gross+'</td> <td>'+result[item].St_on_Gross +'</td><td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+        }else{
+        if(item!=0){
+        $('#report_output tbody').append('<tr class="GridviewScrollItem bold"><td colspan="2">Total</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Vat+'</td><td>'+result[item].ST_with_Abatement+'</td><td>'+result[item].Net_Sales+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_st+'</td><td>'+result[item].Total_Foodbox+'</td><td>'+result[item].Vat_on_Gross+'</td> <td>'+result[item].St_on_Gross +'</td><td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+        $("#saveas").removeClass("hide");
+        $("#saveas").addClass("show");
+        }
+        else{no_data_records();}
+
+        }
+
+        freezecolumn();
+    }
+    else // restaurant Payment GST ----start 
+    { 
+      $("#report_div_gst").removeClass("hide");
+        $("#report_div_gst").addClass("show");
+        $("#report_div").addClass("hide");
+        $("#Vat_report_output_div").addClass("hide");
+        $("#st_report_output_div").addClass("hide");
+        if(result[item].ReportDate!=null){
+                $('#report_output_gst tbody').append('<tr class="GridviewScrollItem"><td>'+result[item].ReportDate+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Gst+'</td><td>'+result[item].Net_Sales_gst+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_gst+'</td><td>'+result[item].Total_Foodbox_gst+'</td><td>'+result[item].Gst_on_Gross+'</td> <td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow_gst+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+        }else{
+        if(item!=0){
+        $('#report_output_gst tbody').append('<tr class="GridviewScrollItem bold"><td colspan="2">Total</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Gst+'</td><td>'+result[item].Net_Sales_gst+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_gst+'</td><td>'+result[item].Total_Foodbox_gst+'</td><td>'+result[item].Gst_on_Gross+'</td> <td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+        $("#saveas").removeClass("hide");
+        $("#saveas").addClass("show");
+        }
+        else{no_data_records();}
+
+        }
+
+     freezecolumn();
+    }
+     //GST end 
+
+    }
+
+    $("#saveas").attr('href', csvLink);
+    }else{
+        no_data_records();
+     }
+    $("#saveas").removeClass("hide");
+    $("#saveas").addClass("show");
+    //alert(data);
+    },
+    error: function (jqxhr, textStatus, error)
+    {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("get_transaction_information failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+    });
+
+});
+
+
+function freezecolumn()
+{
+    var report_type= $("#report_type").val();
+    if (report_type == "vat")
+    {
+    gridviewScroll("Vat_report_output");
+    }
+    else  if (report_type == "st")
+    {
+    gridviewScroll("st_report_output");
+    }
+    else if (report_type == "gst")
+    {
+    gridviewScroll("gst_report_output");
+    }
+    else if(report_type=="restaurant_payment"){
+     gridviewScroll("report_output");
+    }
+    else{
+     gridviewScroll("report_output_gst");
+    }
+}
+
+function no_data_records()
+{
+ var report_type= $("#report_type").val();
+    if (report_type == "vat")
+    {
+        $("#report_div").addClass("hide");
+        $("#Vat_report_output_div").removeClass("hide");
+        $("#Vat_report_output_div").addClass("show");
+        $("#st_report_output_div").addClass("hide");
+         $('#Vat_report_output tfoot').append('<tr class="bold"><td colspan="5" style="line-height: 30px;">No records found</td></tr>');
+        }
+         else if (report_type == "st")
+            {
+            $("#report_div").addClass("hide");
+            $("#Vat_report_output_div").addClass("hide");
+            $("#st_report_output_div").removeClass("hide");
+            $("#st_report_output_div").addClass("show");
+        $('#st_report_output tfoot').append('<tr class="bold"><td colspan="5" style="line-height: 30px;">No records found</td></tr>');
+        }
+         else{
+                $("#report_div").removeClass("hide");
+                $("#report_div").addClass("show");
+                $("#Vat_report_output_div").addClass("hide");
+                $("#st_report_output_div").addClass("hide");
+         $('#report_output tfoot').append('<tr class="bold"><td colspan="24" style="line-height: 30px;">No records found</td></tr>');
+        }
+
+}
+ $.date = function(dateObject) {
+    var d = new Date(dateObject);
+    var day = d.getDate();
+    var month = d.getMonth() + 1;
+    var year = d.getFullYear();
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = day + "-" + month + "-" + year;
+
+    return date;
+};
+
+function db_date(selector) {
+    var from = selector.split("-");
+    var date= from[2]+"-"+from[1]+"-"+ from[0];
+    return date;
+}
+function gridviewScroll(idname) {
+	        gridView1 = $('#'+idname).gridviewScroll({
+                width: 1000,
+                height: 600,
+                railcolor: "#F0F0F0",
+                barcolor: "#CDCDCD",
+                barhovercolor: "#606060",
+                bgcolor: "#F0F0F0",
+                freezesize: 1,
+                arrowsize: 30,
+                varrowtopimg: "Images/arrowvt.png",
+                varrowbottomimg: "Images/arrowvb.png",
+                harrowleftimg: "Images/arrowhl.png",
+                harrowrightimg: "Images/arrowhr.png",
+                headerrowcount: 2,
+                railsize: 16,
+                barsize: 8
+            });
+	    }
+{{/yield-scripts}}

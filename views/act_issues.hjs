@@ -1,0 +1,244 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+<ul class="side-nav">
+  <li><a href="/issue_tracker">Sort Issues</a></li>
+  <li><a href="/issue_tracker/non_food_issue">Create Non-food Issue</a></li>
+  <li><a href="/issue_tracker/act_issue">Act on Issues</a></li>
+</ul>
+</aside>
+
+<div class="large-9 columns" role="content">
+Select tag- <br />
+<select id="tag_selector">
+</select>
+<div id="issue_table">
+
+<div class="issue">
+</div>
+
+</div>
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+.issue_details, .status_text {
+  display: inline-block;
+  vertical-align: top;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.time_div, .text_div, .resolution_status {
+  display: inline-block;
+}
+
+.resolution_status {
+  width: 100px;
+}
+
+.time_div {
+  vertical-align: top;
+  width: 150px;
+}
+
+.text_div {
+  vertical-align: top;
+  width: 200px;
+}
+
+.title {
+  font-weight: bold;
+  text-align: center;
+}
+
+.issue_details {
+  width: 300px;
+}
+
+.issue_label {
+  font-weight: bold;
+  width:80px;
+  display: inline-block;
+}
+
+.new_log {
+  display: inline-block !important;
+  width: 200px !important;
+}
+
+.issue {
+  border: 1px solid grey;
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+.update_status {
+  margin-right: 1px;
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  color: black !important;
+  background-color: transparent !important;
+}
+
+.update_status:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+.tags {
+  color: #008CBA;
+  padding-left: 5px;
+}
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+function loadIssues(tag) {
+  $.get('/issue_tracker/act/'+tag)
+  .done(function(data) {
+    var non_food_issues = data["non_food_issues"];
+    var food_issues = data["food_issues"];
+    var targetDiv = $("#issue_table");
+    $(targetDiv).empty();
+
+    non_food_issues.map(function(item) {
+      var status_text_div = $("<div class=\"status_text\"><div class=\"title\">Status Log</div></div>");
+      // get the referer id and show the status logs
+      data["non_food_status_text"].map(function(status_item) {
+        if (status_item["id"] == item["id"]) {
+          $(status_text_div).append(
+            '<div class="time_div">'+ getFriendlyDate(status_item.time) +'</div><div class="text_div">'+status_item.status_text+'</div><br />'
+            );
+        }
+      });
+      var dropDowntext = getDropDownText(item["resolution_status"]);
+      $(status_text_div).append(dropDowntext + '<input data-id="'+item["id"]+'" data-type="non_food_issue" type="text" class="new_log" /><button class="update_status tiny info" onClick=\'updateStatus(this)\'>Update</button>');
+      $(targetDiv).append(
+      '<div class="issue">' +
+      '<div class="issue_details">' +
+      getFriendlyDate(item.time) + ' ' + item.name + '<br />' +
+      '<span class="issue_label">Reporter -</span> System | ' + item.reporter + '<br />' +
+      '<span class="issue_label">Issue -</span> ' + item.type + '<br />' +
+      '<span class="issue_label">Note -</span> ' + item.note + '<br />' +
+      '<span class="issue_label">Tags -</span><span class="tags">' + removeComma(item.tag) + '</span><br />' +
+      '</div>' +
+      $(status_text_div)[0].outerHTML +
+      '</div>'
+      );
+    });
+
+    food_issues.map(function(item) {
+      var status_text_div = $("<div class=\"status_text\"><div class=\"title\">Status Log</div></div>");
+      // get the referer id and show the status logs
+      data["non_food_status_text"].map(function(status_item) {
+        if (status_item["id"] == item["id"]) {
+          $(status_text_div).append(
+            '<div class="time_div">'+ getFriendlyDate(status_item.time) +'</div><div class="text_div">'+status_item.status_text+'</div><br />'
+            );
+        }
+      });
+      var dropDowntext = getDropDownText(item["resolution_status"]);
+      $(status_text_div).append(dropDowntext + '<input data-id="'+item["id"]+'" data-type="food_issue" type="text" class="new_log" /><button class="update_status tiny info" onClick=\'updateStatus(this)\'>Update</button>');
+      $(targetDiv).append(
+      '<div class="issue">' +
+      '<div class="issue_details">' +
+      getFriendlyDate(item.time) + ' ' + item.name + '<br />' +
+      '<span class="issue_label">Reporter -</span> System | ' + '<br />' +
+      '<span class="issue_label">Issue -</span> ' + item.status + '<br />' +
+      '<span class="issue_label">Note -</span> ' + item.note + '<br />' +
+      '<span class="issue_label">Tags -</span> <span class="tags">' + removeComma(item.tag) + '</span><br />' +
+      '</div>' +
+      $(status_text_div)[0].outerHTML +
+      '</div>'
+      );
+    });
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function getTags() {
+  $.get('/issue_tracker/get_tags')
+  .done(function(data) {
+    var targetDiv = $("#tag_selector");
+    data.map(function(option) {
+      $(targetDiv).append('<option>'+option.tag+'</option>');
+    });
+    loadIssues($("#tag_selector").val());
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function getDropDownText(status) {
+  if (status == "in progress") {
+    var dropDowntext = "<select class=\"resolution_status\"><option selected>in progress</option><option>resolved</option><option>pending</option></select>";
+  } else if (status == "resolved") {
+    var dropDowntext = "<select class=\"resolution_status\"><option>in progress</option><option selected>resolved</option><option>pending</option></select>";
+  } else if (status == "pending") {
+    var dropDowntext = "<select class=\"resolution_status\"><option>in progress</option><option>resolved</option><option selected>pending</option></select>";
+  }
+  return dropDowntext;
+}
+
+function updateStatus(scope) {
+  var text = $(scope).prev().val();
+  var id = $(scope).prev().attr("data-id");
+  var type = $(scope).prev().attr("data-type");
+  var resolution_status = $(scope).parent().find(".resolution_status").val();
+  $(scope).prev().val("");
+  $.ajax({
+    type: 'POST',
+    url: '/issue_tracker/status_update/'+id,
+    data: JSON.stringify({"text": text,
+      "resolution_status": resolution_status,
+      "type": type}),
+    success: function(data) {
+      console.log(data);
+      $(scope).parent().parent().append("Successfully added the status");
+      $("#tag_selector").trigger("change");
+     },
+    error: function(jqxhr, textStatus, error) {
+      var err_msg = textStatus + ", " + jqxhr.responseText;
+      console.error("Saving issue failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+  });
+}
+
+function getFriendlyDate(time) {
+  var date_obj = new Date(time);
+  var date = date_obj.toDateString().substring(0,date_obj.toDateString().length-5);
+  var hours = date_obj.getHours();
+  var minutes = date_obj.getMinutes().toString();
+  if (minutes.length == 1) {
+    minutes = "0" + minutes;
+  }
+
+  return date + " " + hours + minutes;
+}
+
+function removeComma(tags) {
+  return tags.replace(/\,/g," ");
+}
+
+$("#tag_selector").change(function(){
+  console.log("changed to -", $(this).val());
+  loadIssues($(this).val());
+});
+
+getTags();
+
+
+{{/yield-scripts}}
+

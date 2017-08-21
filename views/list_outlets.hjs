@@ -1,0 +1,54 @@
+{{#yield-body}}
+
+{{#outlet_created}}
+<div class="row">
+<div data-alert class="alert-box success round">Successfully created an outlet <a href="#" class="close">&times;</a>
+</div>
+</div>
+{{/outlet_created}}
+
+{{#outlet_updated}}
+<div class="row">
+<div data-alert class="alert-box success round">Successfully updated an outlet <a href="#" class="close">&times;</a>
+</div>
+</div>
+{{/outlet_updated}}
+
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+    <ul class="side-nav">
+      <li><a href="/outlet/create">Create outlet</a></li>
+    </ul>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Outlet list</h5>
+    <table id="outlets">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th width="200">Address</th>
+          <th width="150">Start of day</th>
+          <th width="150">End of day</th>
+          <th width="150"># ordering screens</th>
+          <th width="150">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#outlets}}
+        <tr>
+          <td><a href="/outlet/get/{{id}}">{{name}}</a></td>
+          <td>{{address}}</td>
+          <td>{{start_of_day}}</td>
+          <td>{{end_of_day}}</td>
+          <td>{{num_ordering_screens}}</td>
+          <td><a href="/outlet/update/{{id}}">Update</a></td>
+        </tr>
+        {{/outlets}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{/yield-body}}

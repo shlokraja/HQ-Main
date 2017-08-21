@@ -1,0 +1,119 @@
+{{#yield-body}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+    <ul class="side-nav">
+      <li><a href="/restaurant/create">Create restaurant</a></li>
+      <li><a href="/restaurant/update/{{restaurant.id}}">Update this restaurant</a></li>
+      <li><a href="/food_item/create?restaurant_id={{restaurant.id}}">Create a food item for this restaurant</a></li>
+    </ul>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Restaurant Details</h5>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Name</div>
+        <div class="small-9 columns">{{restaurant.name}}</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Address</div>
+        <div class="small-9 columns">
+          {{restaurant.address}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Short name</div>
+        <div class="small-9 columns">
+          {{restaurant.short_name}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Contact name</div>
+        <div class="small-9 columns">
+          {{restaurant.contact_name}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Phone no</div>
+        <div class="small-9 columns">
+          {{restaurant.phone_no}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">ST no.</div>
+        <div class="small-9 columns">
+          {{restaurant.st_no}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">TIN no.</div>
+        <div class="small-9 columns">
+          {{restaurant.tin_no}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Account no.</div>
+        <div class="small-9 columns">
+          {{restaurant.account_no}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">NEFT code</div>
+        <div class="small-9 columns">
+          {{restaurant.neft_code}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Bank name</div>
+        <div class="small-9 columns">
+          {{restaurant.bank_name}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Branch name</div>
+        <div class="small-9 columns">
+          {{restaurant.branch_name}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Active</div>
+        <div class="small-9 columns">
+          {{restaurant.active}}
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="small-8 columns">
+        <div class="small-3 columns">Start of day</div>
+        <div class="small-9 columns">
+          {{restaurant.start_of_day}}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{{/yield-body}}

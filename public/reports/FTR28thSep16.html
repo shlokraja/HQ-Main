@@ -1,0 +1,153 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    </head>
+<body>
+    <style>
+        #invoice .intro {
+          vertical-align: top;
+        }
+
+        #invoice .date {
+          float:right;
+        }
+
+        #invoice .subject {
+          font-weight: bold;
+        }
+
+        #invoice ul {
+          list-style-type: none;
+          padding-left: 0px;
+        }
+
+        #invoice .bank-address li span {
+          text-decoration: underline;
+        }
+
+        #invoice .beneficiary-info table thead th {
+          text-decoration: underline;
+        }
+
+        sup {
+         vertical-align: super;
+         font-size: smaller;
+        }
+
+        table {
+          border-collapse: collapse;
+          border: 1px solid #666666;
+          font: normal 12px verdana, arial, helvetica, sans-serif;
+          color: #363636;
+          background: #f6f6f6;
+          text-align:left;
+        }
+        thead, tfoot {
+        text-align:left;
+        height:30px;
+        background: #e0e0e0;
+        }
+        thead th, tfoot th {
+        padding:5px;
+        }
+        table a {
+        color: #333333;
+        text-decoration:none;
+        }
+        table a:hover {
+        text-decoration:underline;
+        }
+        tr:nth-child(even) {
+        background: #f1f1f1;
+        }
+        tbody th, tbody td {
+        padding:5px;
+        }
+
+    </style>
+
+    <div id="invoice">
+       <div class="intro">
+           <ul class="bank-address">
+               <li>To, <span class="date">Date: {{:date}}</span></li>
+               <li>The Operations Manager,</li>
+               <li>{{:bank_name}}</li>
+               <li>{{:bank_branch}}</li>
+               <li>{{:bank_address}}</li>
+               <li>Kind Attn: Escrow Team</li>
+               <br />
+               <li class="subject">Sub: -
+                 <span>Request for Fund Transfer - A/c No: {{:bank_account_no}}</span>
+
+               </li>
+               <li>This in reference to clause 4.2 of the Escrow Agreement dated {{:agreement_date}} between {{:corp_name}} and
+                   {{:fv_names}}.
+               </li>
+               <li> Kindly arrange to transfer funds as given below:</li>
+           </ul>
+       </div><!-- e: intro -->
+
+       <div class="account-info">
+          <br />
+           <table>
+               <tbody>
+                   <tr>
+                       <th>Account Name</th>
+                       <td>{{:bank_account_name}}</td>
+                   </tr>
+                   <tr>
+                       <th>Account No</th>
+                       <td>{{:bank_account_no}}</td>
+                   </tr>
+                   <tr>
+                       <th>Amount(figures and words)</th>
+                       <td>{{: total_amount}}</td>
+                   </tr>
+                   <tr>
+                       <th>Purpose of Transfer</th>
+                       <td>Business</td>
+                   </tr>
+               </tbody>
+           </table>
+       </div><!-- e: account-info-->
+
+       <div class="beneficiary-info">
+       <br />
+       <span><b>Beneficiary Account:-</b></span>
+           <table>
+               <thead>
+                   <tr>
+                       <th>Account Name</th>
+                       <th>Account No</th>
+                       <th>Amount (In figures and words)</th>
+                       <th>Bank/Branch</th>
+                       <th>IFS Code</th>
+                   </tr>
+               </thead>
+               <tbody>
+                  {{for transfers}}
+                   <tr>
+                       <td>{{:beneficiary_name}}</td>
+                       <td>{{:beneficiary_ac}}</td>
+                       <td>{{:amount}}</td>
+                       <td>{{:bank}}</td>
+                       <td>{{:ifsc}}</td>
+                   </tr>
+                  {{/for}}
+               </tbody>
+           </table>
+       </div> <!-- e: beneficiary-info-->
+       <span> Remarks: This pertains to sales made on {{:sales_date}}</span>
+
+       <div class="signature">
+           <ul>
+               <li>Yours faithfully,</li>
+               <li><b>For {{:bank_account_name}}</b></li>
+               <br/><br/><br/>
+               <li><b>Authorized Signatory</b></li>
+           </ul>
+       </div><!-- e: signatuer -->
+
+    </div><!-- e: invoice-->
+</body>
+</html>

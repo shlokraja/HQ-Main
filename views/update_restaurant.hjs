@@ -1,0 +1,154 @@
+{{#yield-body}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Update restaurant</h5>
+    <form id="update_rest" action="/restaurant/update/{{restaurant.id}}" method="POST">
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="name" class="right inline">Name *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="name" name="name" value="{{restaurant.name}}"  required/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="address" class="right inline">Address</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="address" name="address" value="{{restaurant.address}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="short_name" class="right inline">Short name</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="short_name" name="short_name" value="{{restaurant.short_name}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="contact_name" class="right inline">Contact name</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="contact_name" name="contact_name" value="{{restaurant.contact_name}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="phone_no" class="right inline">Phone no *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="tel" id="phone_no" name="phone_no" value="{{restaurant.phone_no}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="st_no" class="right inline">ST no.</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="st_no" name="st_no" value="{{restaurant.st_no}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="tin_no" class="right inline">TIN no.</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="tin_no" name="tin_no" value="{{restaurant.tin_no}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="account_no" class="right inline">Account no.</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="account_no" name="account_no" value="{{restaurant.account_no}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="neft_code" class="right inline">NEFT code</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="neft_code" name="neft_code" value="{{restaurant.neft_code}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="bank_name" class="right inline">Bank name</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="bank_name" name="bank_name" value="{{restaurant.bank_name}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="branch_name" class="right inline">Branch name</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="branch_name" name="branch_name" value="{{restaurant.branch_name}}"/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="active" class="right inline">Active</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="active" name="active">
+              <option value="t">Yes</option>
+              <option value="f">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="start_of_day" class="right inline">Start of day</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="time" id="start_of_day" name="start_of_day" value="{{restaurant.start_of_day}}"/>
+          </div>
+        </div>
+      </div>
+    <input type="submit" form="update_rest" value="Update" class="button success round" />
+    </form>
+  </div>
+</div>
+{{/yield-body}}
+
+{{#yield-scripts}}
+    // Setting the value of the "active" dropdown
+    // Taking only the first character because input is either t or f
+    $("#active").val("{{restaurant.active}}"[0]);
+{{/yield-scripts}}

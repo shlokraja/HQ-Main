@@ -1,0 +1,172 @@
+
+{{#yield-body}}
+<section class="content">
+    <input type="hidden" value="{{user}}" id="usertype" />
+    <div class="row">
+        <div class="large-12 columns" id="reports_div">
+            <div class="row">
+                <div class="large-4 small-6 columns">
+                    <label>Outlet</label>
+                    <select id="outlet_id">
+                        {{#outlets}}
+                        <option value={{id}}>{{name}}</option>
+                        {{/outlets}}
+                    </select>
+                </div>
+                <div class="large-4 small-6 columns">
+                    <label>Report Type</label>
+                    <select id="report_type">
+                        {{#reports}}
+                        <option value={{id}}>{{name}}</option>
+                        {{/reports}}
+                    </select>
+                </div>
+                <div class="large-2 small-6 columns">
+                    <label>From Date</label>
+                    <input id="from_date" type="text" class="datetimepicker" />
+                </div>
+                <div class="large-2 small-6 columns">
+                    <label>To Date</label>
+                    <input id="to_date" type="text" class="datetimepicker" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-12 columns">
+                    <input type="button" id="get_reports" name="Generate Reports" value="Generate Reports" class="medium button general-button btn-customised">
+                    <a href="#" id="saveas" title="Export to CSV" class="right">Export to CSV</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-12 column">
+                    <div id="output_div" class="panel" style="overflow:auto">
+                        <table id="report_output">
+                            <thead>
+                                <tr></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{{/yield-body}}
+{{#yield-styles}}
+
+
+.show{
+display:block;
+}
+.hide{
+display:none;
+}
+#home{
+background-color: #231f20;
+color:#fff !important;
+}
+
+{{/yield-styles}}
+{{#yield-scripts}}
+
+$("#reports_div .datetimepicker").datetimepicker({format:'Y-m-d', timepicker: false,maxDate: new Date});
+
+$("#get_reports").click(function() {
+  var from_date = $("#from_date").val();
+  var to_date = $("#to_date").val();
+  var outlet_id = $("#outlet_id").val();
+  var report_type = $("#report_type").val();
+    // GST validation 
+    var gst_date='2017-07-01';
+    var gst_end_date ='2017-07-31';
+
+    var sale_gst='2017-08-01';
+    var sale_gst_end = '2017-08-31';
+    //Cross GST
+    if (report_type=='daily_receipts' || report_type=='daily_receipts_gst' || report_type=='daily_sale_gst' )
+    {
+        if (from_date<  gst_date && to_date>=gst_date)
+        {
+            alert("Report not Available for period overlapping GST and ST");
+            return;
+        }
+        if(report_type=='daily_receipts' && (from_date>=  gst_date || to_date>=gst_date) )
+        {
+            alert("Report is not valid for the period Please check the start date and end date");
+            return;
+        }
+        if(report_type=='daily_receipts_gst' && (from_date<  gst_date || to_date<gst_date) )
+        {
+            alert("Report is not valid for the period Please check the start date and end date");
+            return;
+        }
+	    if(report_type=='daily_receipts_gst'  && (from_date > gst_end_date || to_date> gst_end_date))
+		{
+			alert("Daily Receipts GST Report is only available for July 2017. So please select the Daily Receipts Sales Report");
+            return;
+		}
+      if( report_type=='daily_sale_gst' && (from_date < sale_gst || to_date < sale_gst)){
+			alert("Daily Receipts Sales GST Report is only available from August 2017");
+            return;
+      }
+    }
+    
+
+  $.get('/accounts/report?from_date=' + from_date
+    + '&to_date=' + to_date
+    + '&outlet_id=' + outlet_id
+    + '&report_type=' + report_type)
+  .done(function(data) {
+    // Clearing off previous values
+    $("#report_output thead tr").empty();
+    $("#report_output tbody").empty();
+    // Add the rows in the table
+    var fields = data["fields"];
+    var fieldNames = _.keys(fields);
+    // Table headers
+    var thead = $("#report_output thead tr");
+    fieldNames.map(function(fname) {
+      $(thead).append("<td>" + fields[fname] + "</td>");
+    });
+
+    // Table rows
+    var rows = data["rows"];
+    var tbody = $("#report_output tbody");
+    rows.map(function(row){
+      var trow = $('<tr />');
+      $(tbody).append(trow);
+      fieldNames.map(function(fname){
+        var fname_value =row[fname];
+        if(fname == "saledate")
+        {
+            // fname_value = row[fname].substring(0,10);
+	   // fname_value =moment(row[fname].substring(0,10)).format("Do MMMM YYYY");
+        }
+
+        trow.append($("<td>" + fname_value + "</td>"));
+      });
+    });
+    // Aggregates
+    var total = data["aggregates"];
+    if(total){
+      var trow = $('<tr />');
+      $(tbody).append(trow);
+      fieldNames.map(function(fname){
+        trow.append($("<td><b>" + total[fname] + "</b></td>"));
+      });
+    }
+    var csvLink = '/accounts/report?from_date=' + from_date
+    + '&to_date=' + to_date
+    + '&outlet_id=' + outlet_id
+    + '&report_type=' + report_type
+    + '&csv=true';
+
+    $("#saveas").attr('href', csvLink);
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+});
+
+{{/yield-scripts}}

@@ -1,0 +1,344 @@
+﻿<html class="no-js" lang="en">
+<head>
+    <link href="/css/jquery-confirm.css" rel="stylesheet" />
+    <script src="/js/vendor/modernizr.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/css/foundation.css">
+    <link rel="stylesheet" href="/css/foundation.min.css" />
+    <link rel="stylesheet" href="/css/app.css">
+
+    <style>
+        .general-button {
+            background-color: #231f20 !important;
+            color: #fff !important;
+        }
+
+        .error {
+            color: red;
+            font-size: 16px !important;
+        }
+
+        .hide {
+            display: none !important;
+        }
+
+        #report_outputPanelItemContentFreeze {
+            width: 265px !important;
+        }
+        #report_output_gstPanelItemContentFreeze {
+            width: 265px !important;
+        }
+        #st_report_outputPanelItemContentFreeze{
+         width: 265px !important;   
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        .div_body {
+            margin-top: 50px;
+        }
+
+        .loading-bar {
+            display: inline-block;
+            width: 6px;
+            height: 35px;
+            border-radius: 4px;
+            animation: loading 1s ease-in-out infinite;
+            z-index: 1000;
+        }
+
+            .loading-bar:nth-child(1) {
+                background-color: #3498db;
+                animation-delay: 0;
+            }
+
+            .loading-bar:nth-child(2) {
+                background-color: #c0392b;
+                animation-delay: 0.09s;
+            }
+
+            .loading-bar:nth-child(3) {
+                background-color: #f1c40f;
+                animation-delay: .18s;
+            }
+
+            .loading-bar:nth-child(4) {
+                background-color: #27ae60;
+                animation-delay: .27s;
+            }
+
+        @keyframes loading {
+            0% {
+                transform: scale(1);
+            }
+
+            20% {
+                transform: scale(1, 2.2);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+
+        @media screen and (max-device-width: 480px) and (orientation: portrait) {
+            .width-for-small_only {
+                overflow: auto;
+                border: 1px solid grey;
+                width: 250px;
+            }
+
+            .top-bar ul li a {
+                text-align: left !important;
+                width:150px !important;
+            }
+            .top-bar ul li a:hover {
+                text-align: left !important;
+                width:150px !important;
+            }
+            .menu li:hover {
+                width:150px !important;
+            }
+        }
+         .menu li,.menu li:hover {
+                width:150px !important;
+            }
+        .secondary {
+            background-color: #e7e7e7;
+            border-color: #b9b9b9;
+            color: #333;
+        }
+
+        button, .button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            border-radius: 0;
+            border-style: solid;
+            border-width: 0;
+            cursor: pointer;
+            font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
+            font-weight: normal;
+            line-height: normal;
+            margin: 0 0 1.25rem;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            padding: 1rem 2rem 1.0625rem 2rem;
+            font-size: 1rem;
+            background-color: #008CBA;
+            border-color: #007095;
+            color: #fff;
+            transition: background-color 300ms ease-out;
+        }
+
+        body {
+            font-family: 'AzoSans-Regular';
+        }
+
+        button, a, h1, h2, h3 {
+            font-family: 'AzoSans-Regular' !important;
+        }
+
+        @font-face {
+            font-family: 'AzoSans-Bold';
+            src: url('/fonts/AzoSans-Bold.otf') format('opentype');
+        }
+
+        @font-face {
+            font-family: 'AzoSans-Regular';
+            src: url('/fonts/AzoSans-Regular.otf') format('opentype');
+        }
+
+        select {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            background-color: #FAFAFA;
+            border-radius: 0;
+            background-position: 100% center;
+            background-repeat: no-repeat;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #ccc;
+            color: rgba(0,0,0,0.75);
+            font-family: inherit;
+            font-size: 0.875rem;
+            line-height: normal;
+            padding: 0.5rem;
+            border-radius: 0;
+            height: 2.3125rem;
+        }
+
+        #saveas {
+            float: right;
+            color: #000;
+            text-decoration: underline;
+        }
+
+        #get_invoice {
+            margin-left: 0px !important;
+        }
+
+        .btn-customised, .btn-default {
+            background-color: #fbb713 !important;
+            color: #231f20 !important;
+        }
+
+            .btn-customised:hover, .btn-default:hover {
+                background-color: #231f20 !important;
+                color: #fff !important;
+            }
+
+        #header {
+            background-color: #231f20 !important;
+        }
+
+        .dropdown li a:hover {
+            background-color: #231f20 !important;
+            color: #fff !important;
+        }
+
+        .menu-container, .top-bar ul, .top-bar {
+            background-color: #fbb713 !important;
+        }
+
+            .menu-container .title-bar {
+                background-color: #fbb713 !important;
+            }
+
+            
+
+       {{{yield-styles}}}
+    </style>
+</head>
+<body>
+    <section id="header">
+        <div class="row">
+            <div class="small-12 columns">
+                <img src="/img/frshly-logo.png" class="hide-for-small-only">
+                <img src="/img/frshly-mobile-logo.png" class="show-for-small-only">
+            </div>
+        </div>
+    </section>
+    <section id="menu_container" class="menu-container hide">
+        <div class="menu-container">
+            <div class="row">
+                <div class="large-12 columns" role="content">
+                    <div class="title-bar show-for-small-only" data-responsive-toggle="example-menu" data-hide-for="medium">
+                        <button class="menu-icon dark btn-customised" type="button" data-toggle></button>
+                        <div class="title-bar-title">{{title}}</div>
+                    </div>
+                    <div class="top-bar">
+                        <div class="top-bar-left" id="example-menu">
+                            <ul class="vertical medium-horizontal menu hide" id="hq-menu">
+                                <li><a id="home" href="/accounts">Operations</a></li>
+                                <li><a id="fin_ops_report" href="/fin_ops_reports">Aggregation&nbsp;Report</a></li>
+                                <li><a id="transaction" href="/transaction">Aggregation&nbsp;Payment&nbsp;&nbsp;&nbsp;</a></li>
+                                <li><a id="transit_report" href="/transit_report">Trading&nbsp;Report</a></li>
+                                <li><a id="transit_payment" href="/transit_payment">Trading&nbsp;Payment</a></li>
+                                <li><a id="chargeback" href="/chargeback_report">Charge&nbsp;Back</a></li>
+                                <li><a id="invoice" href="/invoice">Invoice</a></li>
+                                <li><a href="/login">Logout</a></li>
+                            </ul>
+                            <ul class="vertical medium-horizontal menu hide" id="fv-menu">
+                                <li><a id="home" href="/accounts">Operations</a></li>
+                                <li><a id="fin_ops_report" href="/fin_ops_reports">Non&nbsp;Transit&nbsp;Report</a></li>
+                                <li><a id="transit_report" href="/transit_report">Transit&nbsp;Report</a></li>
+                                <li><a href="/login">Logout</a></li>
+                                <li><a id="chargeback" class="hide" href="/chargeback_report">Charge&nbsp;Back</a></li>
+                               
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section id="div_body">
+        <div class="row">
+            <div class="small-12 large-12 columns" role="content">
+                {{{yield-body}}}
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="footer">
+        <footer class="row">
+            <div class="large-12 columns">
+
+            </div>
+        </footer>
+    </section>
+
+
+
+    <script src="/js/vendor/foundation.js"></script>
+    <script src="/js/vendor/jquery.datetimepicker.full.min.js"></script>
+
+    <script src="/js/vendor/firebase.js"></script>
+    <script src="/js/vendor/highcharts.js"></script>
+
+    <script src="/js/vendor/jquery-confirm.js"></script>
+    <script src="/js/vendor/gridviewScroll.min.js"></script>
+    <script src="/js/vendor/jquery.ui.datepicker.min.js"></script>
+    <script src="/js/vendor/jquery.blockUI.js"></script>
+    <script src="/js/vendor/download.js"></script>
+    <script src="/js/vendor/moment.min.js"></script>
+    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
+    <link rel="stylesheet" href="/css/gridviewScroll.css" />
+    <link rel="stylesheet" type="text/css" href="/css/jquery.datetimepicker.css"/ >
+    <script>
+        var CLIENT_ID = '273587317115-dm0q6vvmolh1h3f1ajau9snd06au4qdt.apps.googleusercontent.com';
+        var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
+        $(document).ready(function () {
+
+        });
+        $(document).foundation();
+
+        $.blockUI({ message: '<h2>Just a moment...</h2>' });
+        $.unblockUI();
+        $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+
+        {{{yield-scripts}}}
+
+        if ($("#usertype").val() != undefined) {
+            $("#div_body").removeClass("div_body");
+            $("#menu_container").removeClass("hide");
+            $("#menu_container").addClass("show");
+            if ($("#usertype").val() != "HQ") {
+                $("#hq-menu").addClass("hide");
+                $("#fv-menu").removeClass("hide");
+                $("#fv-menu").addClass("show");
+
+            }
+            else {
+                $("#hq-menu").removeClass("hide");
+                $("#hq-menu").addClass("show");
+                $("#fv-menu").addClass("hide");
+            }
+        }
+        else {
+            $("#div_body").addClass("div_body");
+
+        }
+
+    </script>
+    {{{yield-tags}}}
+</body>
+</html>

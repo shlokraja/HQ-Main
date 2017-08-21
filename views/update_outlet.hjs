@@ -1,0 +1,179 @@
+{{#yield-body}}
+<div class="row">
+  <aside class="large-3 columns">
+
+    <h5>Categories</h5>
+
+  </aside>
+  <div class="large-9 columns" role="content">
+    <h5>Update outlet</h5>
+    <form id="update_outlet" action="/outlet/update/{{outlet.id}}" method="POST">
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="name" class="right inline">Name *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="name" name="name" placeholder="DLF" value="{{outlet.name}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="short_name" class="right inline">Short Name *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="short_name" name="short_name" placeholder="DLF (Must be 3 chars)" value="{{outlet.short_name}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="address" class="right inline">Address</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="address" name="address" value="{{outlet.address}}" />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="start_of_day" class="right inline">Start of day *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="time" id="start_of_day" name="start_of_day" placeholder="hh:mm" value="{{outlet.start_of_day}}" required/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="end_of_day" class="right inline">End of day *</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="time" id="end_of_day" name="end_of_day" placeholder="hh:mm" value="{{outlet.end_of_day}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="num_ordering_screens" class="right inline"># ordering screens*</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="num_ordering_screens" name="num_ordering_screens" value="{{outlet.num_ordering_screens}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="num_live_ordering_screens" class="right inline"># live ordering screens*</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="num_live_ordering_screens" name="num_live_ordering_screens" value="{{outlet.num_live_ordering_screens}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="num_live_ordering_screens" class="right inline">Cash at start of month</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="number" id="cash_at_start" name="cash_at_start" value="{{outlet.cash_at_start}}" required />
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="payment_methods" class="right inline">Payment methods</label>
+          </div>
+          <div class="small-9 columns">
+            <input type="text" id="payment_methods" name="payment_methods" placeholder="cash,card (Separate by comma if multiple)" pattern="^(cash|card)(,(cash|card))*$" value="{{outlet.payment_methods}}" required/>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="active" class="right inline">Active</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="active" name="active">
+              <option value="t">Yes</option>
+              <option value="f">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="force_print_bill" class="right inline">Force print bill</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="force_print_bill" name="force_print_bill">
+              <option value="t">Yes</option>
+              <option value="f">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="is24hr" class="right inline">Is 24 hr outlet</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="is24hr" name="is24hr">
+              <option value="t">Yes</option>
+              <option value="f">No</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="small-8 columns">
+          <div class="small-3 columns">
+            <label for="city_code" class="right inline">City Code</label>
+          </div>
+          <div class="small-9 columns">
+            <select id="city_code" name="city_code">
+              <option>CH</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    <input id="submit_create" type="submit" form="update_outlet" value="Update" class="button success round" />
+    </form>
+  </div>
+</div>
+{{/yield-body}}
+
+{{#yield-scripts}}
+  // Setting the value of the "active" dropdown
+  // Taking only the first character because input is either t or f
+  $("#active").val("{{outlet.active}}"[0]);
+  $("#force_print_bill").val("{{outlet.force_print_bill}}"[0]);
+  $("#is24hr").val("{{outlet.is24hr}}"[0]);
+  $("#city_code").val("{{outlet.city}}");
+  // Stripping the 1st and last character as they come up { }
+  payment_methods = $("#payment_methods").val();
+  payment_methods = payment_methods.substring(1,payment_methods.length-1);
+  $("#payment_methods").val(payment_methods);
+
+  $("#submit_create").click(function(){
+    var num_screens = parseInt($("#num_ordering_screens").val());
+    var num_live_screens = parseInt($("#num_live_ordering_screens").val());
+    if(num_live_screens > num_screens) {
+      alert('No. of live screens cannot be more than no. of screens');
+      return false;
+    }
+  });
+
+{{/yield-scripts}}

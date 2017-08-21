@@ -1,0 +1,381 @@
+{{#yield-body}}
+<div class="row">
+    <div id="err_daterange"></div>
+    <br />
+
+    <div id="po_editor_div" class="small-12 large-12 columns" data-selectedcity={{Selectedcity}} data-selectedDate={{selectedDate}} role="content">
+        <b>Creating Volume Plan</b> <br /><br />
+        <div id="err_upload"></div>
+        <div class="small-6 large-6">
+            <span class="formlabel">City</span>
+            <select id="city_id">
+                {{#city}}
+                <option value={{short_name}}>{{name}}</option>
+                {{/city}}
+            </select>
+        </div>
+        <div id="err_msg"></div>
+        <div id="dates" class="small-6 large-6">
+            <span class="formlabel">Date</span>
+            <input type="text" id="date" />
+        </div>
+        <br />
+        <div class="small-6 large-6">
+            <a href='#' id="saveas" class="button small info">Download Reference Master</a>
+
+            <a href='#' id="template" class="button small info">Download Template</a>
+        </div>
+        <form method="post" , enctype="multipart/form-data">
+            <input type="file" name="upload_file" accept=".csv" id="csvfile">
+            <div class="selector">
+                <button id="create_po" type="button" class="small secondary btn-customised">Upload Volume Plan</button>
+                <a href='#' style="display:none" id="download_link" class="button small info btn-customised">aa</a>
+            </div>
+        </form>
+        <br />
+        <a href='#' id="btn_pivot_review" class="button small info btn-customised">Preview Volume Plan</a>
+        <button id="btn_save" class="button small info btn-customised">Save Volume Plan</button>
+        <a href='#' id="btn_edit" class="button small info btn-customised">Edit Volume Plan</a>
+    </div>
+</div>
+{{/yield-body}}
+{{#yield-styles}}
+
+#saveas {
+  float: left;
+  color: #fff;
+  text-decoration: none;
+}
+#template {
+  float: right;
+}
+#err_msg {
+    color: red;
+}
+.selector {
+    display: inline-block;
+  margin-right: 25px;
+}
+
+#err_msg {
+    color: red;
+}
+
+#err_upload{
+color: red;
+}
+
+
+{{/yield-styles}}
+{{#yield-scripts}}
+    $(document).ready(function(){
+        $( "#date" ).click(function(){
+            $(".ui-datepicker-today").find('a').removeClass('ui-state-highlight');
+            $(".ui-datepicker-today").addClass('ui-datepicker-unselectable ui-state-disabled');
+            $(".ui-datepicker-today").next().find('a').addClass('ui-state-highlight');
+            $('#err_msg').text('');
+
+        });
+        var selected_city="{{Selectedcity}}";
+        if(selected_city!='')
+        {
+        $('#city_id').val(selected_city);
+        }
+        $('#date').val("{{selectedDate}}")
+    });
+    $(function() {
+
+        $( "#date" ).datepicker({
+            dateFormat: "yy-mm-dd",
+            minDate: new Date()
+        });
+    });
+
+    $(document).ready(function ()
+    {
+        $('#date').attr("readonly","true");
+
+    });
+    $("#saveas").click(function() {
+
+        if(document.getElementById("date").value == "")
+        {
+            $("#err_msg").text("Please select Date");
+$('#loader').hide()
+            return;
+        }
+        else {
+            $("#err_msg").text("");
+            var city = $('#city_id').val();
+            var date = $("#date").val();
+
+            $.get( '/volume_planning/downloadcsv',{city:city,date:date}, function(data) {
+             window.location='/volume_planning/downloadcsv?city=' + city + '&date=' + date;
+            })
+              .fail(function(err) {
+              $.alert({
+                                title: 'Notification!',
+                                content: err.responseText,
+                            });
+               // alert( err.responseText );
+            })
+        }
+    });
+
+    $("#csvfile").click(function(){
+        var err_text = $("#err_upload").text();
+        if(err_text == "")
+        {
+        }
+        else
+        {
+            $("#err_upload").text("");
+        }
+    });
+
+    $("#template").click(function() {
+
+        if(document.getElementById("date").value == "")
+        {
+            $("#err_msg").text("Please select Date");
+$('#loader').hide()
+            return;
+        }
+        else
+        {
+            $("#err_msg").text("");
+            var city = $('#city_id').val();
+            var date = $("#date").val();
+        $.get( '/volume_planning/downloadcsv_template',{city:city,date:date}, function(data) {
+             window.location='/volume_planning/downloadcsv_template?city=' + city + '&date=' + date;
+            })
+              .fail(function(err) {
+                $.alert({
+                                title: 'Notification!',
+                                content: err.responseText,
+                            });
+
+               // alert( err.responseText );
+            })
+        }
+
+    });
+
+    $("#btn_edit").click(function() {
+
+        if(document.getElementById("date").value == "")
+        {
+        $.alert({
+                title: 'Notification!',
+                content: 'Please select Date',
+            });
+
+            //$("#err_msg").text("Please select Date");
+            $('#loader').hide()
+            return;
+        }
+        else
+        {
+            $("#err_msg").text("");
+            var city = $('#city_id').val();
+            var date = $("#date").val();
+            var EditScreenLink = '/volume_planning/edit?city=' + city + '&date=' + date+ '&source=' + 'volume_plan_automation';
+            $("#btn_edit").attr('href', EditScreenLink);
+        }
+    });
+    $('#btn_pivot_review').click(function(e){
+        if(document.getElementById("date").value == "")
+        {
+           // $("#err_msg").text("Please select Date");
+            $.alert({
+                title: 'Notification!',
+                content: 'Please select Date',
+            });
+
+$('#loader').hide()
+            return;
+        }
+        var city = $('#city_id').val();
+        var date = $("#date").val();
+        var selected_city=$('#city_id option:selected').text();
+        var EditScreenLink = '/volume_planning/preview_volume_plan?city=' + city + '&date=' + date +'&selected_city='+selected_city;
+        $("#btn_pivot_review").attr('href', EditScreenLink);
+    });
+
+    $("#create_po").on("click", function (e) {
+        e.preventDefault();
+        if (document.getElementById("date").value == "") {
+            //$("#err_msg").text("Please select Date");
+             $.alert({
+                title: 'Notification!',
+                content: 'Please select Date',
+            });
+
+            $('#loader').hide()
+            return;
+        }
+        else {
+            $("#err_msg").text("");
+        }
+        var fileUpload = document.getElementById("csvfile");
+        var city = $('#city_id').val();
+        var date = $("#date").val();
+        //alert(fileUpload);
+        var fileName = fileUpload.value;
+
+        if (fileUpload.value != null && fileUpload.value!= "") {
+            var ext = fileName.substring(fileName.lastIndexOf('.') + 1);
+            if (ext == "csv" || ext == "CSV") {
+                $("#err_upload").text("");
+                var uploadFile = new FormData();
+                var files = $("#csvfile").get(0).files;
+                // Add the uploaded file content to the form data collection
+                if (files.length > 0) {
+                    uploadFile.append("CsvDoc", files[0]);
+                    $('#loader').show()
+                    $.ajax({
+                        url: "/volume_planning/upload?city=" + city + "&date=" + date,
+                        contentType: false,
+                        processData: false,
+                        data: uploadFile,
+                        type: 'POST',
+                        success: function () {
+                        $('#loader').hide()
+
+                            $.alert({
+                                title: 'Notification!',
+                                content: "Successfully Added & processed",
+                            });
+
+
+                        },
+
+                        error: function (jqxhr, textStatus, error) {
+console.log("Error after uploading" + JSON.stringify(error));
+                        $('#loader').hide()
+                            var error_msg = jqxhr.responseText;
+                            if(error_msg == "Already Available")
+                            {
+                                $.confirm({
+                                    title: 'Confirm!',
+                                    confirmButton: 'Yes',
+                                    cancelButton: 'No',
+                                    content: 'Volume plan already exist for the date you are selected, Do you want to overwrite it?',
+                                    confirm: function(){
+                                        $.ajax({
+                                            url: "/volume_planning/upload?city=" + city + "&date=" + date+"&can_overwrite=true",
+                                            contentType: false,
+                                            processData: false,
+                                            data: uploadFile,
+                                            type: 'POST',
+                                            success: function () {
+                                             $.alert({
+                                                    title: 'Notification!',
+                                                    content: "Successfully Added & processed",
+                                                });
+                                            },
+
+                                            error: function (jqxhr, textStatus, error) {
+                                            var error_msg = jqxhr.responseText;
+                                                $.alert({
+                                      title: 'Warning!',
+                                       content: 'Errors found please verify the error details',
+                                       confirm: function(){
+                                            $.post( '/volume_planning/download_ErrorFile',{errorDetails:error_msg}, function(data) {
+                                            download(data, "Error.txt", "text/plain");
+                                            })
+                                            .fail(function(error) {
+                                                console.log("Inside already available"+error_msg);
+                                                console.log("Inside already available"+JSON.stringify(error));
+                                                alert( error );
+                                              })
+                                       }
+                                    });
+                                            }
+                                            });
+                                    }
+                                });
+                            }
+
+                            else
+                            {
+                                $.alert({
+                                      title: 'Warning!',
+                                       content: 'Errors found please verify the error details',
+                                       confirm: function(){
+
+$.post( '/volume_planning/download_ErrorFile',{errorDetails:error_msg}, function(data) {
+download(data, "Error.txt", "text/plain");
+})
+.fail(function(error) {
+console.log("Inside else part error "+error_msg);
+                                                console.log("Inside else part error "+JSON.stringify(error));
+                                                //alert( error );
+  })
+
+                                       }
+                                    });
+                            }
+                        }
+                    });
+                }
+                else {
+                    $.alert({
+                        title: 'Notification!',
+                        content: "File is empty",
+                    });
+                    return;
+                }
+            }
+            else {
+                $.alert({
+                    title: 'Notification!',
+                    content: "Upload CSV files only",
+                });
+
+                return;
+            }
+        }
+        else {
+        $.alert({
+                title: 'Notification!',
+                content: 'Please Upload a file',
+            });
+           // $("#err_upload").text("Please Upload a file");
+            return;
+        }
+    });
+    $('#btn_save').click(function(e){
+$('#loader').show()
+        var date_selected=$("#date").val();
+        var city_selected=$('#city_id').val();
+        if(document.getElementById("date").value == "")
+        {
+          //  $("#err_msg").text("Please select Date");
+           $.alert({
+                title: 'Notification!',
+                content: 'Please select Date',
+            });
+
+$('#loader').hide()
+            return;
+        }
+
+        $.post( "/volume_planning/save_volume_plan_details",{"selected_date":date_selected,"city_selected":city_selected}, function(data) {
+            console.log("success");
+$('#loader').hide()
+            $.alert({
+                title: 'Notification!',
+                content: data,
+            });
+
+        })
+          .fail(function(data) {
+$('#loader').hide()
+              $.alert({
+                  title: 'Error Notification!',
+                  content: data.responseText,
+              });
+          })
+    })
+{{/yield-scripts}}

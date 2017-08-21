@@ -1,0 +1,106 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+</aside>
+
+<div class="large-9 columns" role="content">
+Threads
+<div id="threads">
+</div>
+<button id="compose_message" class="button small">Compose</button>
+</div>
+
+<div id="comments-dialog" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+  <h2 id="modalTitle"></h2>
+  <div class="comments">
+  </div>
+  <input type="text" class="reply_text" />
+  <button class="send_reply button small">Reply</button>
+</div>
+
+<div id="compose-message-dialog" class="reveal-modal" data-reveal aria-labelledby="modalTitle" aria-hidden="true" role="dialog">
+  <h2 id="modalTitle">Compose Message</h2>
+  <div class="key">Subject - </div><input type="text" class="subject field" /><br />
+  <div class="key">Roles</div>
+  <select class="roles field">
+    {{#roles}}
+    <option>{{.}}</option>
+    {{/roles}}
+  </select>
+  <br />
+  <div class="key">To -</div>
+  <select class="outlet field">
+    {{#outlets}}
+    <option value="{{id}}">{{name}}</option>
+    {{/outlets}}
+  </select>
+  <br />
+  Body -
+  <textarea></textarea>
+  <button class="compose_reply button small">Compose</button>
+</div>
+
+{{/yield-body}}
+
+{{#yield-styles}}
+.key {
+  display: inline-block;
+  font-weight: bold;
+  width:100px;
+}
+.field {
+  width:200px !important;
+  display: inline-block !important;
+}
+.thread {
+  color: blue;
+  cursor: pointer;
+}
+
+#compose-message-dialog .subject {
+  width:400px !important;
+}
+
+.source {
+  font-weight: bold;
+}
+.comment {
+  clear: both;
+}
+.hq_comment {
+  float: left;
+}
+.outlet_comment {
+  float: right;
+}
+
+.send_reply, #compose_message, .compose_reply {
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  background-color: transparent !important;
+  float: right;
+  color:black !important;
+}
+
+.send_reply:hover, #compose_message:hover, .compose_reply:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+CHAT_URL='{{firebase_link}}'
+
+$("body").on("click", ".thread", function(item) {
+  var thread_id = $(this).attr("data-thread_id");
+  var thread_title = $(this).text();
+  displayComments(thread_id, thread_title);
+});
+{{/yield-scripts}}
+
+{{#yield-tags}}
+<script src="js/message_center.js"></script>
+{{/yield-tags}}

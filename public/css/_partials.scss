@@ -1,0 +1,20 @@
+// Primary Color Settings
+
+$theme-color:#f9f9f9;
+$primary-color:#4a4b4a;
+$secondary-color:#FFF;
+$text-color: $primary-color;
+$link-color: $theme-color;
+$header-background:$primary-color;
+$menu-background-color:#f1f1f1;
+$menu-item: $secondary-color;
+
+// Font Settings
+
+$font-stack:Helvetica, sans-serif;
+$general-font-size:14px;
+$title-font-size:18px;
+
+// Media Query Hack
+
+$information-phone: "only screen and (max-width : 420px)";

@@ -1,0 +1,55 @@
+{{#yield-body}}
+<div id="loginarea" class="row">
+  <div class="large-12 columns" role="content">
+    <h5 id="title">Welcome to Foodbox</h5>
+    <form id="login_form" action="/" method="POST">
+    <div class="row">
+      <div class="large-12 columns">
+        <label>Enter username
+          <input id="username" name="username" type="text" placeholder="operations" />
+        </label>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <label>Enter password
+          <input id="password" name="password" type="password" placeholder="secret" />
+        </label>
+      </div>
+    </div>
+    <input id="btn_login" type="submit" form="login_form" value="LOGIN" />
+    </form>
+    <div id="failure_message">{{failure}}</div>
+  </div>
+
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+#loginarea {
+  width:40%;
+}
+#title {
+  text-align:center;
+}
+#btn_login {
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  padding: 10px;
+  color: black !important;
+  background-color: transparent !important;
+  font-family: 'AzoSans-Regular' !important;
+  margin-left:43%;
+  cursor:pointer;
+}
+
+#btn_login:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+
+#failure_message {
+  color:red;
+}
+{{/yield-styles}}

@@ -1,0 +1,43 @@
+{{#yield-body}}
+<section id="login">
+    <div class="row align-center">
+        <div class="large-6 columns">
+            <div class="login-box">
+                <h3>Accounts & Reports</h3>
+                <div class="row align-center">
+                    <div class="large-12 columns">
+                        <form id="login_form" action="/login" method="POST">
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <input id="username" name="username" type="text" placeholder="operations" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="large-12 columns">
+                                    <input id="password" name="password" type="password" placeholder="password" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="large-12 large-centered columns">
+                                    <input id="btn_login" class="medium expanded button login-button btn-customised" type="submit" form="login_form" value="LOGIN" />
+                                </div>
+                            </div>
+                        </form>
+                        <div id="failure_message">{{message}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{{/yield-body}}
+{{#yield-styles}}
+
+#failure_message {
+  color:red;
+}
+#menu_container
+{
+display:none !important;
+}
+{{/yield-styles}}

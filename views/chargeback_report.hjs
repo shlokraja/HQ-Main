@@ -1,0 +1,281 @@
+{{#yield-loginlogout}}
+<a id="logout" href="/logout">Logout</a>
+<span class="menu">|</span>
+<a id="accounts" href="/accounts">Home</a>
+{{/yield-loginlogout}}
+{{#yield-body}}
+<section class="content">
+    <input type="hidden" value="{{user}}" id="usertype" />
+    <div class="row">
+        <div class="large-12 columns" id="reports_div">
+            <div class="row">
+              
+                <div class="large-2 small-6 columns">
+                    <label>Year</label>
+                    <select id="year_id"></select>
+                    <div class="error" id="year_msg"></div>
+                </div>
+                <div class="large-2 small-6 columns">
+                    <label>Month</label>
+                    <select id="month_id"></select>
+                    <div class="error" id="month_msg"></div>
+                </div>
+                <div class="large-4 small-6 columns">
+                    <label>Report Type</label>
+                    <select id="reports_type" name="reports">
+                        <option value="item_wise">Items wise</option>
+                        <option value="restaurant_wise">Restaurant wise</option>
+                    </select>
+                </div>
+                <div class="large-4 small-6 columns">
+                    <label>Restaurant</label>
+                    <select id="restaurant_id" name="restaurant">
+
+                        {{#restaurants}}
+                        <option value={{id}}>{{name}}</option>
+                        {{/restaurants}}
+                        <option value='0'>Summary</option>
+                    </select>
+                    <div class="error" id="res_msg"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="small-12 columns">
+                    <input type="button" id="get_reports" name="Generate Reports" value="Generate Reports" class="medium button general-button btn-customised">
+                    <a href="#" id="saveas" title="Export to CSV">Export to CSV</a>
+                </div>
+            </div>
+            <div class="row">
+                <div id="chargeback_report_output_div" class="large-12 columns hide width-for-small_only">
+                    <table id="chargeback_report_output" class="full-width">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{{/yield-body}}
+{{#yield-styles}}
+    #chargeback{
+        background-color: #231f20;
+        color:#fff !important;
+    }
+    #accounts
+        {
+            padding-left: 20px;
+            float:right;
+        }
+        .left
+        {
+            float:left;
+        }
+        .right
+        {
+            float:right;
+            margin-right: 17px;
+        }
+        .full-width
+        {
+            width:100%;
+        }
+    #logout {
+            float: right;
+    }
+        .error{
+            color: red;
+        }
+        .show{
+            display:block;
+        }
+        .hide{
+            display:none;
+        }
+    #saveas {
+            float: right;
+        margin-left: 30px;
+    }
+{{/yield-styles}}
+
+
+{{#yield-scripts}}
+
+    $.blockUI({ message: '<h2>Just a moment...</h2>' });
+    $.unblockUI();
+    $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+    $("#chargeback_report_output_div").addClass("hide");
+    $("#saveas").addClass("hide");
+    var current_month = new Date().getMonth();
+    var current_year = new Date().getFullYear();
+    var current_date = new Date().getDate();
+    var min = new Date().getFullYear(),
+    max = min,
+       select = document.getElementById('year_id');
+
+    if ($("#usertype").val() != "HQ") {
+        if ((current_month == 0) || (current_month == 1 && current_date <= 2)) {
+            max = min - 1;
+        }
+    }
+
+    for (var i = min - 1; i <= max; i++) {
+        //Validation to retrieve data after October 2016
+        if (Number(i) >= 2016) {
+            var opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = i;
+            select.appendChild(opt);
+        }
+    }
+    loadMonth();
+    $("#year_id").change(function () {
+        document.getElementById("month_id").innerHTML = '';
+        loadMonth();
+    });
+
+    // Show "restaurant_wise" Report and Summary only HQ Users
+    if ($("#usertype").val() != "HQ") {
+        $("#reports_type option[value='restaurant_wise']").remove();
+        $("#restaurant_id option[value='0']").remove();
+    }
+
+    function remove_option() {
+        $("#restaurant_id option[value='0']").remove();
+    }
+    function loadMonth() {
+        var year_id = $("#year_id").val();
+
+        var month = document.getElementById('month_id');
+
+        var month_count = 12;
+
+        if (year_id == current_year && $("#usertype").val() == "HQ") {
+            month_count = current_month;
+        }
+        else if (year_id == current_year) {
+            if (Number(current_date) <= 2) {
+                month_count = current_month - 2;
+            }
+            else { month_count = current_month - 1; }
+        }
+        else if (year_id < current_year) {
+            if (current_month == 0 && $("#usertype").val() != "HQ") {
+                month_count = current_date <= 2 ? 10 : 11;
+            } else {
+                month_count = 11;
+            }
+
+        }
+
+        for (iIndex = 0; iIndex <= month_count; iIndex++) {
+            var iIndex, sMonth;
+            sMonth = moment.localeData().months(moment([0, iIndex]), "");
+            var opt = document.createElement('option');
+            var value = iIndex + 1;
+            var month_value = value < 10 ? '0' + value : value;
+            //Validation to retrieve data after October 2016
+
+            if (Number(year_id) == 2016 && Number(month_value) <= 12) {
+                if (Number(month_value) >= 10) {
+                    opt.value = month_value;
+                    opt.innerHTML = sMonth;
+                    month.appendChild(opt);
+                }
+            }
+            else if (Number(year_id) > 2016 && Number(month_value) <= 12) {
+                opt.value = month_value;
+                opt.innerHTML = sMonth;
+                month.appendChild(opt);
+            }
+
+        }
+
+    }
+
+    $("#get_reports").click(function () {
+        var usertype = $("#usertype").val();
+        var month_id = $("#month_id").val();
+        var year_id = $("#year_id").val();
+        var reports_type = $("#reports_type").val();
+        var restaurant_id = $("#restaurant_id").val();
+        $("#chargeback_report_output thead tr").empty();
+        $("#chargeback_report_output tbody").empty();
+        if ((document.getElementById("month_id").value == "0") && (document.getElementById("year_id").value == "0")) {
+            $("#month_msg").text("Please select month");
+            $("#year_msg").text("Please select year");
+            return;
+        }
+        else {
+            $("#month_msg").text("");
+            $("#year_msg").text("");
+        }
+        var function_name = 'get_item_wise_charge_back';
+        var report_type = "item";
+        if (reports_type == "restaurant_wise") {
+            report_type = "restaurant";
+            function_name = 'get_chargeback_report_details';
+        }
+        url = '/chargeback_report/' + function_name + '?usertype=' + usertype + '&month_id=' + month_id + '&year_id=' + year_id + '&restaurant_id=' + restaurant_id + '&report_type=' + report_type;
+        var csvLink = '/chargeback_report/downloadcsv?usertype=' + usertype + '&month_id=' + month_id + '&year_id=' + year_id + '&restaurant_id=' + restaurant_id + '&report_type=' + report_type;
+        console.log(url);
+        timeout: 2000000
+        $.get(url)
+          .done(function (data) {
+              console.log(data);
+              // Clearing off previous values
+              $("#chargeback_report_output thead tr").empty();
+              $("#chargeback_report_output tbody").empty();
+              if (data != 'NoData') {
+                  // Add the rows in the table
+                  var fields = data["fields"];
+                  var fieldNames = _.keys(fields);
+                  // Table headers
+                  var thead = $("#chargeback_report_output thead tr");
+                  fieldNames.map(function (fname) {
+                      $(thead).append("<td>" + fields[fname] + "</td>");
+                  });
+
+                  // Table rows
+                  var rows = data["rows"];
+                  var tbody = $("#chargeback_report_output tbody");
+                  rows.map(function (row) {
+                      var trow = $('<tr />');
+                      $(tbody).append(trow);
+                      fieldNames.map(function (fname) {
+                          trow.append($("<td>" + row[fname] + "</td>"));
+                      });
+                  });
+                  // Aggregates
+                  var total = data["aggregates"];
+                  if (total) {
+                      var trow = $('<tr />');
+                      $(tbody).append(trow);
+                      fieldNames.map(function (fname) {
+                          trow.append($("<td><b>" + total[fname] + "</b></td>"));
+                      });
+                  }
+                  $("#chargeback_report_output_div").removeClass("hide");
+                  $("#chargeback_report_output_div").addClass("show");
+                  $("#saveas").removeClass("hide");
+                  $("#saveas").addClass("show");
+                  $("#saveas").attr('href', csvLink);
+                  //alert(data);
+              }
+              else {
+                  $("#chargeback_report_output tbody").append("No Data");
+                  $("#chargeback_report_output_div").removeClass("hide");
+                  $("#chargeback_report_output_div").addClass("show");
+              }
+          })
+            .fail(function (jqxhr, textStatus, error) {
+                var err_msg = textStatus + ", " + jqxhr.responseText;
+                console.error("Request Failed: " + err_msg);
+            });
+    });
+
+{{/yield-scripts}}
+

@@ -1,0 +1,255 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+<ul class="side-nav">
+  <li><a href="/issue_tracker">Sort Issues</a></li>
+  <li><a href="/issue_tracker/non_food_issue">Create Non-food Issue</a></li>
+  <li><a href="/issue_tracker/act_issue">Act on Issues</a></li>
+</ul>
+</aside>
+
+<div class="large-9 columns" role="content">
+  <div id="pending_non_food_text">PENDING NON FOOD ISSUES - <div id="num_pending_non_food">{{num_pending.non_food_issues}}</div></div>
+  PENDING FOOD ISSUES- <div id="num_pending_food">{{num_pending.food_issues}}</div> <br />
+  <div id="non_food_issues">
+  <div class="main-content">
+  </div>
+  <div class="tags"><span class="issue_label">Tags: </span></div>
+  <div>Add tag:
+    <select class="tag_selector">
+    {{#tags}}
+    <option>{{tag}}</option>
+    {{/tags}}
+    </select> <img class="add_tag" src="/img/Add Item.png" />
+  </div>
+  <button class="save button small info">Save</button>
+  </div>
+  <div id="food_issues">
+  <div class="main-content">
+  </div>
+  <div class="tags"><span class="issue_label">Tags: </span></div>
+  <div>Add tag:
+    <select class="tag_selector">
+    {{#tags}}
+    <option>{{tag}}</option>
+    {{/tags}}
+    </select> <img class="add_tag" src="/img/Add Item.png" />
+  </div>
+  <button class="save button small info">Save</button>
+  </div>
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+#non_food_issues, #food_issues {
+  display: inline-block;
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 10px;
+  width: 350px;
+  vertical-align: top;
+  height: 400px;
+}
+
+.title {
+  text-align: center;
+}
+
+.centered {
+  margin-left: 40px;
+}
+
+.issue_label {
+  font-weight: bold;
+  width:80px;
+  display: inline-block;
+}
+
+#pending_non_food_text {
+  width: 350px;
+  display: inline-block;
+}
+.add_tag {
+  cursor: pointer;
+  height: 20px;
+}
+
+.tag_selector {
+  width: 100px;
+}
+
+.tag_item {
+  display: inline-block;
+  margin-right: 10px;
+  color: #008CBA;
+  cursor: pointer;
+}
+
+#num_pending_food, #num_pending_non_food {
+  display: inline-block;
+}
+
+button.save {
+  float: right;
+}
+
+.save {
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  background-color: transparent !important;
+}
+
+.save:hover {
+  background-color: transparent !important;
+  color: black !important;
+}
+{{/yield-styles}}
+
+{{#yield-scripts}}
+CHAT_URL='{{firebase_link}}'
+
+function loadNextNonfoodIssue() {
+  $.get('/issue_tracker/sort_nonfood_issues/')
+  .done(function(data) {
+    var targetDiv = $("#non_food_issues .main-content");
+    $("#non_food_issues").attr("issue_id", data.id);
+    $(targetDiv).empty();
+    if (data == "") {
+      return;
+    }
+    $(targetDiv).append(
+      '<div class="centered"><span class="issue_label">Where: </span> ' + data.outlet_name + '</div>' +
+      '<div class="centered"><span class="issue_label">When: </span> ' + getFriendlyDate(data.time) + '</div>' +
+      '<div class="centered"><span class="issue_label">Reporter: </span> System | ' + data.reporter + '</div><br />' +
+      '<span class="issue_label">Issue: </span> ' + data.type + '<br />' +
+      '<span class="issue_label">Note: </span> ' + data.note);
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function loadNextfoodIssue() {
+  $.get('/issue_tracker/sort_food_issues/')
+  .done(function(data) {
+    var targetDiv = $("#food_issues .main-content");
+    $("#food_issues").attr("issue_id", data.id);
+    $(targetDiv).empty();
+    if (data == "") {
+      return;
+    }
+    $(targetDiv).append(
+      '<div class="centered"><span class="issue_label">Where: </span> ' + data.outlet_name + '</div>' +
+      '<div class="centered"><span class="issue_label">When: </span> ' + getFriendlyDate(data.time) + '</div>' +
+      '<div class="centered"><span class="issue_label">Reporter: </span> System </div><br />' +
+      '<span class="issue_label">Item: </span> [' + data.short_name + '] ' + data.item_name + '<br />' +
+      '<span class="issue_label">Status: </span> ' + data.status + '<br />' +
+      '<span class="issue_label">Problem: </span> ' + data.note + '<br />' +
+      '<span class="issue_label">Note: </span> ' + data.note );
+  })
+  .fail(function(jqxhr, textStatus, error) {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("Request Failed: " + err_msg);
+  });
+}
+
+function saveTags(id, issue_type, tagValue) {
+ console.log("tagValue- ", tagValue);
+ $.ajax({
+    type: 'POST',
+    url: '/issue_tracker/save_tag/',
+    data: JSON.stringify({"referer_id": id,
+      "issue_type": issue_type,
+      "tag": tagValue}),
+    success: function(data) {
+      console.log(data);
+      // Clearing the div and loading the next issue
+      if (issue_type == 'non_food_issue') {
+        loadNextNonfoodIssue();
+      } else {
+        loadNextfoodIssue();
+      }
+     },
+    error: function(jqxhr, textStatus, error) {
+      var err_msg = textStatus + ", " + jqxhr.responseText;
+      console.error("Saving tags failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+  });
+}
+
+function getFriendlyDate(time) {
+  var date_obj = new Date(time);
+  var date = date_obj.toDateString().substring(0,date_obj.toDateString().length-5);
+  var hours = date_obj.getHours();
+  var minutes = date_obj.getMinutes().toString();
+  if (minutes.length == 1) {
+    minutes = "0" + minutes;
+  }
+
+  return date + " " + hours + minutes;
+}
+
+$("#non_food_issues .save").click(function() {
+  var referer_id = $("#non_food_issues").attr("issue_id");
+  if (referer_id === undefined) {
+    return;
+  }
+  // Getting the tags
+  var tagValue = "";
+  $("#non_food_issues .tags .tag_item").each(function(index) {
+    tagValue += $(this).text() + ",";
+  });
+  $("#non_food_issues .tags").empty();
+  $("#non_food_issues .tags").append("<span class=\"issue_label\">Tags: </span>");
+  // Reducing num_pending by 1
+  var num_pending = parseInt($("#num_pending_non_food").text());
+  $("#num_pending_non_food").text(num_pending-1);
+  tagValue = tagValue.substring(0, tagValue.length-1);
+  saveTags(referer_id, 'non_food_issue', tagValue);
+});
+
+$("#food_issues .save").click(function() {
+  var referer_id = $("#food_issues").attr("issue_id");
+  if (referer_id === undefined) {
+    return;
+  }
+  // Getting the tags
+  var tagValue = "";
+  $("#food_issues .tags .tag_item").each(function(index) {
+    tagValue += $(this).text() + ",";
+  });
+  $("#food_issues .tags").empty();
+  $("#food_issues .tags").append("<span class=\"issue_label\">Tags: </span>");
+  var num_pending = parseInt($("#num_pending_food").text());
+  $("#num_pending_food").text(num_pending-1);
+  tagValue = tagValue.substring(0, tagValue.length-1);
+  saveTags(referer_id, 'food_issue', tagValue);
+});
+
+$(".add_tag").click(function() {
+  var tag_value = $(this).prev().val();
+  $(this).parent().parent().find(".tags").append("<div class=\"tag_item\">"+tag_value+"</div>");
+});
+
+$("#non_food_issues").on("click", ".tag_item", function(item) {
+  $(this).remove();
+});
+$("#food_issues").on("click", ".tag_item", function(item) {
+  $(this).remove();
+});
+
+// Loading the issues when the page loads
+loadNextNonfoodIssue();
+loadNextfoodIssue();
+
+{{/yield-scripts}}
+
+{{#yield-tags}}
+<script src="js/message_center.js"></script>
+{{/yield-tags}}

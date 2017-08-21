@@ -1,0 +1,140 @@
+{{#yield-body}}
+<div class="row">
+<aside class="large-3 columns">
+<h5>Categories</h5>
+</aside>
+
+<div id="po_editor_div" class="large-9 columns" role="content">
+  Manual PO creator <br /><br />
+  Outlet
+  <select id="outlet_id">
+  {{#outlets}}
+  <option value={{id}}>{{name}}</option>
+  {{/outlets}}
+  </select>
+  Restaurant
+  <select id="restaurant_id">
+  {{#fvs}}
+  <option value={{id}}>{{name}}</option>
+  {{/fvs}}
+  </select>
+  Scheduled delivery time of PO
+  <input type="text" class="datetimepicker" />
+  <br />
+  <div id="err_msg"></div>
+  <button id="create_po" class="button small success">Create PO</button>
+</div>
+</div>
+{{/yield-body}}
+
+{{#yield-styles}}
+.remove_item {
+  height: 20px;
+  cursor: pointer;
+}
+
+.label_marker {
+  display: inline-block;
+  font-weight: bold;
+}
+
+#err_msg {
+  color: red;
+}
+
+.qty {
+  width:60px !important;
+}
+
+#create_po {
+  box-shadow: 0 1px 6px 0 rgba(0,0,0,.12),0 1px 6px 0 rgba(0,0,0,.12);
+  transition: box-shadow .28s cubic-bezier(.4,0,.2,1);
+  text-transform: uppercase;
+  background-color: transparent !important;
+  color: black !important;
+  margin: 0 auto;
+  display: block;
+}
+
+{{/yield-styles}}
+
+{{#yield-scripts}}
+
+var menu_band_times = [];
+{{#menu_band_times}}
+menu_band_times.push({start_time: '{{start_time}}',
+      end_time: '{{end_time}}',
+      outlet_id: {{outlet_id}}});
+{{/menu_band_times}}
+
+fv_outlet_combos = [];
+{{#food_items}}
+fv_outlet_combos.push({
+  outlet_id: {{outlet_id}},
+  restaurant_id: {{restaurant_id}}
+});
+{{/food_items}}
+
+var all_fvs = {};
+{{#fvs}}
+  all_fvs[{{id}}] = '{{name}}';
+{{/fvs}}
+
+$("#po_editor_div .datetimepicker").datetimepicker({
+  minTime: new Date(),
+  minDate: new Date()
+});
+
+$("#outlet_id").change(function() {
+  var selected_id = $(this).val();
+  $("#restaurant_id").empty();
+  fv_outlet_combos.map(function(item) {
+    if (item.outlet_id == selected_id) {
+      $("#restaurant_id").append("<option value='"+item.restaurant_id+"'>"+all_fvs[item.restaurant_id]+"</option>");
+    }
+  });
+});
+
+$("#outlet_id").trigger("change");
+
+$("#create_po").click(function() {
+  var target_ts = $("#po_editor_div .datetimepicker").val();
+  var outlet_id = $("#outlet_id").val();
+  var restaurant_id = $("#restaurant_id").val();
+  var menu_band_id = -1;
+
+  if (!target_ts) {
+    return;
+  }
+
+  var allowed_times = menu_band_times.filter(function(item){
+    return item.outlet_id == outlet_id
+  });
+  var isTimeInside = false;
+  var target_ts_obj = new Date(target_ts);
+  var target_ts_computed = target_ts_obj.getHours() * 60 + target_ts_obj.getMinutes();
+  for (var i = 0; i < allowed_times.length; i++) {
+    var start_time_hours = parseInt((allowed_times[i].start_time).split(':')[0]);
+    var start_time_mins = parseInt((allowed_times[i].start_time).split(':')[1]);
+    var start_time_computed = start_time_hours * 60 + start_time_mins;
+    var end_time_hours = parseInt((allowed_times[i].end_time).split(':')[0]);
+    var end_time_mins = parseInt((allowed_times[i].end_time).split(':')[1]);
+    var end_time_computed = end_time_hours * 60 + end_time_mins;
+    if (target_ts_computed >= start_time_computed && target_ts_computed <= end_time_computed) {
+      isTimeInside = true;
+    }
+  }
+  if (!isTimeInside) {
+    $("#err_msg").text("Please select a time within the menu band times");
+    return;
+  } else {
+    $("#err_msg").text("");
+  }
+  target_ts = target_ts.replace(/\//g, '-');
+
+  location.href = location.origin + "/po_editor?outlet_id=" +
+            outlet_id + "&fv_id=" + restaurant_id + "&menu_band_id=-1&target_ts=" + target_ts;
+});
+
+{{/yield-scripts}}
+
