@@ -3922,4 +3922,31 @@ router.get('/outlet_session/:id', function (req, res, next) {
 
     });
 });
+// Returning the outlet config settings
+router.get('/outlet_session/:id', function (req, res, next) {
+    var outlet_id = req.params.id;
+
+    pg.connect(conString, function (err, client, done) {
+        if (err)
+        {
+            handleError(client, done, res, 'error fetching client from pool' + err);
+            return;
+        }
+        client.query('SELECT array_agg( distinct(end_time)) from outlet_sessions o   WHERE o.outlet_id=$1',
+          [outlet_id],
+          function (query_err, result) {
+              if (query_err)
+              {
+                  handleError(client, done, res, '/outlet_session/:id :: error running query' + query_err);
+                  return;
+              }
+
+              // releasing the connection
+              done();
+              res.send(result.rows[0]);
+          });
+
+    });
+});
+
 module.exports = router;
