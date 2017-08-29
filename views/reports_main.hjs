@@ -110,6 +110,31 @@ $("#get_reports").click(function() {
             return;
       }
     }
+ var repEndDate='2017-07-31';
+    if((report_type!='daily_revenue_analysis')   &&  (from_date> repEndDate || to_date > repEndDate  ))
+    {
+	if( report_type.indexOf('tender_type_reports')==-1)
+	{
+        if (report_type!='daily_receipts_gst')
+        {
+        
+        alert  ("Report Not Available for the given Period !!!");
+        return;
+        }
+	}
+     }
+ //Validate days of the report  Only Allow 15-days
+    var dt1=new Date(to_date);
+    var dt2= new Date(from_date);
+    var diff=new Date(dt1-dt2);
+
+    days  = Math.round( diff/1000/60/60/24);
+    if (days >15)
+    {
+        alert ("Report Only possible for 15-days");
+        return;
+    }
+    
     
 
   $.get('/accounts/report?from_date=' + from_date
