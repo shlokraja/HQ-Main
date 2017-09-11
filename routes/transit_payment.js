@@ -47,10 +47,22 @@ router.get('/', IsAuthenticated, function (req, res, next) {
             },
 
             outlet: function (callback) {
-                config.query('select distinct out.name,out.short_name,out.city from outlet out \
-                        inner join food_item fi on out.id=fi.outlet_id  \
-                        inner join restaurant res on fi.restaurant_id=res.id  \
-                        where res.id>0 and out.ispublicsector=true order by out.name',
+                var query='select distinct out.name,out.short_name,out.city from outlet out \
+                inner join food_item fi on out.id=fi.outlet_id  \
+                inner join restaurant res on fi.restaurant_id=res.id  \
+                where res.id>0 ';
+                if (login_report_type=='after_august')
+                    {
+                        query=query+ ' and out.ispublicSector=true ';
+                    }
+                    else
+                    {
+                        query=query+ ' and out.ispublicSectorPriorAugust=true ';
+                    }
+                
+                    query=query+' and out.active=true order by out.name';
+
+                config.query( query,
                 [],
                 function (err, result) {
                     if (err) {
@@ -66,7 +78,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                         inner join food_item fi on fi.restaurant_id=res.id \
                         inner join outlet out on out.id=fi.outlet_id \
                         inner join restaurant_config rcon on rcon.restaurant_id=res.id \
-                        where res.id>0 and out.ispublicsector=true order by res.name',
+                        where res.id>0 and out.ispublicsector=true and res.active=true order by res.name',
                 [],
                 function (err, result) {
                     if (err) {
@@ -91,6 +103,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                outlet: results.outlet,
                restaurants: results.restaurants,
                user: user,
+               reportAugust:login_report_type=='after_august',
            };
            res.render('transit_payment', context);
        });

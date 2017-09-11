@@ -75,6 +75,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
              title: 'Charge Back Details',
              restaurants: results.restaurants,
              user: user,
+             reportAugust:login_report_type=='after_august',
          };
          res.render('chargeback_report', context);
      });

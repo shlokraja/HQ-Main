@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <!--Adding Toastr for showing notification and errors
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
@@ -244,12 +248,21 @@
                         <div class="top-bar-left" id="example-menu">
                             <ul class="vertical medium-horizontal menu hide" id="hq-menu">
                                 <li><a id="home" href="/accounts">Operations</a></li>
-                                <li><a id="fin_ops_report" href="/fin_ops_reports">Aggregation&nbsp;Report</a></li>
-                                <li><a id="transaction" href="/transaction">Aggregation&nbsp;Payment&nbsp;&nbsp;&nbsp;</a></li>
-                                <li><a id="transit_report" href="/transit_report">Trading&nbsp;Report</a></li>
-                                <li><a id="transit_payment" href="/transit_payment">Trading&nbsp;Payment</a></li>
+                                <li><a id="fin_ops_report" href="/fin_ops_reports">Non&nbsp;Transit&nbsp;Report</a></li>
+                                <li><a id="transaction" href="/transaction">Non&nbsp;Transit&nbsp;Payment&nbsp;&nbsp;&nbsp;</a></li>
+                                <li><a id="transit_report" href="/transit_report">Transit&nbsp;Report</a></li>
+                                <li><a id="transit_payment" href="/transit_payment">Transit&nbsp;Payment</a></li>
                                 <li><a id="chargeback" href="/chargeback_report">Charge&nbsp;Back</a></li>
                                 <li><a id="invoice" href="/invoice">Invoice</a></li>
+                                <li><a href="/login">Logout</a></li>
+                            </ul>
+                            <!-- Adding From August Menus-->
+                              <ul class="vertical medium-horizontal menu hide" id="hq-august-menu">
+                                <li><a id="home" href="/accounts">Operations</a></li>
+                                <li><a id="fin_ops_report" href="/fin_ops_reports">Non-Trading &nbsp;Report</a></li>                                
+                                <li><a id="transit_report" href="/transit_report">Trading &nbsp;Report</a></li>
+                                <li><a id="transit_payment" href="/transit_payment">Payment</a></li>
+                                <li><a id="chargeback" href="/chargeback_report">Monthly &nbsp;Reconcilation</a></li>                                
                                 <li><a href="/login">Logout</a></li>
                             </ul>
                             <ul class="vertical medium-horizontal menu hide" id="fv-menu">
@@ -321,15 +334,24 @@
             $("#div_body").removeClass("div_body");
             $("#menu_container").removeClass("hide");
             $("#menu_container").addClass("show");
-            if ($("#usertype").val() != "HQ") {
+            if ($("#usertype").val() != "HQ") {                
                 $("#hq-menu").addClass("hide");
+                $("#hq-august-menu").addClass("hide");
                 $("#fv-menu").removeClass("hide");
                 $("#fv-menu").addClass("show");
 
             }
             else {
-                $("#hq-menu").removeClass("hide");
-                $("#hq-menu").addClass("show");
+                if ($("#reportAugust").val()=='true')
+                {
+                    $("#hq-august-menu").removeClass("hide");
+                    $("#hq-august-menu").addClass("show");
+                }
+                else
+                {
+                    $("#hq-menu").removeClass("hide");
+                    $("#hq-menu").addClass("show");
+                }                
                 $("#fv-menu").addClass("hide");
             }
         }

@@ -812,11 +812,12 @@ var getpurchasequantity = function (from_date, to_date, callback) {
         //   reconcile_date ::date >= '" + from_date + "' and reconcile_date ::date <'" + moment(date).format('YYYY-MM-DD') + "' \
           // and status <> 'undelivered' and status <> 'restaurantfault' group by po_id,item_id";
 
- var query = "SELECT por.po_id,por.item_id,sum(por.quantity) as quantity,sum(case when por.status='restaurantfault' then por.quantity else 0 end) as  Rest_Fault, \
+ var query = "select por.* , pl.quantity as po_quantity from ( SELECT por.po_id,por.item_id ,sum(por.quantity) as quantity,sum(case when por.status='restaurantfault' then por.quantity else 0 end) as  Rest_Fault, \
 	sum(case when por.status='damaged' then por.quantity else 0 end) as  Damaged FROM purchase_order_reconcile por \
         join purchase_order po on po.id = por.po_id \
         Where po.scheduled_delivery_time::date >= '" + from_date + "' and po.scheduled_delivery_time::date < '" + moment(date).format('YYYY-MM-DD') + "' \
-        and por.status <> 'undelivered' /*and por.status <> 'restaurantfault'*/  group by por.po_id,por.item_id";
+        and por.status <> 'undelivered' /*and por.status <> 'restaurantfault'*/  group by por.po_id,por.item_id) as por \
+        inner  join purchase_order_master_list pl on pl.purchase_order_id=por.po_id and por.item_id=pl.food_item_id ";
 
         client.query(query,
           function (query_err, result) {
@@ -876,7 +877,7 @@ module.exports = {
   getAllFVs: getAllFVs,
   getFvByIds: getFvByIds,
   getTaxesForOutlet: getTaxesForOutlet,
-  getCashSettlementData: getCashSettlementData,
+  getCashSettlementData: getCashSettlementData,  
   getFVListForReportEmail : getFVListForReportEmail,
   getAccountReportUser: getAccountReportUser,
   getAccountReportUserWithPasswd: getAccountReportUserWithPasswd,

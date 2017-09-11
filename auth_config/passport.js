@@ -32,6 +32,9 @@ module.exports = function(passport) {
         passReqToCallback: true
       }, function(req, username, password, done) {
         debugger;
+        login_report_type = req.body.report_type;
+        priorAugust= login_report_type=='prior_august'?false:true;
+        console.log("Login report type-----" + login_report_type);
         console.log("Checking db: " + username + "/" + password);
         /* get username and password from db */
         dbUtils.getAccountReportUserWithPasswd(username, password, function(err, user) {

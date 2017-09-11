@@ -64,7 +64,9 @@ var fetchPurchaseOrders = function(outlet_id, date, async_callback) {
       fi.restaurant_fee as restaurant_fee, \
       po.scheduled_delivery_time as scheduled_delivery_time, \
       r.entity as entity, \
-      r.name as restaurant_name \
+      r.name as restaurant_name, \
+      r.cgst_percent as rest_cgst_percent, \
+      r.sgst_percent as rest_sgst_percent \
       FROM \
       purchase_order_final_status as st, \
       purchase_order as po, \

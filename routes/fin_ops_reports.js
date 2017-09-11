@@ -60,11 +60,12 @@ router.get('/', IsAuthenticated, function (req, res, next) {
               console.log("fin_ops_reports Error: " + err);
               return;
           }
-
+//Passing month parmater to finops report
           var context = {
               title: 'Reports',
               restaurants: results.restaurants,
               user: user,
+              reportAugust:login_report_type=='after_august'
           };
           res.render('fin_ops_reports', context);
       });

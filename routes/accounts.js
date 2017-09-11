@@ -18,16 +18,20 @@ var dbUtils = require('../models/dbUtils');
 
 router.get('/', IsAuthenticated, function(req, res, next){
  var user = req.user;
+ 
+ user.reportAugust=login_report_type=='after_august';  
  var reports = accounts_reports_helpers.get_reoprt_types_for_user(user);
  accounts_reports_helpers.get_outlets_for_user(user, function(err, outlets){
   if(err) {
     handleError(res, err);
     return;
   }
+  console.log(login_report_type);
   // Add option for all outlets
+  //passing month parameter
   outlets.push({id:'-1', name:'All'});
   res.render('reports_main',
-    {title: 'Daily Reports', 'reports': reports, 'outlets':outlets, user:user.usertype});
+    {title: 'Daily Reports', 'reports': reports, 'outlets':outlets, user:user.usertype,reportAugust:login_report_type=='after_august' });
  });
 });
 

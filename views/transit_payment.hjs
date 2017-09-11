@@ -6,6 +6,7 @@
 {{/yield-loginlogout}}
 {{#yield-body}}
 <input type="hidden" value="{{user}}" id="usertype" />
+<input type="hidden" value="{{reportAugust}}" id="reportAugust" />
 <div class="row">
     <aside class="large-4 columns"></aside>
     <div id="err_daterange"></div>
@@ -411,7 +412,7 @@ $(".datechange").trigger("change");
 
     var from_date = $("#from").val();
     var to_date = $("#to").val();
-    var payment_date=$("#paymentdate").val();
+    var payment_date=$("#paymentdate").val(); 
     if(new Date(from_date) > new Date(to_date))
     {
     $("#err_daterange").text("selected from and to date Ranges are not valid");
@@ -422,7 +423,28 @@ $(".datechange").trigger("change");
     $("#err_daterange").text("");
 
     }
-
+    //validation
+     var sale_gst='2017-08-01';
+     var from_date = $("#from").val();
+        var to_date = $("#to").val();
+        from_date= from_date.split("-").reverse().join("-");
+        to_date= to_date.split("-").reverse().join("-");        
+        if($("#reportAugust").val()=='true')
+        {
+            if (from_date< sale_gst || to_date <sale_gst)
+            {
+                toastr.error('Payments can be updated Only  for period from August 2017');            
+                return;
+            }
+        }
+        else
+        {
+            if (from_date>= sale_gst || to_date >=sale_gst)
+            {
+            toastr.error('Payments can be updated Only  Upto July 2017');
+                return;
+            }
+        }
     var account_id = $("#restaurant_id").val();
     var from_date = db_date($("#from").val());
     var to_date =db_date($("#to").val());

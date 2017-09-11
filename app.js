@@ -13,7 +13,8 @@ var cronJob = require('cron').CronJob;
 var passport = require('passport');
 var session = require('express-session');
 var flash = require('connect-flash');
-
+var login_report_type = "";
+var priorAugust=false;
 var routes = require('./routes/index');
 var restaurant = require('./routes/restaurant');
 var outlet = require('./routes/outlet');

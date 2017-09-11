@@ -6,6 +6,7 @@
 {{#yield-body}}
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
+    <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
@@ -23,8 +24,7 @@
                     <select id="report_type">
                         <option value="restaurant_payment">Restaurant payment</option>
                         <option value="vat">Vat</option>
-                        <option value="st">Service Tax</option>  
-			<option value="gst">GST</option> /* GSt  changes*/                      
+                        <option value="st">Service Tax</option>  			                    
                         <option  value="restaurant_payment_gst">Restaurant payment GST </option>
                     </select>
                 </div>
@@ -393,18 +393,36 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
 
     // GST Validations
     var gst_date='2017-07-01';
+    var sale_gst='2017-08-01';
+     if($("#reportAugust").val()=='true')
+    {
+      /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
+        if (from_date< sale_gst || to_date <sale_gst)
+        {
+           toastr.error('Report Only Available from August 2017');
+            return;
+        }
+    }
+    else
+    {
+        if (from_date> sale_gst || to_date >sale_gst)
+        {
+            toastr.error('Report Only Available Upto  July 2017');
+            return;
+        }
+    }
 
     if (report_type=='vat' || report_type=='st' || report_type=='restaurant_payment')
     {
         if (from_date < gst_date && to_date >= gst_date)
         {
-            alert("Report not Available for period overlapping GST and ST");
+              toastr.error("Report not Available for period overlapping GST and ST");
             return;
         }
 
         if((report_type =='vat' || report_type=='st' || report_type=='restaurant_payment') && (from_date>=  gst_date || to_date>=gst_date) )
         {
-            alert("Report not applicable for  period > 30-06-2017.Please select GST report. ");
+            toastr.info("Report not applicable for  period > 30-06-2017.Please select GST report. ");
             return;
         }        
     }
@@ -412,13 +430,13 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
     {
         if (from_date < gst_date && to_date >= gst_date)
         {
-            alert("Report not Available for period overlapping GST and ST");
+            toastr.error("Report not Available for period overlapping GST and ST");
             return;
         }
 
         if((from_date< gst_date || to_date<gst_date) )
         {
-            alert("GST Report is not Applicable for the period < 01-07-2017.");
+            toastr.error("GST Report is not Applicable for the period < 01-07-2017.");
             return;
         }
 

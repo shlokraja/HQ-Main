@@ -129,20 +129,7 @@ var REPORT_FIELDS = {
         "restaurant_name": 'Restaurant',
         "sale": 'Gross Sales (excluding taxes)',
         "gst": 'Total GST',
-        "foodbox_txn_gst": 'Total Frshly Transaction Fee',
-        "restaurant_fee_gst": 'Remittance to Restaurant (before adjustments)',
-        "restaurant_liability": 'Restaurant Liability on Errors',
-        "foodbox_liability": 'Frshly Liability',
-        "restaurant_liability_net_gst": 'Net Restaurant Liability (Remittance Adjustment)',
-        "restaurant_remit_aft_adj_gst_sale": 'Adjusted Remittance to Restaurant',
-        "last_carry_forward": 'Carry-Forward from previous date',
-        "foodbox_final_receipt": 'Frshly Final Receipt before Taxes',
-        "restaurant_final_remittance": 'Final Revenue Remittance to Restaurant (after offsetting carry-fwd)',
-        "next_carry_forward": 'Carry Forward to Next Date',
-        "restaurant_tax_remit_gst": 'Tax Remittance to Frshly',
-        "restaurant_total_remittance_sale_gst": 'Total Remittance to Frshly(including taxes)',
-        "start_time": 'Start Time',
-        "end_time": 'End Time'
+        "foodbox_txn_gst": 'Total Frshly Transaction Fee'
     },
     daily_receipts_gst:
     {
@@ -185,6 +172,30 @@ var REPORT_FIELDS = {
         "taken": 'Taken Qty',
         "sold": 'Sold Qty',
         "rev_share": 'Restaurant Fee for Sold',
+        "mrp_price": 'MRP for Product', //mrp
+        "wastage_qty": 'Wastage Qty',
+        "foodbox_issues_qty": 'Frshly Error Qty',
+        "foodbox_issues_value": 'Frshly Err Value',
+        "restaurant_issues_qty": 'Restaurant Err Qty',
+        "restaurant_issues_value": 'Restaurant Err Value',
+        "transporter_issues_qty": 'Transporter Err Qty',
+        "transporter_issues_value": 'Transporter Err Value',
+        "net_revenue": 'Net Revenue'
+    },
+    daily_revenue_analysis_gst: {
+        "date": 'Date',
+        "outlet_name": 'Outlet',
+        "entity_name": 'Entity',
+        "restaurant_name": 'Restaurant',
+        "session_name": 'Session',
+        "item_id": 'Item ID',
+        "item_name": 'Item Name',
+        "po_quantity": 'PO Qty',
+        "taken": 'Taken Qty',
+        "sold": 'Sold Qty',
+        "rev_share": 'Restaurant Fee for Sold',
+        "rest_gst": 'GST',
+        "rev_share_rest_gst": 'Total',
         "mrp_price": 'MRP for Product', //mrp
         "wastage_qty": 'Wastage Qty',
         "foodbox_issues_qty": 'Frshly Error Qty',
@@ -240,6 +251,16 @@ var REPORT_FIELDS = {
         "location": 'Location',
         "outlet_name": 'Outlet',
         "link": 'Link to bill bundles pdf'
+    },
+    daily_sale_gst_august:
+    {
+        "date": 'Date',
+        "outlet_name": 'Outlet',
+        /* "entity_name": 'Entity',*/
+        "restaurant_name": 'Restaurant',
+        "sale": 'Gross Sales (excluding taxes)',
+        "gst": 'Total GST',
+        "foodbox_txn_gst": 'Total Frshly Transaction Fee'
     },
     non_transit_tender_type_reports: tender_type_report_values,
     transit_tender_type_reports: tender_type_report_values
@@ -399,7 +420,7 @@ var compute_daily_receipt_for_single_entity_gst = function (date, outlet,
         report["last_carry_forward"] = past_due;
         report["foodbox_final_receipt"] = report["sale"] - final_remittance;
         report["restaurant_final_remittance"] = final_remittance;
-        report["next_carry_forward"] =new_carry_forward;
+        report["next_carry_forward"] = new_carry_forward;
         report["restaurant_total_remittance"] = final_remittance + report["restaurant_tax_remit_gst"];
         rows.push(report)
         callback(null, rows);
@@ -410,7 +431,7 @@ var compute_daily_receipt_for_single_entity_gst = function (date, outlet,
 //Daily sale GST
 var compute_daily_receipt_for_single_entity_sale_gst = function (date, outlet,
     entity, entity_consolidated_data, callback) {
-
+    console.log("compute_daily_receipt_for_single_entity_sale_gst_august");
     var entity_cash_settlements =
         _.pluck(entity_consolidated_data, "cash_settlement");
 
@@ -422,8 +443,14 @@ var compute_daily_receipt_for_single_entity_sale_gst = function (date, outlet,
     if (restaurant_name == undefined) {
         restaurant_name = entity;
     }
-
-   
+    /*
+        1.	Date
+        2.	Outlet
+        3.	Restaurant
+        4.	Selling Price
+        5.	Total GST 
+        6.	Frshly Fee
+    */
     var rows = [];
     var report = {};
     //basic
@@ -431,17 +458,9 @@ var compute_daily_receipt_for_single_entity_sale_gst = function (date, outlet,
     report["outlet_name"] = outlet.short_name;
     report["entity_name"] = entity;
     report["restaurant_name"] = restaurant_name;
-    report["start_time"] = outlet.start_of_day;
-    report["end_time"] = outlet.end_of_day;
-    report["is24hr"] = outlet.is24hr;
-    //console.log("entity_consolidated_data");
-    //console.log(entity_cash_settlements);
+
     // aggregates
-    var fields = ["sale", "gst", "foodbox_fee", "foodbox_gst",
-        "foodbox_txn_gst", "restaurant_fee_gst", "foodbox_tds", "restaurant_remit_bef_adj_gst",
-        "restaurant_liability", "restaurant_liability_gst", "restaurant_liability_tds",
-        "restaurant_liability_total_gst", "foodbox_liability", "restaurant_liability_net_gst", "restaurant_remit_aft_adj_gst_sale",
-        "restaurant_remit_aft_adj_gst", "restaurant_tax_remit_gst"];
+    var fields = ["sale", "gst", "foodbox_fee", "foodbox_txn_gst"];
 
     // Aggregates
     _.each(fields, function (f) {
@@ -455,25 +474,10 @@ var compute_daily_receipt_for_single_entity_sale_gst = function (date, outlet,
             callback(err, null);
             return;
         }
-        var past_due = (res) ? res.carry_forward : 0;
-        var balance = report["restaurant_remit_aft_adj_gst"] - past_due;
-        var new_carry_forward = (balance >= 0) ? 0 : (-balance);
-        var final_remittance = (balance >= 0) ? balance : 0;
-        //report["restaurant_fee_gst"] = report["sale"] - report["foodbox_txn_gst"];
-        report["foodbox_txn_gst"] = report["foodbox_fee"];
-        console.log("sale:"+ report["sale"]+ "  report[restaurant_fee_gst]"+ report["restaurant_fee_gst"]);
-        //report["restaurant_liability_net_gst"] = report["restaurant_liability"];
-        report["restaurant_remit_aft_adj_gst_sale"] = report["restaurant_fee_gst"] - report["restaurant_liability_net_gst"];
-        report["last_carry_forward"] = isNaN(past_due) ? 0 :past_due;
-        report["foodbox_final_receipt"] = report["foodbox_txn_gst"] + report["restaurant_liability_net_gst"];
-        report["restaurant_final_remittance"] = report["sale"] - report["foodbox_final_receipt"];
-        report["next_carry_forward"] =isNaN(new_carry_forward) ? 0 :new_carry_forward;
-        report["restaurant_total_remittance_sale_gst"] = report["foodbox_final_receipt"] + report["restaurant_tax_remit_gst"];
-        report["restaurant_fee_gst"]= (Math.round(report["sale"]*100)/100) -(Math.round(report["foodbox_txn_gst"]*100)/100);
-        report["restaurant_fee_gst"]=report["restaurant_fee_gst"].toFixed(2);
-        report["sale"]= report["sale"].toFixed(2);
-       report["foodbox_txn_gst"]=report["foodbox_txn_gst"].toFixed(2);
 
+
+        //report["sale"]= report["sale"].toFixed(2);
+        //report["foodbox_txn_gst"]=report["foodbox_txn_gst"].toFixed(2);
         rows.push(report)
         callback(null, rows);
         return;
@@ -501,7 +505,7 @@ var compute_daily_revenue_analysis = function (date, outlet,
             var duplicate = [];
             item["date"] = moment(date).format('Do MMMM YYYY');
             item["outlet_name"] = outlet.short_name;
-            item["restaurant_name"] = ( first.restaurant_name==undefined)?entity: first.restaurant_name ;
+            item["restaurant_name"] = (first.restaurant_name == undefined) ? entity : first.restaurant_name;
             item["entity_name"] = entity;
             item["session_name"] = first.session;
             item["item_name"] = first.item_name;
@@ -587,12 +591,10 @@ var compute_daily_revenue_analysis = function (date, outlet,
                                     var Rest_fault_Qty = 0;
                                     if (!isNaN(Number(result_po_taken[i].damaged))) {
                                         damagedQty = Number(result_po_taken[i].damaged);
-                                        if (!isNaN(Number(item["transporter_issues_qty"]))) 
-					{
+                                        if (!isNaN(Number(item["transporter_issues_qty"]))) {
                                             item["transporter_issues_qty"] = Number(item["transporter_issues_qty"]);
                                         }
-                                        else 
-					{
+                                        else {
                                             item["transporter_issues_qty"] = damagedQty;
                                         }
                                     }
@@ -600,12 +602,10 @@ var compute_daily_revenue_analysis = function (date, outlet,
 
                                     if (!isNaN(Number(result_po_taken[i].rest_fault))) {
                                         Rest_fault_Qty = Number(result_po_taken[i].rest_fault);
-                                        if (!isNaN(Number(item["restaurant_issues_qty"]))) 
-					{
+                                        if (!isNaN(Number(item["restaurant_issues_qty"]))) {
                                             item["restaurant_issues_qty"] = Number(item["restaurant_issues_qty"]);
                                         }
-                                        else 
-					{
+                                        else {
                                             item["restaurant_issues_qty"] = Rest_fault_Qty;
                                         }
 
@@ -635,6 +635,148 @@ var compute_daily_revenue_analysis = function (date, outlet,
     return;
 };
 
+var compute_daily_revenue_analysis_gst = function (date, outlet,
+    entity, entity_consolidated_data, isHQ, callback) {
+    var rows = [];
+    //console.log("############################## *********************** OUTLET: " + JSON.stringify(outlet));
+    //console.log("############################## *********************** Outlet Version in bootstraprc file: " + process.env.OUTLETVERSION);
+    console.log("entity_consolidated_data compute_daily_revenue_analysis_gst: " + JSON.stringify(entity_consolidated_data));
+    // outlet.version
+    var cgst_percent = _.pluck(entity_consolidated_data, "rest_cgst_percent");
+    var sgst_percent = _.pluck(entity_consolidated_data, "rest_cgst_percent");
+    var rest_cgst_percent = _.first(cgst_percent);
+    var rest_sgst_percent = _.first(sgst_percent);
+    var groupBySession = _.groupBy(entity_consolidated_data, "session");
+    _.each(_.keys(groupBySession), function (session) {
+        var session_data = groupBySession[session];
+        var groupByFoodItem = _.groupBy(session_data, "item_id");
+        _.each(_.keys(groupByFoodItem), function (item_id) {
+            var purchases = groupByFoodItem[item_id];
+            // console.log("&&&&&&&&&&&&&&&&&& ****************************** purchases : " + JSON.stringify(purchases));
+            var first = _.first(purchases);
+            var base_fee = isHQ ? first.foodbox_fee : first.restaurant_fee;
+            var item = {};
+            var duplicate = [];
+            item["date"] = moment(date).format('Do MMMM YYYY');
+            item["outlet_name"] = outlet.short_name;
+            item["restaurant_name"] = (first.restaurant_name == undefined) ? entity : first.restaurant_name;
+            item["entity_name"] = entity;
+            item["session_name"] = first.session;
+            item["item_name"] = first.item_name;
+            //console.log("###############po_id: " + first.po_id + "item_id: " + first.item_id);
+            item["quantity"] = 0;
+            item["taken"] = 0;
+            item["item_id"] = first.item_id;
+            item["po_id"] = first.po_id;
+            var date_format = moment(date).format('YYYY-MM-DD');
+            var outlet_version_date_format = null;
+            if (outlet.version_date != null) {
+                outlet_version_date_format = moment(outlet.version_date).format('YYYY-MM-DD');
+            }
+            //console.log("date_format: " + date_format + " outlet.version_date: " + outlet_version_date_format);
+            if (_.has(first, 'po_id')) {
+                if ((outlet_version_date_format == null || (outlet_version_date_format != null && date_format < outlet_version_date_format))) {
+                    //console.log("##################################### ************* Old report function called");
+                    item["quantity"] = poQtyByStatus(purchases, null);
+                    item["taken"] = Number(item["quantity"]); // - Number(poQtyByStatus(purchases, ["not dispatched"]));
+                }
+                //console.log("############### if quantity" + item["quantity"]);
+                //item["quantity"] = item["quantity"] == "undefined" ? 0 : item["quantity"];                
+                //console.log("############### if taken: " + item["taken"] + " not dispatched: " + Number(poQtyByStatus(purchases, ["not dispatched"])));
+                item["sold"] = poQtyByStatus(purchases, ["sold"]);
+                item["rev_share"] = item["sold"] * base_fee;
+                item["rest_gst"] = item["rev_share"] * (rest_cgst_percent + rest_sgst_percent) / 100;
+                item["rev_share_rest_gst"] = item["rev_share"] + item["rest_gst"];
+                //mrp
+                // console.log("mrp:"+ JSON.stringify( first));
+                item["mrp_price"] = (first["mrp"]).toFixed(2);
+                item["wastage_qty"] = poQtyByBucket(purchases, ["wastage"]);
+            } else {
+                item["taken"] = aggregateByColumn(purchases, 'qty');
+                //console.log("############### else taken" + item["taken"]);
+                var refunds = aggregateByColumn(purchases, 'refund_qty');
+                item["sold"] = item["taken"] + refunds;
+                item["rev_share"] = item["sold"] * base_fee;
+                //mrp
+                item["mrp_price"] = (first["mrp"]).toFixed(2);
+                item["wastage_qty"] = (-1) * refunds;
+            }
+            item["foodbox_issues_qty"] = poQtyByBucket(purchases, ["foodbox"]);
+            item["foodbox_issues_value"] = item["foodbox_issues_qty"] * first.restaurant_fee;
+            item["restaurant_issues_qty"] = poQtyByBucket(purchases, ["restaurant"]);
+            item["restaurant_issues_value"] = item["restaurant_issues_qty"] * first.foodbox_fee;
+            item["transporter_issues_qty"] = poQtyByBucket(purchases, ["transporter"]);
+            item["transporter_issues_value"] = item["transporter_issues_qty"] * first.restaurant_fee;
+            if (isHQ) {
+                item["transporter_issues_value"] += item["transporter_issues_qty"] * first.foodbox_fee;
+                item["net_revenue"] = item["rev_share"] - item["foodbox_issues_value"]
+                    + item["restaurant_issues_value"] + item["transporter_issues_value"];
+            } else {
+                item["net_revenue"] = item["rev_share"] + item["foodbox_issues_value"]
+                    - item["restaurant_issues_value"] + item["transporter_issues_value"];
+            }
+            if (outlet_version_date_format != null && date_format >= outlet_version_date_format) {
+                for (var p = 0; p < purchases.length; p++) {
+                    //console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!purchases[p] " + JSON.stringify(purchases[p]) + "cccccccccccccccccccc" + purchases[p]["item_id"]);
+                    if (result_po_taken != undefined) {
+                        for (var i = 0; i < result_po_taken.length; i++) {
+                            // console.log("******************************************* result_po_taken[result_taken].po_id: " + result_po_taken[result_taken].po_id + "result_po_taken[result_taken].item_id: " + result_po_taken[result_taken].item_id)
+                            // console.log("########################################### item[po_id]: " + item["po_id"] + "item[item_id]: " + item["item_id"]);
+                            // item["taken"] = 15;
+                            if ((Number(result_po_taken[i].po_id) == Number(purchases[p]["po_id"])) &&
+                                ((Number(result_po_taken[i].item_id) == Number(purchases[p]["item_id"])))) {
+                                if (duplicate.indexOf(result_po_taken[i].po_id + result_po_taken[i].item_id) == -1) {
+                                    var qty = 0;
+                                    var po_qty = 0;
+                                    if (!isNaN(Number(item["taken"]))) {
+                                        qty = Number(item["taken"]);
+                                        po_qty = Number(item["po_quantity"]);
+                                    }
+                                    item["po_quantity"] = qty + Number(result_po_taken[i].po_quantity);
+                                    item["taken"] = qty + Number(result_po_taken[i].quantity);
+                                    var damagedQty = 0;
+                                    var Rest_fault_Qty = 0;
+                                    if (!isNaN(Number(result_po_taken[i].damaged))) {
+                                        damagedQty = Number(result_po_taken[i].damaged);
+                                        if (!isNaN(Number(item["transporter_issues_qty"]))) {
+                                            item["transporter_issues_qty"] = Number(item["transporter_issues_qty"]);
+                                        }
+                                        else {
+                                            item["transporter_issues_qty"] = damagedQty;
+                                        }
+                                    }
+                                    if (!isNaN(Number(result_po_taken[i].rest_fault))) {
+                                        Rest_fault_Qty = Number(result_po_taken[i].rest_fault);
+                                        if (!isNaN(Number(item["restaurant_issues_qty"]))) {
+                                            item["restaurant_issues_qty"] = Number(item["restaurant_issues_qty"]);
+                                        }
+                                        else {
+                                            item["restaurant_issues_qty"] = Rest_fault_Qty;
+                                        }
+                                    }
+                                    var issues_qty = Number(item["foodbox_issues_qty"]) + Number(item["restaurant_issues_qty"]) + Number(item["transporter_issues_qty"]);
+                                    item["wastage_qty"] = Number(item['taken']) - (Number(item['sold']) + Number(issues_qty));
+                                    // item["taken"] = 15;
+                                    // rows[i]["taken"] = result_po_taken[result_taken].quantity;;
+                                    // console.log("********** loop  quantity" + item["quantity"]);
+                                    duplicate.push(result_po_taken[i].po_id + result_po_taken[i].item_id);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (isNaN(Number(item["taken"]))) {
+                item["taken"] = item["sold"];
+            }
+            console.log("item");
+            console.log(item);
+            rows.push(item);
+        });
+    });
+    callback(null, rows);
+    return;
+};
 var gettakenquantity = function (result_po_taken, item, callback) {
     for (var i = 0; i < result_po_taken.length; i++) {
 
@@ -652,6 +794,11 @@ var gettakenquantity = function (result_po_taken, item, callback) {
 var compute_daily_revenue_analysis_for_fv = function (date, outlet,
     entity, entity_consolidated_data, callback) {
     compute_daily_revenue_analysis(date, outlet, entity,
+        entity_consolidated_data, false, callback);
+};
+var compute_daily_revenue_analysis_for_fv_gst = function (date, outlet,
+    entity, entity_consolidated_data, callback) {
+    compute_daily_revenue_analysis_gst(date, outlet, entity,
         entity_consolidated_data, false, callback);
 };
 
@@ -698,10 +845,10 @@ var compute_daily_error_details_report = function (date, outlet,
                 item["date"] = moment(date).format('Do MMMM YYYY');
                 item["outlet_name"] = outlet.short_name;
                 item["entity_name"] = entity;
-		if(first.restaurant_name == undefined){
-			first.restaurant_name = entity;
-		}
-		item["restaurant_name"] = first.restaurant_name;	
+                if(first.restaurant_name == undefined){
+                    first.restaurant_name = entity;
+                }
+                item["restaurant_name"] = first.restaurant_name;
                 item["item_id"] = first.item_id;
                 item["session_name"] = first.session;
                 item["item_name"] = first.item_name;
@@ -727,8 +874,8 @@ var compute_daily_error_details_report = function (date, outlet,
 };
 
 var aggregate_by_entities = function (date, outlet, data, report_generator, type, callback) {
-    var entitiy_groups = _.groupBy(data, "entity");
-    // HACK: Always include Atchayam for reports.
+        var entitiy_groups = _.groupBy(data, "entity");
+    // HACK: Always include Atchayam for reports.    
 
     if (type == 'HQ' && !_.isEmpty(data) && !_.has(entitiy_groups, 'ATC')) {
         entitiy_groups['ATC'] = [];
@@ -904,10 +1051,6 @@ var HQ_REPORTS = {
         name: "Daily Receipts GST",
         generator: compute_daily_receipt_for_single_entity_gst
     },
-    daily_sale_gst: {
-        name: "Daily Receipts Sales GST",
-        generator: compute_daily_receipt_for_single_entity_sale_gst
-    },
     daily_revenue_analysis: {
         name: "Restaurant Daily Revenue Analysis",
         generator: compute_daily_revenue_analysis_for_fv
@@ -930,6 +1073,34 @@ var HQ_REPORTS = {
     }
 };
 
+var HQ_REPORTS_AUGUST = {
+
+    hq_bill_bundles: {
+        name: "Bill Bundles",
+        generator: generate_bill_bundle_hq_link
+    },
+    daily_sale_gst: {
+        name: "Daily Receipts",
+        generator: compute_daily_receipt_for_single_entity_sale_gst
+    },
+    daily_revenue_analysis_gst: {
+        name: "Restaurant Daily Revenue Analysis",
+        generator: compute_daily_revenue_analysis_for_fv_gst
+    },
+    error_details: {
+        name: "Error Details",
+        generator: compute_daily_error_details_report
+    },
+    hq_daily_revenue_analysis: {
+        name: "HQ Daily Revenue Analysis",
+        generator: compute_daily_revenue_analysis_hq
+    },
+    transit_tender_type_reports: {
+        name: "Trading Tender Type Reports",
+        generator: generate_report_for_tender_type
+    }
+};
+
 
 // Auth helpers
 var get_reoprt_types_for_user = function (authUser) {
@@ -937,9 +1108,12 @@ var get_reoprt_types_for_user = function (authUser) {
     if (!authUser) {
         return [];
     }
+    var report = HQ_REPORTS;
+    if (authUser.reportAugust) report = HQ_REPORTS_AUGUST;
+    console.log(report);
     if (authUser.usertype == "HQ") {
-        return _.map(_.keys(HQ_REPORTS), function (k) {
-            return { id: k, name: HQ_REPORTS[k].name };
+        return _.map(_.keys(report), function (k) {
+            return { id: k, name: report[k].name };
         });
     } else {
         return _.map(_.keys(FV_REPORTS), function (k) {
@@ -972,10 +1146,14 @@ var generate_report_for_user = function (from_date, to_date, outlet_id,
         }
         else {
             result_po_taken = result
+            var reportMonth = HQ_REPORTS;
+            if (login_report_type == 'after_august') {
+                reportMonth = HQ_REPORTS_AUGUST;
+            }
             //console.log(result);
             var report_generator, entity = null;
             if (user.usertype == "HQ") {
-                report_generator = HQ_REPORTS[report_type].generator;
+                report_generator = reportMonth[report_type].generator;
             } else {
                 report_generator = FV_REPORTS[report_type].generator;
                 entity = user.entity;
@@ -1033,6 +1211,7 @@ module.exports = {
     generate_report: generate_report,
     compute_daily_receipt_for_single_entity: compute_daily_receipt_for_single_entity,
     compute_daily_revenue_analysis_for_fv: compute_daily_revenue_analysis_for_fv,
+    compute_daily_revenue_analysis_for_fv_gst: compute_daily_revenue_analysis_for_fv_gst,
     compute_daily_revenue_analysis_hq: compute_daily_revenue_analysis_hq,
     compute_daily_error_details_report: compute_daily_error_details_report,
     get_reoprt_types_for_user: get_reoprt_types_for_user,

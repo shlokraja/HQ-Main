@@ -18,6 +18,14 @@
                                 </div>
                             </div>
                             <div class="row">
+                                <div class="large-12 columns">
+                                    <select name="report_type" >
+                                        <option name="report_bf" value="after_august">From August</option>
+                                        <option name="report_bf" value="prior_august">Prior August</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="large-12 large-centered columns">
                                     <input id="btn_login" class="medium expanded button login-button btn-customised" type="submit" form="login_form" value="LOGIN" />
                                 </div>

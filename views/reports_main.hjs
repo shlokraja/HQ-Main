@@ -2,6 +2,7 @@
 {{#yield-body}}
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
+    <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
@@ -70,7 +71,8 @@ color:#fff !important;
 {{#yield-scripts}}
 
 $("#reports_div .datetimepicker").datetimepicker({format:'Y-m-d', timepicker: false,maxDate: new Date});
-
+$("#from_date").val('2017-01-01');
+$("#to_date").val('2017-01-31');
 $("#get_reports").click(function() {
   var from_date = $("#from_date").val();
   var to_date = $("#to_date").val();
@@ -83,6 +85,36 @@ $("#get_reports").click(function() {
     var sale_gst='2017-08-01';
     var sale_gst_end = '2017-08-31';
     //Cross GST
+    // Check if period is Prior august or from august and validate
+
+toastr.options = {
+  "debug": false,
+  "positionClass": "toast-top-right",
+  "onclick": null,
+  "fadeIn": 300,
+  "fadeOut": 1000,
+  "timeOut": 5000,
+  "extendedTimeOut": 1000
+}
+
+    if($("#reportAugust").val()=='true')
+    {
+      /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
+        if (from_date< sale_gst || to_date <sale_gst)
+        {
+           toastr.error('Report Only Available from August 2017');
+            return;
+        }
+    }
+    else
+    {
+        if (from_date> sale_gst || to_date >sale_gst)
+        {
+            toastr.error('Report Only Available Upto  July 2017');
+            return;
+        }
+    }
+
     if (report_type=='daily_receipts' || report_type=='daily_receipts_gst' || report_type=='daily_sale_gst' )
     {
         if (from_date<  gst_date && to_date>=gst_date)
@@ -111,29 +143,18 @@ $("#get_reports").click(function() {
       }
     }
  var repEndDate='2017-07-31';
-    if((report_type!='daily_revenue_analysis')   &&  (from_date> repEndDate || to_date > repEndDate  ))
-    {
-	if( report_type.indexOf('tender_type_reports')==-1)
-	{
-        if (report_type!='daily_receipts_gst')
-        {
-        
-        alert  ("Report Not Available for the given Period !!!");
-        return;
-        }
-	}
-     }
+   
  //Validate days of the report  Only Allow 15-days
     var dt1=new Date(to_date);
     var dt2= new Date(from_date);
     var diff=new Date(dt1-dt2);
 
     days  = Math.round( diff/1000/60/60/24);
-    if (days >15)
+    /*if (days >15)
     {
         alert ("Report Only possible for 15-days");
         return;
-    }
+    }*/
     
     
 
@@ -162,12 +183,6 @@ $("#get_reports").click(function() {
       $(tbody).append(trow);
       fieldNames.map(function(fname){
         var fname_value =row[fname];
-        if(fname == "saledate")
-        {
-            // fname_value = row[fname].substring(0,10);
-	   // fname_value =moment(row[fname].substring(0,10)).format("Do MMMM YYYY");
-        }
-
         trow.append($("<td>" + fname_value + "</td>"));
       });
     });
