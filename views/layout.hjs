@@ -9,7 +9,7 @@
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <!--Adding Toastr for showing notification and errors
     <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -118,6 +118,16 @@
         }
          .menu li,.menu li:hover {
                 width:150px !important;
+            }
+            .menu li ul {
+                list-style: none;
+                position: absolute;
+                margin-top: auto;
+                margin-left: .1em;
+                display: none;
+            }
+            .menu li:hover ul {
+                display: block;
             }
         .secondary {
             background-color: #e7e7e7;
@@ -257,12 +267,18 @@
                                 <li><a href="/login">Logout</a></li>
                             </ul>
                             <!-- Adding From August Menus-->
-                              <ul class="vertical medium-horizontal menu hide" id="hq-august-menu">
+                            <ul class="vertical medium-horizontal menu hide" id="hq-august-menu">
                                 <li><a id="home" href="/accounts">Operations</a></li>
-                                <li><a id="fin_ops_report" href="/fin_ops_reports">Non-Trading &nbsp;Report</a></li>                                
+                                <li><a id="fin_ops_report" href="/fin_ops_reports">Non-Trading &nbsp;Report</a></li>
                                 <li><a id="transit_report" href="/transit_report">Trading &nbsp;Report</a></li>
                                 <li><a id="transit_payment" href="/transit_payment">Payment</a></li>
-                                <li><a id="chargeback" href="/chargeback_report">Monthly &nbsp;Reconcilation</a></li>                                
+                                <li>
+                                    <a id="monthly_reconcile" href="#"> Monthly &nbsp;Reconciliation</a>
+                                    <ul>
+                                        <li><a id="chargeback" href="/chargeback_report"> Reconciliation</a></li>
+                                        <li><a id="restaurant_recovery" href="/restaurant_recovery">Restaurant&nbsp;Recovery</a></li>
+                                    </ul>
+                                </li>
                                 <li><a href="/login">Logout</a></li>
                             </ul>
                             <ul class="vertical medium-horizontal menu hide" id="fv-menu">

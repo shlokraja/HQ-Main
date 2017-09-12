@@ -10,7 +10,7 @@
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
-              
+
                 <div class="large-2 small-6 columns">
                     <label>Year</label>
                     <select id="year_id"></select>
@@ -47,8 +47,8 @@
                 </div>
             </div>
             <div class="row">
-                <div id="chargeback_report_output_div" class="large-12 columns hide width-for-small_only">
-                    <table id="chargeback_report_output" class="full-width">
+                <div id="recovery_report_output_div" class="large-12 columns hide width-for-small_only">
+                    <table id="recovery_report_output" class="full-width">
                         <thead>
                             <tr></tr>
                         </thead>
@@ -62,7 +62,7 @@
 
 {{/yield-body}}
 {{#yield-styles}}
-    #chargeback,#monthly_reconcile{
+    #restaurant_recovery,#monthly_reconcile{
         background-color: #231f20;
         color:#fff !important;
     }
@@ -100,22 +100,28 @@
             float: right;
         margin-left: 30px;
     }
+
+    #recovery_report_output td + td + td {
+        text-align:right;
+    }
+
+    #recovery_report_output tr:last-child {
+        font-weight: bold;
+    }
 {{/yield-styles}}
 
-
 {{#yield-scripts}}
-
     $.blockUI({ message: '<h2>Just a moment...</h2>' });
     $.unblockUI();
     $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
-    $("#chargeback_report_output_div").addClass("hide");
+    $("#recovery_report_output_div").addClass("hide");
     $("#saveas").addClass("hide");
     var current_month = new Date().getMonth();
     var current_year = new Date().getFullYear();
     var current_date = new Date().getDate();
     var min = new Date().getFullYear(),
     max = min,
-       select = document.getElementById('year_id');
+    select = document.getElementById('year_id');
 
     if ($("#usertype").val() != "HQ") {
         if ((current_month == 0) || (current_month == 1 && current_date <= 2)) {
@@ -147,6 +153,7 @@
     function remove_option() {
         $("#restaurant_id option[value='0']").remove();
     }
+
     function loadMonth() {
         var year_id = $("#year_id").val();
 
@@ -181,24 +188,23 @@ var gst_date='2017-07-31';
             //Validation to retrieve data after October 2016
   var reportDate=year_id+'-'+month_value+'-01';
             if (Number(year_id) == 2016 && Number(month_value) <= 12) {
-                if ($("#reportAugust").val()=='false' ) //if report is july 
+                if ($("#reportAugust").val()=='false' ) //if report is july
                     {
-                    if (Number(month_value) >= 10) {
+                if (Number(month_value) >= 10) {
                     opt.value = month_value;
-                    opt.innerHTML = sMonth;                
-                    month.appendChild(opt);                 
-                    
+                    opt.innerHTML = sMonth;
+                    month.appendChild(opt);
                     }
                 }
             }
             else if (Number(year_id) > 2016 && Number(month_value) <= 12) {
                 //var reportDate=year_id+'-'+month_value+'-01';
-                if ($("#reportAugust").val()=='false' ) //if report is july 
+                if ($("#reportAugust").val()=='false' ) //if report is july
                 {
                     if (reportDate< gst_date )
                     {
-                        opt.value = month_value;
-                        opt.innerHTML = sMonth;                
+                opt.value = month_value;
+                opt.innerHTML = sMonth;
                         month.appendChild(opt);
                     }
                 }
@@ -207,17 +213,12 @@ var gst_date='2017-07-31';
                       if (reportDate> gst_date )
                     {
                         opt.value = month_value;
-                opt.innerHTML = sMonth;                
+                opt.innerHTML = sMonth;
                 month.appendChild(opt);
-
                     }
                 }
-                
-                
             }
-
         }
-
     }
 
     $("#get_reports").click(function () {
@@ -227,8 +228,8 @@ var gst_date='2017-07-31';
         var year_id = $("#year_id").val();
         var reports_type = $("#reports_type").val();
         var restaurant_id = $("#restaurant_id").val();
-        $("#chargeback_report_output thead tr").empty();
-        $("#chargeback_report_output tbody").empty();
+        $("#recovery_report_output thead tr").empty();
+        $("#recovery_report_output tbody").empty();
         if ((document.getElementById("month_id").value == "0") && (document.getElementById("year_id").value == "0")) {
             $("#month_msg").text("Please select month");
             $("#year_msg").text("Please select year");
@@ -247,7 +248,6 @@ var gst_date='2017-07-31';
                 toastr.info("Report only possible from August 2017");
                 return;
             }
-
         }
         else
         {
@@ -256,37 +256,37 @@ var gst_date='2017-07-31';
                 toastr.info("Report only possible upto July 2017");
                 return;
             }
-
         }
-        var function_name = 'get_item_wise_charge_back';
+        var function_name = 'get_item_wise_restaurant_recovery';
         var report_type = "item";
         if (reports_type == "restaurant_wise") {
             report_type = "restaurant";
-            function_name = 'get_chargeback_report_details';
+            function_name = 'get_restaurant_wise_restaurant_recovery';
         }
-        url = '/chargeback_report/' + function_name + '?usertype=' + usertype + '&month_id=' + month_id + '&year_id=' + year_id + '&restaurant_id=' + restaurant_id + '&report_type=' + report_type;
-        var csvLink = '/chargeback_report/downloadcsv?usertype=' + usertype + '&month_id=' + month_id + '&year_id=' + year_id + '&restaurant_id=' + restaurant_id + '&report_type=' + report_type;
+        url = '/restaurant_recovery/' + function_name + '?usertype=' + usertype + '&month_id=' + month_id + '&year_id=' + year_id + '&restaurant_id=' + restaurant_id + '&report_type=' + report_type;
+        var csvLink = '/restaurant_recovery/downloadcsv?usertype=' + usertype + '&month_id=' + month_id + '&year_id=' + year_id + '&restaurant_id=' + restaurant_id + '&report_type=' + report_type;
         console.log(url);
         timeout: 2000000
         $.get(url)
           .done(function (data) {
               console.log(data);
               // Clearing off previous values
-              $("#chargeback_report_output thead tr").empty();
-              $("#chargeback_report_output tbody").empty();
+              $("#recovery_report_output thead tr").empty();
+              $("#recovery_report_output tbody").empty();
               if (data != 'NoData') {
                   // Add the rows in the table
                   var fields = data["fields"];
                   var fieldNames = _.keys(fields);
                   // Table headers
-                  var thead = $("#chargeback_report_output thead tr");
+                  var thead = $("#recovery_report_output thead tr");
                   fieldNames.map(function (fname) {
                       $(thead).append("<td>" + fields[fname] + "</td>");
                   });
+                    console.log(fieldNames);
 
                   // Table rows
                   var rows = data["rows"];
-                  var tbody = $("#chargeback_report_output tbody");
+                  var tbody = $("#recovery_report_output tbody");
                   rows.map(function (row) {
                       var trow = $('<tr />');
                       $(tbody).append(trow);
@@ -303,17 +303,17 @@ var gst_date='2017-07-31';
                           trow.append($("<td><b>" + total[fname] + "</b></td>"));
                       });
                   }
-                  $("#chargeback_report_output_div").removeClass("hide");
-                  $("#chargeback_report_output_div").addClass("show");
+                  $("#recovery_report_output_div").removeClass("hide");
+                  $("#recovery_report_output_div").addClass("show");
                   $("#saveas").removeClass("hide");
                   $("#saveas").addClass("show");
                   $("#saveas").attr('href', csvLink);
                   //alert(data);
               }
               else {
-                  $("#chargeback_report_output tbody").append("No Data");
-                  $("#chargeback_report_output_div").removeClass("hide");
-                  $("#chargeback_report_output_div").addClass("show");
+                  $("#recovery_report_output tbody").append("No Data");
+                  $("#recovery_report_output_div").removeClass("hide");
+                  $("#recovery_report_output_div").addClass("show");
               }
           })
             .fail(function (jqxhr, textStatus, error) {
@@ -321,6 +321,4 @@ var gst_date='2017-07-31';
                 console.error("Request Failed: " + err_msg);
             });
     });
-
 {{/yield-scripts}}
-
