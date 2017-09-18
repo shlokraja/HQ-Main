@@ -32,12 +32,29 @@ var restaurant_FIELDS = {
         "sold": 'Sold Qty',
         "wastage_percentage": 'Wastage acceptable',
         "restaurant_err_qty": 'Restaurant Error Qty',
-        "reimbursed_by_food_box": 'Wastage to be reimbursed',
+        "reimbursed_by_food_box": 'Wastage quantity',
         "Shareperunit": 'Restaurant share p.u',
+        "Chargebackvalue": 'Charge back',
+        "conversion": 'Conversion'
+    },
+    restaurant_receipts_gst:
+    {
+        "Name": 'Name',
+        "po_qty": 'PO Qty',
+        "taken": 'Taken Qty',
+        "sold": 'Sold Qty',
+        "wastage_percentage": 'Wastage acceptable',
+        "restaurant_err_qty": 'Restaurant Error Qty',
+        "frshly_err_qty": 'Frshly Error Qty',
+        "transport_err_qty": 'Transport Error Qty',
+        "reimbursed_by_food_box": 'Wastage quantity',
+        "Shareperunit": 'Restaurant share p.u',
+        "gst":'GST',
         "Chargebackvalue": 'Charge back',
         "conversion": 'Conversion'
     }
 }
+
 router.get('/', IsAuthenticated, function (req, res, next) {
     console.log("chargeback_report *** Get called***");
     console.log("user details: " + JSON.stringify(req.user));
@@ -75,7 +92,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
              title: 'Charge Back Details',
              restaurants: results.restaurants,
              user: user,
-             reportAugust:login_report_type=='after_august',
+             reportAugust: login_report_type == 'after_august' 
          };
          res.render('chargeback_report', context);
      });
@@ -91,6 +108,7 @@ router.get('/get_item_wise_charge_back', function (req, res) {
     var report_type = req.query.report_type;
     var restaurant_id = req.query.restaurant_id;
     var seleted_value = month + year;
+    var report_fields = "";
     //Validation to retrieve data after October 2016
     if ((Number(month) >= 10 && Number(year) == 2016) || (Number(year) > 2016)) {
         pg.connect(conString, function (err, client, done) {
@@ -115,7 +133,15 @@ router.get('/get_item_wise_charge_back', function (req, res) {
                   } else {
                       done();
                       console.log('************** select get_item_wise_charge_back Scuccess');
-                      var rows = generate_rows(result.rows);
+
+                      if (login_report_type == 'after_august') {
+                          var rows = generate_rows(result.rows, true);
+                          report_fields = restaurant_FIELDS["restaurant_receipts_gst"];
+                      } else {
+                          var rows = generate_rows(result.rows, false);
+                          report_fields = restaurant_FIELDS["restaurant_receipts"];
+                      }
+                      
                       // aggregates
                       console.log("get_chargeback_report_details rows");
                       var aggregates = null;
@@ -123,7 +149,8 @@ router.get('/get_item_wise_charge_back', function (req, res) {
                           aggregates = aggregateReportColumns(rows);
                           formatNumbers(rows);
                       }
-                      var result_data = { fields: restaurant_FIELDS["restaurant_receipts"], rows: rows, aggregates: null };
+
+                      var result_data = { fields: report_fields, rows: rows, aggregates: null };
                       //console.log('************** select get_chargeback_report_details*****' + JSON.stringify(result_data));
                       if (result_data.rows.length != 0) {
                           res.send(result_data);
@@ -148,6 +175,7 @@ router.get('/get_chargeback_report_details', function (req, res) {
     var report_type = req.query.report_type;
     var restaurant_id = req.query.restaurant_id;
     var seleted_value = month + year;
+    var report_fields = "";
     console.log("get_chargeback_report_details************** called" + month + year + seleted_value + restaurant_id);
     //Validation to retrieve data after October 2016
     if ((Number(month) >= 10 && Number(year) == 2016) || (Number(year) > 2016)) {
@@ -174,7 +202,15 @@ router.get('/get_chargeback_report_details', function (req, res) {
                   } else {
                       done();
                       console.log('************** select get_chargeback_report_details Scuccess');
-                      var rows = generate_rows(result.rows);
+
+                      if (login_report_type == 'after_august') {
+                          var rows = generate_rows(result.rows, true);
+                          report_fields = restaurant_FIELDS["restaurant_receipts_gst"];
+                      } else {
+                          var rows = generate_rows(result.rows, false);
+                          report_fields = restaurant_FIELDS["restaurant_receipts"];
+                      }
+
                       // aggregates
                       console.log("get_chargeback_report_details rows");
                       var aggregates = null;
@@ -182,7 +218,7 @@ router.get('/get_chargeback_report_details', function (req, res) {
                           aggregates = aggregateReportColumns(rows);
                           formatNumbers(rows);
                       }
-                      var result_data = { fields: restaurant_FIELDS["restaurant_receipts"], rows: rows, aggregates: null };
+                      var result_data = { fields: report_fields, rows: rows, aggregates: null };
                      // console.log('************** select get_chargeback_report_details*****' + JSON.stringify(result_data));
                       if (result_data.rows.length != 0) {
                           res.send(result_data);
@@ -207,6 +243,7 @@ router.get('/downloadcsv', function (req, res) {
     var report_type = req.query.report_type;
     var restaurant_id = req.query.restaurant_id;
     var seleted_value = month + year;
+    var report_fields = "";
     var csvOutput = true;
     console.log("Generating " + report_type + ", Month: " + month
       + ", year: " + year + ", usertype: " + usertype + ",restaurant_id:" + restaurant_id);
@@ -249,7 +286,15 @@ router.get('/downloadcsv', function (req, res) {
                           done();
                           //console.log('************** select get_chargeback_report_details Scuccess' + JSON.stringify(result));
                           console.log('************** select get_chargeback_report_details Scuccess rows' + JSON.stringify(result.rows));
-                          var rows = generate_rows(result.rows);
+
+                          if (login_report_type == 'after_august') {
+                              var rows = generate_rows(result.rows, true);
+                              report_fields = restaurant_FIELDS["restaurant_receipts_gst"];
+                          } else {
+                              var rows = generate_rows(result.rows, false);
+                              report_fields = restaurant_FIELDS["restaurant_receipts"];
+                          }
+
                           // aggregates
                           console.log("get_chargeback_report_details rows");
                           var aggregates = null;
@@ -257,10 +302,10 @@ router.get('/downloadcsv', function (req, res) {
                               aggregates = aggregateReportColumns(rows);
                               formatNumbers(rows);
                           }
-                          var result_data = { fields: restaurant_FIELDS["restaurant_receipts"], rows: rows, aggregates: null };
+                          var result_data = { fields: report_fields, rows: rows, aggregates: null };
                           console.log('************** select get_chargeback_report_details*****');
                           //res.send(result_data);
-                          csvOut(reportName, result_data, report_type, res);
+                          csvOut(reportName, result_data, report_type, report_fields, res);
                       }
                   });
         });
@@ -272,7 +317,7 @@ router.get('/downloadcsv', function (req, res) {
     // res.send("success");
 });
 
-function generate_rows(result) {
+function generate_rows(result, is_gst) {
     var rows = [];
     console.log("***generate_rows started****" + JSON.stringify(result));
     var resut_data = result;
@@ -285,11 +330,24 @@ function generate_rows(result) {
         item["sold"] = sold;
         item["wastage_percentage"] = resut_data[value].wastage_percentage + "%";
         item["restaurant_err_qty"] = resut_data[value].restaurant_err_qty;
+
+        if (is_gst) {
+            var gst = resut_data[value].gst;
+
+            item["gst"] = gst;
+            item["po_qty"] = resut_data[value].po_qty;
+            item["frshly_err_qty"] = resut_data[value].frshly_err_qty;
+            item["transport_err_qty"] = resut_data[value].transport_err_qty;
+            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue) + gst;
+        }
+        else {
+            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue);
+        }
+
         item["reimbursed_by_food_box"] = resut_data[value].reimbursed_by_food_box;
         var conversion = sold != 0 ? Number((sold / taken) * 100).toFixed(0) : 0
         item["conversion"] = conversion.toString() + "%";
         item["Shareperunit"] = resut_data[value].Shareperunit;
-        item["Chargebackvalue"] = addCommas(Number(resut_data[value].Chargebackvalue));
         rows.push(item);
 
     }
@@ -305,9 +363,21 @@ function generate_rows(result) {
         item["reimbursed_by_food_box"] = sum(_.pluck(rows, 'reimbursed_by_food_box'));
         item["Shareperunit"] = "";
         item["restaurant_err_qty"] = sum(_.pluck(rows, 'restaurant_err_qty'));
+
+        if (is_gst) {
+            var gst_total = sum(_.pluck(rows, 'gst'));
+
+            item["gst"] = gst_total;
+            item["po_qty"] = sum(_.pluck(rows, 'po_qty'));
+            item["frshly_err_qty"] = sum(_.pluck(rows, 'frshly_err_qty'));
+            item["transport_err_qty"] = sum(_.pluck(rows, 'transport_err_qty'));
+            item["Chargebackvalue"] = sum(_.pluck(rows, 'Chargebackvalue')) + gst_total;
+        } else {
+            item["Chargebackvalue"] = sum(_.pluck(rows, 'Chargebackvalue'));
+        }
+
         var conversion = sold != 0 ? Number((sold / taken) * 100).toFixed(0) : 0
-        item["conversion"] = conversion.toString() + "%";
-        item["Chargebackvalue"] = addCommas(sum(_.pluck(rows, 'Chargebackvalue')));
+        item["conversion"] = conversion.toString() + "%";        
         rows.push(item);
     }
 
@@ -352,12 +422,17 @@ function addCommas(str) {
     }
     return output;
 }
-function csvOut(reportName, reportJson, report_type, res) {
-    var fields;
-    var fieldNames;
+function csvOut(reportName, reportJson, report_type, report_fields, res) {
+    var fields = [];
+    var fieldNames = [];
 
-    fields = ["Name", "taken", "sold", "wastage_percentage", "restaurant_err_qty", "reimbursed_by_food_box", "Shareperunit", "Chargebackvalue", "conversion"];
-    fieldNames = ["Name", "Taken Qty", "Sold Qty", "Wastage acceptable by the restaurant", "Restaurant Error Qty", "Wastage to be reimbursed by Food box", "Restaurant share p.u", "Charge back to be paid to restaurant", "Conversion"];
+    _.each(report_fields, function (value, key) {
+        fields.push(key);
+        fieldNames.push(value);
+    });
+
+    //fields = ["Name", "taken", "sold", "wastage_percentage", "restaurant_err_qty", "reimbursed_by_food_box", "Shareperunit", "Chargebackvalue", "conversion"];
+    //fieldNames = ["Name", "Taken Qty", "Sold Qty", "Wastage acceptable by the restaurant", "Restaurant Error Qty", "Wastage to be reimbursed by Food box", "Restaurant share p.u", "Charge back to be paid to restaurant", "Conversion"];
 
     var data = reportJson.rows;
     data.push(reportJson.aggregates);
