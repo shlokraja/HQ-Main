@@ -31,9 +31,12 @@ function IsAuthenticated(req, res, next) {
     }
 }
 router.get('/', IsAuthenticated, function (req, res, next) {
+    var istrading=false;
     var query = "SELECT id,name FROM restaurant ";
     var user = req.user.usertype;
-    var query = "SELECT id,name FROM restaurant where active=true ";
+    istrading = login_report_type=='prior_august'?true:false;
+    var query = "SELECT id,name FROM restaurant where active=true and istrading=" +istrading;
+    
     if (user != "HQ") {
         query += "and entity='" + req.user.entity + "'";
     }
@@ -175,7 +178,7 @@ router.post('/get_restaurant_details', function (req, res) {
             query += "('" + restaurant_id + "','" + from_dt + "','" + to_dt + "')";
         }
 
-        //console.log("**************get_restaurant_details QUERY******" + query);
+        console.log("**************get_restaurant_details QUERY******" + query);
         client.query(query,
           function (query_err, result) {
               if (query_err) {
@@ -258,7 +261,7 @@ function generate_rows(result, summary) {
     }
 
     for (var value in resut_data) {
-        console.log(resut_data[value]);
+        //console.log(resut_data[value]);
         var item = {};
         var payment = resut_data[value].Payment != null ? Number(resut_data[value].Payment).toFixed(0) : 0;
         var Escrow = resut_data[value].Transfer_to_Restaurant_from_Escrow != null ? Number(resut_data[value].Transfer_to_Restaurant_from_Escrow).toFixed(0) : 0;

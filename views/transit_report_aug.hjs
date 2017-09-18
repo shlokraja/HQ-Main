@@ -24,9 +24,9 @@
                     <label>Restaurant Name</label>
                     <select id="restaurant_id">
                         <option value="0">--Select--</option>
-                        {{#restaurants}}
-                        <option class={{outlet_short_name}} value={{id}}>{{name}}</option>
-                        {{/restaurants}}
+                                {{#restaurants}}
+                            <option class={{outlet_short_name}} value={{id}}>{{name}}</option>
+                                {{/restaurants}}
                     </select>
                     <div class="error" id="res_msg"></div>
                 </div>
@@ -179,6 +179,11 @@ font-weight:bold;
         outlet_wise_restaurant();
     });
 
+
+if($("#outlet_id").val() == 0){
+    $("#restaurant_id").empty();
+    $("#restaurant_id").append("<option value='0'>--Select--</option>");
+}
 
     $("#report_div").addClass("hide");
     $("#saveas").addClass("hide");

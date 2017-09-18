@@ -118,7 +118,7 @@
                             <th>GST on Gross Sales</th>                            
                             <th>TDS on Transaction fee</th>
                             <th>Transaction Fee</th>
-                            <th>Service Tax</th>
+                            <th>Gst</th>
                             <th>Total Cost</th>
                             <th>Cost of Food</th>
                             <th>Transfer to Restaurant from Escrow</th>
@@ -275,9 +275,7 @@ if($("#usertype").val()!="HQ")
 {
 remove_option();
 }
-else{
-$("#restaurant_id").append("<option value='0'>Summary</option>");
-}
+
 
 $("#report_type").change(function() {
 if( $("#report_type").val() != "restaurant_payment" )

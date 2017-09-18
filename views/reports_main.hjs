@@ -71,8 +71,8 @@ color:#fff !important;
 {{#yield-scripts}}
 
 $("#reports_div .datetimepicker").datetimepicker({format:'Y-m-d', timepicker: false,maxDate: new Date});
-$("#from_date").val('2017-01-01');
-$("#to_date").val('2017-01-31');
+/*$("#from_date").val('2017-01-01');
+$("#to_date").val('2017-01-31');*/
 $("#get_reports").click(function() {
   var from_date = $("#from_date").val();
   var to_date = $("#to_date").val();

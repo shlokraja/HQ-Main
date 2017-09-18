@@ -10,6 +10,7 @@ require('moment-range');
 var dbUtils = require('../models/dbUtils');
 var selected_outlet_id;
 var result_po_taken;
+var fromDate,todate;
 
 //dafdafad
 // aggregator helpers 
@@ -1037,6 +1038,17 @@ var FV_REPORTS = {
     }
 };
 
+var FV_REPORTS_AUGUST = {
+    daily_revenue_analysis: {
+        name: "Daily Revenue Analysis",
+        generator: compute_daily_revenue_analysis_for_fv
+    },
+    error_details: {
+        name: "Error Details",
+        generator: compute_daily_error_details_report
+    }
+};
+
 
 var HQ_REPORTS = {
     hq_bill_bundles: {
@@ -1079,10 +1091,10 @@ var HQ_REPORTS_AUGUST = {
         name: "Bill Bundles",
         generator: generate_bill_bundle_hq_link
     },
-    daily_sale_gst: {
-        name: "Daily Receipts",
-        generator: compute_daily_receipt_for_single_entity_sale_gst
-    },
+    // daily_sale_gst: {
+    //     name: "Daily Receipts",
+    //     generator: compute_daily_receipt_for_single_entity_sale_gst
+    // },
     daily_revenue_analysis_gst: {
         name: "Restaurant Daily Revenue Analysis",
         generator: compute_daily_revenue_analysis_for_fv_gst
@@ -1109,15 +1121,17 @@ var get_reoprt_types_for_user = function (authUser) {
         return [];
     }
     var report = HQ_REPORTS;
+    var report_FV = FV_REPORTS;
     if (authUser.reportAugust) report = HQ_REPORTS_AUGUST;
+    if (authUser.reportAugust) report_FV =  FV_REPORTS_AUGUST;
     console.log(report);
     if (authUser.usertype == "HQ") {
         return _.map(_.keys(report), function (k) {
             return { id: k, name: report[k].name };
         });
     } else {
-        return _.map(_.keys(FV_REPORTS), function (k) {
-            return { id: k, name: FV_REPORTS[k].name };
+        return _.map(_.keys(report_FV), function (k) {
+            return { id: k, name: report_FV[k].name };
         });
     }
 };
@@ -1147,15 +1161,19 @@ var generate_report_for_user = function (from_date, to_date, outlet_id,
         else {
             result_po_taken = result
             var reportMonth = HQ_REPORTS;
+            var reportMonthFV = FV_REPORTS;
             if (login_report_type == 'after_august') {
                 reportMonth = HQ_REPORTS_AUGUST;
+            }
+            if(login_report_type == "after_august"){
+                reportMonthFV = FV_REPORTS_AUGUST;
             }
             //console.log(result);
             var report_generator, entity = null;
             if (user.usertype == "HQ") {
                 report_generator = reportMonth[report_type].generator;
             } else {
-                report_generator = FV_REPORTS[report_type].generator;
+                report_generator = reportMonthFV[report_type].generator;
                 entity = user.entity;
             }
 
