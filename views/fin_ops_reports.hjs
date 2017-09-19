@@ -22,10 +22,7 @@
                 <div class="large-4 small-6 columns">
                     <label>Report Type</label>
                     <select id="report_type">
-                        <option value="restaurant_payment">Restaurant payment</option>
-                        <option value="vat">Vat</option>
-                        <option value="st">Service Tax</option>  			                    
-                        <option  value="restaurant_payment_gst">Restaurant payment GST </option>
+                        
                     </select>
                 </div>
                 <div class="large-2 small-6 columns">
@@ -271,6 +268,16 @@ $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
  $("#st_report_output_div").addClass("hide");
  $("#saveas").addClass("hide");
 
+if($("#reportAugust").val() == "true" )  {
+$("#report_type").append("<option value='restaurant_payment_gst'>Restaurant payment</option>");
+}else{
+    $("#report_type").append("<option value='restaurant_payment_gst'>Restaurant payment GST</option>");
+    $("#report_type").append("<option value='vat'>Vat</option>");
+    $("#report_type").append("<option value='st'>Service Tax</option>");
+    $("#report_type").append("<option value='restaurant_payment'>Restaurant payment</option>");
+}
+			                    
+                        
 if($("#usertype").val()!="HQ")
 {
 remove_option();
@@ -679,3 +686,4 @@ function gridviewScroll(idname) {
             });
 	    }
 {{/yield-scripts}}
+
