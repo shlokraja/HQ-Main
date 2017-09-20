@@ -49,9 +49,10 @@ var restaurant_FIELDS = {
         "transport_err_qty": 'Transport Error Qty',
         "reimbursed_by_food_box": 'Wastage quantity',
         "Shareperunit": 'Restaurant share p.u',
-        "gst":'GST',
-        "Chargebackvalue": 'Charge back',
-        "conversion": 'Conversion'
+        "Chargebackvalue": 'Charge back without GST',
+        "gst": 'GST Amount',
+        "Chargebackgstvalue": 'Charge back',
+        "conversion": 'Conversion'        
     }
 }
 
@@ -338,7 +339,8 @@ function generate_rows(result, is_gst) {
             item["po_qty"] = resut_data[value].po_qty;
             item["frshly_err_qty"] = resut_data[value].frshly_err_qty;
             item["transport_err_qty"] = resut_data[value].transport_err_qty;
-            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue) + gst;
+            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue);
+            item["Chargebackgstvalue"] = Number(resut_data[value].Chargebackvalue) + gst;
         }
         else {
             item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue);
@@ -371,7 +373,8 @@ function generate_rows(result, is_gst) {
             item["po_qty"] = sum(_.pluck(rows, 'po_qty'));
             item["frshly_err_qty"] = sum(_.pluck(rows, 'frshly_err_qty'));
             item["transport_err_qty"] = sum(_.pluck(rows, 'transport_err_qty'));
-            item["Chargebackvalue"] = sum(_.pluck(rows, 'Chargebackvalue')) + gst_total;
+            item["Chargebackvalue"] = sum(_.pluck(rows, 'Chargebackvalue'));
+            item["Chargebackgstvalue"] = sum(_.pluck(rows, 'Chargebackvalue')) + gst_total;
         } else {
             item["Chargebackvalue"] = sum(_.pluck(rows, 'Chargebackvalue'));
         }

@@ -16,7 +16,6 @@ var flash = require('connect-flash');
 var login_report_type = "";
 var routes = require('./routes/index');
 var restaurant = require('./routes/restaurant');
-var restaurant_onboarding = require('./routes/restaurant_onboarding');
 var outlet = require('./routes/outlet');
 var outlet_mobile = require('./routes/outlet_mobile');
 var menu = require('./routes/menu');
@@ -145,7 +144,6 @@ app.use(flash());
 // Setting up routes here
 app.use('/', routes);
 app.use('/restaurant', restaurant);
-app.use('/restaurant_onboarding', restaurant_onboarding);
 app.use('/outlet', outlet);
 app.use('/menu', menu);
 app.use('/food_item', food_item);
