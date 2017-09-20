@@ -125,11 +125,17 @@
 
     for (var i = min - 1; i <= max; i++) {
         //Validation to retrieve data after October 2016
+
         if (Number(i) >= 2016) {
             var opt = document.createElement('option');
             opt.value = i;
             opt.innerHTML = i;
-            select.appendChild(opt);
+            if ($("#reportAugust").val()=='false')
+            {
+                select.appendChild(opt);
+            }else if(i > 2016){
+                select.appendChild(opt);
+            }            
         }
     }
     loadMonth();
