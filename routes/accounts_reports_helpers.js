@@ -197,7 +197,7 @@ var REPORT_FIELDS = {
         "rev_share": 'Restaurant Fee for Sold',
         "rest_gst": 'GST',
         "rev_share_rest_gst": 'Total',
-        "mrp_price": 'MRP for Product', //mrp
+        //"mrp_price": 'MRP for Product', //mrp
         "wastage_qty": 'Wastage Qty',
         "foodbox_issues_qty": 'Frshly Error Qty',
         "foodbox_issues_value": 'Frshly Err Value',
@@ -710,11 +710,9 @@ var compute_daily_revenue_analysis_gst = function (date, outlet,
             item["transporter_issues_value"] = item["transporter_issues_qty"] * first.restaurant_fee;
             if (isHQ) {
                 item["transporter_issues_value"] += item["transporter_issues_qty"] * first.foodbox_fee;
-                item["net_revenue"] = item["rev_share"] - item["foodbox_issues_value"]
-                    + item["restaurant_issues_value"] + item["transporter_issues_value"];
+                item["net_revenue"] = item["rev_share"] + item["rest_gst"];
             } else {
-                item["net_revenue"] = item["rev_share"] + item["foodbox_issues_value"]
-                    - item["restaurant_issues_value"] + item["transporter_issues_value"];
+                item["net_revenue"] = item["rev_share"] + item["rest_gst"];
             }
             if (outlet_version_date_format != null && date_format >= outlet_version_date_format) {
                 for (var p = 0; p < purchases.length; p++) {
@@ -1023,11 +1021,11 @@ var FV_REPORTS = {
     daily_receipts_gst: {
         name: "Daily Receipts GST",
         generator: compute_daily_receipt_for_single_entity_gst
-    },
+    }/*,
     daily_sale_gst: {
         name: "Daily Receipts Sales GST",
         generator: compute_daily_receipt_for_single_entity_sale_gst
-    },
+    }*/,
     daily_revenue_analysis: {
         name: "Daily Revenue Analysis",
         generator: compute_daily_revenue_analysis_for_fv
@@ -1039,9 +1037,9 @@ var FV_REPORTS = {
 };
 
 var FV_REPORTS_AUGUST = {
-    daily_revenue_analysis: {
+    daily_revenue_analysis_gst: {
         name: "Daily Revenue Analysis",
-        generator: compute_daily_revenue_analysis_for_fv
+        generator: compute_daily_revenue_analysis_for_fv_gst
     },
     error_details: {
         name: "Error Details",

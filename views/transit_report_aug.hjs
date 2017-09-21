@@ -10,8 +10,8 @@
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
-                <div class="large-4 small-6 columns">
-                    <label>Outlet</label>
+                <div id="divOutlet" class="large-4 small-6 columns">
+                    <label >Outlet</label>
                     <select id="outlet_id">
                         <option value="0">--Select--</option>
                         {{#outlet}}
@@ -20,8 +20,8 @@
                     </select>
                     <div class="error" id="out_msg"></div>
                 </div>
-                <div class="large-4 small-6 columns">
-                    <label>Restaurant Name</label>
+                <div id="divRestaurant" class="large-4 small-6 columns">
+                    <label >Restaurant Name</label>
                     <select id="restaurant_id">
                         <option value="0">--Select--</option>
                                 {{#restaurants}}
@@ -179,7 +179,7 @@ font-weight:bold;
         outlet_wise_restaurant();
     });
 
-
+var id_restaurant=_.last($("#restaurant_id")[0]).value;
 if($("#outlet_id").val() == 0){
     $("#restaurant_id").empty();
     $("#restaurant_id").append("<option value='0'>--Select--</option>");
@@ -203,6 +203,10 @@ if($("#outlet_id").val() == 0){
     }
     if ($("#usertype").val() != "HQ") {
     var date="01-12-2016";
+    
+        $("#divRestaurant").remove();
+        $("#divOutlet").remove();
+        
   
     $( "#from_date" ).datepicker({
         dateFormat:dateFormat,
@@ -279,7 +283,7 @@ toastr.options = {
             $("#out_msg").text("");
         }
 
-        if ($("#outlet_id").val() == "0") {
+        if ($("#outlet_id").val() == "0" &&  $("#usertype").val() == "HQ" ) {
             $("#out_msg").text("Please select outlet");
             return;
         }
@@ -310,6 +314,10 @@ toastr.options = {
         else {
             $("#err_daterange").text("");
 
+        }
+        if ( $("#usertype").val() != "HQ")
+        {
+            restaurant_id=id_restaurant;
         }
 
         $.ajax({

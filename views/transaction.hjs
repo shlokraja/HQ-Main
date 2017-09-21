@@ -6,6 +6,7 @@
 {{/yield-loginlogout}}
 {{#yield-body}}
 <input type="hidden" value="{{user}}" id="usertype" />
+<input type="hidden" value="{{reportAugust}}" id="reportAugust" />
 <div class="row">
     <aside class="large-4 columns"></aside>
     <div id="err_daterange"></div>
@@ -246,6 +247,21 @@ $(".datechange").trigger("change");
     var from_date = db_date($("#from").val());
     var to_date =db_date($("#to").val());
     var account_id=$("#restaurant_id").val();
+    
+    var sale_gst='2017-07-31';
+        var fromdate = $("#from_date").val();
+        var todate = $("#to_date").val();
+        fromdate= fromdate.split("-").reverse().join("-");
+        todate= todate.split("-").reverse().join("-");
+        
+
+        if (fromdate<= sale_gst || todate <=sale_gst)
+        {
+           toastr.error('Payment Possible only From August 2017');
+            return;
+        }
+
+    
     if(new Date(from_date) <= new Date(to_date))
     {
     var url='/transaction/get_payment_information?&account_id=' + account_id+ '&from_date=' + from_date+ '&to_date=' + to_date;
@@ -326,6 +342,18 @@ $(".datechange").trigger("change");
     else {
     $("#err_msg1").text("");
     }
+var sale_gst='2017-07-31';
+        var fromdate = $("#from_date").val();
+        var todate = $("#to_date").val();
+        fromdate= fromdate.split("-").reverse().join("-");
+        todate= todate.split("-").reverse().join("-");
+        
+
+        if (fromdate<= sale_gst || todate <=sale_gst)
+        {
+           toastr.error('Payment Possible only From August 2017');
+            return;
+        }
 
     if(document.getElementById("paymentdate").value == "")
     {

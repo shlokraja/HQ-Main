@@ -55,6 +55,9 @@ var invoice = require('./routes/invoice');
 var letter = require('./routes/letter');
 var transit_report = require('./routes/transit_report');
 var transit_payment = require('./routes/transit_payment');
+// tata report integration
+var tata_fin_ops_reports = require('./routes/tata_fin_ops_reports');
+
 // var api = require('./api/api');
 //var server = require('./api/server');
 
@@ -177,6 +180,7 @@ app.use('/invoice', invoice);
 app.use('/letter', letter);
 app.use('/transit_report', transit_report);
 app.use('/transit_payment', transit_payment);
+app.use('/daily_reports', tata_fin_ops_reports); //tata report integration
 // app.use(timeout(18000000)); // 30 mins
 // app.use(haltOnTimedout);
 

@@ -37,7 +37,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var query = 'select distinct out.id,out.name,out.short_name from outlet out \
             inner join food_item fi on out.id=fi.outlet_id  \
             inner join restaurant res on fi.restaurant_id=res.id  \
-            where res.id>0 and out.active=true ';
+            where res.id>0 /*and out.active=true*/ ';
             if (login_report_type=='after_august')
                 {
                     query= query + ' and out.ispublicsector=true ';

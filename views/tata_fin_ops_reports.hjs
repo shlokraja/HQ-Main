@@ -1,0 +1,494 @@
+{{#yield-loginlogout}}
+<a id="logout" href="/logout">Logout</a>
+<span class="menu">|</span>
+<a id="accounts" href="/accounts">Home</a>
+{{/yield-loginlogout}}
+{{#yield-body}}
+<section class="content">
+    <input type="hidden" value="{{user}}" id="usertype" />
+    <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
+    
+    <div class="row">
+        <div class="large-12 columns" id="reports_div">
+            <div class="row">
+                <div class="large-4 small-6 columns">
+                    <label>Outlet Name </label>
+                    <select id="outlet_id">
+                        {{#outlets}}
+                        <option value={{id}}>{{name}}</option>
+                        {{/outlets}}
+                    </select>
+                    <div class="error" id="res_msg"></div>
+                </div>
+                <div class="large-4 small-6 columns">
+                    <label>Report Type</label>
+                    <select id="report_type">
+                        <option value="purchase">Purchase</option>
+                        <option value="sales">Sales</option>                       
+                    </select>
+                </div>
+                <div class="large-2 small-3 columns">
+                    <label>From Date</label>
+                    <input id="from_date" type="text" class="datetimepicker" />
+                    <div class="error" id="err_from_msg"></div>
+
+                </div>
+                <div class="large-2 small-3 columns">
+                    <label>To Date</label>
+                    <input id="to_date" type="text" class="datetimepicker" />
+                    <div class="error" id="err_to_msg"></div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="small-12 columns">
+                    <input type="button" id="get_reports" name="Generate Reports" value="Generate Reports" class="medium button general-button btn-customised">
+                    <a href="#" class="hide" id="saveas" title="Export to CSV">Export to CSV</a>
+                </div>
+            </div>
+            
+            <!--purchase details changes -->
+            <div class="row">
+                <div id="report_div_purchase" class="panel1 large-12 columns report_div_purchase hide width-for-small_only">
+                    <table border="1" id="report_output_purchase" class="full-width">
+                    <tr class="GridviewScrollHeader">                            
+                            <th  scope="col" colspan="2" class="center"></th>                       
+							<th  scope="col" colspan="3" class="center">Purchase Details </th>                          							
+                    </tr> 
+                        <tr class="GridviewScrollHeader">                            
+                            <th  scope="col">Po Id</th>
+                            <th  scope="col">PO Date</th>
+                            <th  scope="col">Restaurant </th>
+                            <th  scope="col">Item Name</th>
+                            <th  scope="col">Quantity</th>                            
+                        </tr>                           
+                        <tfoot></tfoot>
+                    </table>
+
+                </div>
+               </div>
+                <!--Sales details changes -->
+                <div class="row">
+                <div id="report_div_sales" class="panel1 large-12 columns report_div_sales hide width-for-small_only">
+                    <table border="1" id="report_output_sales" class="full-width">                    
+                          <tr class="GridviewScrollHeader">                            
+                            <th  colspan="2" > </th>                            
+                            <th  colspan="15" > Sales details</th>                            
+                        </tr>          
+                        <tr class="GridviewScrollHeader">                            
+                            <th >Sales Order id</th>
+                            <th >Bill No</th>
+                            <th  style="white-space:pre;width:100px">Bill  Date</th>
+                            <th >Bill Time</th>                            
+                            <th >Item ID</th>
+                            <th >Item Name</th>
+                            <th >Quantity</th>                            
+                            <th >Price without GST</th>
+                            <th >GST Amount</th>                            
+                            <th >MRP</th>
+                            <th >Bill Amount</th>
+                            <th >Restaurant</th>
+                            <th >Outlet</th>
+                            <th >Payment Type</th>
+                            <th >MobileNo</th>
+                            <th >Bill Slot</th>
+                            <th >Bill Hour</th>
+                           
+                        </tr>                    
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </div>
+            <!--Closing stock details changes -->
+                <div class="row">
+                        <div id="report_div_closing" class="panel1 large-12 columns report_div hide width-for-small_only">
+                            <table border="1" id="report_output_closing" class="full-width">
+                               
+                                <tr class="GridviewScrollHeader">                            
+                                        <th  colspan="2" class="center" scope="col"></th>
+										<th  colspan="6" class="center" scope="col">Closing Stock</th>
+                                        
+                                        
+                                </tr>
+                                <tr class="GridviewScrollHeader">                            
+                                        <th  scope="col">PO Date</th>
+                                        <th  scope="col">PO ID</th>
+                                        <th  scope="col">Bill Date</th>
+                                        <th  scope="col">Item Id</th>
+                                        <th  scope="col">Item Name</th>
+                                        <th  scope="col">Opening Stock</th>
+                                        <th  scope="col">Bill Quantity</th>
+                                        <th  scope="col">Closing Stock</th>                            
+                                </tr>                
+                                <tfoot></tfoot>
+                            </table>
+                        </div>
+                </div>
+        </div>
+    </div>
+</section>
+
+
+{{/yield-body}}
+{{#yield-styles}}
+#tataReports{
+background-color: #231f20;
+color:#fff !important;
+
+}
+#logout,#accounts {
+    float: right;
+}
+.center
+{
+text-align: center !important;
+}
+#accounts
+{
+padding-left: 20px;
+}
+
+.left
+{
+float:left;
+}
+.right
+{
+float:right;
+margin-right: 17px;
+}
+.full-width
+{
+width:100%;
+}
+.error{
+    color: red;
+    font-size: 12px;
+    }
+.show{
+display:block;
+}
+.hide{
+display:none;
+}
+#saveas {
+  float: right;
+  margin-left: 30px;
+}
+
+
+.selector {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.div_body
+{
+    margin-top: 10px !important;
+}
+.bold
+{
+font-weight:bold;
+}
+<style>
+tr:nth-child(even) {
+        background: #f1f1f1;
+        }
+</style>
+{{/yield-styles}}
+
+
+{{#yield-scripts}}
+$.blockUI({ message: '<h2>Just a moment...</h2>' });
+$.unblockUI();
+$(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
+$("#report_div_purchase").addClass("hide");
+$("#report_div_sales").addClass("hide"); //gst changes 
+$("#saveas").addClass("hide");
+
+$("#restaurant_id").val(52);
+
+$("#report_type").change(function() {
+
+});
+function remove_option()
+{
+$("#restaurant_id option[value='0']").remove();
+}
+
+ var dateFormat= "dd-mm-yy";
+    var maxDate= new Date;
+    if ($("#usertype").val() != "HQ") {
+    var date="01-12-2016";
+
+    $( "#from_date" ).datepicker({
+        dateFormat:dateFormat,
+        maxDate: maxDate,
+        minDate:date
+    });
+    $( "#to_date" ).datepicker({dateFormat:dateFormat,
+        maxDate: maxDate,
+        minDate:date});
+    }
+    else{
+     $("#from_date").datepicker({
+            dateFormat:dateFormat,
+            maxDate: maxDate
+        });
+        $("#to_date").datepicker({
+            dateFormat: dateFormat,
+            maxDate: maxDate
+
+        });
+    }
+
+
+
+$("#get_reports").click(function() {
+	var outlet_id = $("#outlet_id").val();
+	var from_date = db_date($("#from_date").val());
+	var to_date =db_date($("#to_date").val());
+	var report_type= $("#report_type").val();
+	$("#report_output_purchase td").parent().remove();
+	$("#report_output_sales td").parent().remove();    
+	$("#report_output_closing td").parent().remove(); 
+	$("#report_div_purchase").addClass("hide");
+	$("#report_div_sales").addClass("hide"); 
+if((document.getElementById("from_date").value == "") && (document.getElementById("to_date").value == "") &&
+(document.getElementById("restaurant_id").value == "0"))
+    {
+		$("#err_from_msg").text("Please select From date");
+		$("#err_to_msg").text("Please select To date");
+		$("#res_msg").text("Please select restaurant");
+   }
+    else{
+		$("#err_from_msg").text("");
+		$("#err_msg1").text("");
+		$("#res_msg").text("");
+    }
+
+
+    if(document.getElementById("from_date").value == "")
+    {
+    $("#err_from_msg").text("Please select From date");
+    return;
+    }
+    else{
+    $("#err_from_msg").text("");
+    }
+    if(document.getElementById("to_date").value == "")
+    {
+    $("#err_to_msg").text("Please select To date");
+    return;
+    }
+    else {
+    $("#err_to_msg").text("");
+    }
+
+    if(from_date > to_date)
+    {
+    $("#err_daterange").text("selected from and to date Ranges are not valid");
+    return;
+
+    }
+    else{
+    $("#err_daterange").text("");
+
+    }
+
+    
+    var reportUrl= location.origin + '/daily_reports/get_purchase_details';
+    if (report_type=="purchase")
+    {
+        reportUrl= location.origin + '/daily_reports/get_purchase_details';
+    }
+    else if(report_type=="sales")
+    {
+        reportUrl= location.origin + '/daily_reports/get_sales_details';
+    }
+    else
+    {
+        reportUrl= location.origin + '/daily_reports/get_closingstock_details';   
+    }
+    $.ajax({
+    type: 'POST',
+    url: reportUrl,
+    data: JSON.stringify({ "from_date": from_date,"to_date": to_date,"outlet_id":outlet_id}),
+    success: function (data)
+    {
+    console.log(data);
+    if(data!="NoData")
+    {
+    var csvLink = '/daily_reports/downloadcsv?from_date=' + from_date+ '&to_date=' + to_date+'&report_type='+report_type;
+
+    var result=JSON.parse(data);
+    
+    for (var item in result) {
+    console.log("item inside design");
+    console.log(item);
+    console.log(Math.round(item*100/result.length));
+    
+
+    if (report_type == "purchase")
+    {
+		$("#report_div_closing").addClass("hide");        
+		$("#report_div_sales").addClass("hide");    
+		$("#report_div_purchase").removeClass("hide");
+		$("#report_div_purchase").addClass("show");     
+		if(result[item].Id!=""){
+          $('#report_output_purchase tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].Id+'</td><td>'+result[item].PurchaseDate+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].FoodName+'</td><td style="text-align:right" >'+result[item].Quantity+'</td></tr>');
+        }else{
+            $('#report_output_purchase tfoot').append('<tr class="GridviewScrollItem bold"><td colspan="3" style="line-height: 30px;">Total</td><td></td><td  style="text-align:right">'+result[item].Quantity+'</td></tr>');
+        }
+        
+		freezecolumn();
+    }
+    else if (report_type == "sales")
+    {
+        $("#report_div_closing").addClass("hide");        
+        $("#report_div_purchase").addClass("hide");        
+        $("#report_div_sales").removeClass("hide");
+        $("#report_div_sales").addClass("show");
+        
+        if(result[item].salesid!=""){
+          $('#report_output_sales tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].salesid+ 
+          ' </td><td>'+result[item].billno+'</td><td>'+result[item].salesdate+'</td><td>'+result[item].billtime+'</td><td>'+
+          result[item].foodid+'</td>' + 
+          ' <td  style="text-align:left" >'+result[item].foodname+'</td><td style="text-align:right" >'+result[item].quantity+ 
+          ' </td><td style="text-align:right" >'+result[item].sellingprice+'</td>'+
+          '<td style="text-align:right" >'+result[item].gst+'</td> <td style="text-align:right" >'+result[item].unitprice+'</td>'+
+          '<td style="text-align:right" >'+result[item].total+'</td><td style="text-align:left" >'+result[item].restaurant+ 
+          ' </td><td style="text-align:left" >'+result[item].outlet+'</td><td style="text-align:left" >'+result[item].paymenttype+ '</td>'+
+          ' <td>'+result[item].mobileno +' </td>'+ ' <td>'+result[item].billslot +' </td>'+ ' <td>'+result[item].billhour +' </td>'+
+          ' </tr>');
+           }   
+           else  
+           {
+         $('#report_output_sales tfoot').append('<tr class="GridviewScrollItem bold"><td colspan="2" style="line-height: 30px;">Total</td><td>'+
+         result[item].Gross+'</td><td>'+result[item].gst+'</td><td>'+result[item].Net_Sales+'</td></tr>');
+       
+        }
+
+		freezecolumn();
+    }
+    else if (report_type == "closing")
+    {
+        $("#report_div_closing").addClass("hide");     
+		$("#report_div_purchase").addClass("hide");        
+        $("#report_div_sales").addClass("hide");    
+        $("#report_div_closing").removeClass("hide");
+        $("#report_div_closing").addClass("show");     
+    if(result[item].purchase_date!="Grand Total"){
+       $('#report_output_closing tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].purchase_date+'</td><td>'+result[item].purchase_id+'</td><td>'+result[item].sale_date+'</td><td>'+result[item].fid+'</td><td>'+result[item].food_name+'</td><td style="text-align:right">'+result[item].purchase_quantity+'</td><td style="text-align:right">'+result[item].sales_quantity+'</td><td style="text-align:right">'+result[item].closing_balance+'</td></tr>');
+        }
+    else{
+             $('#report_output_closing tfoot').append('<tr class="GridviewScrollItem bold"><td colspan="3" style="line-height: 30px;">'+result[item].purchase_date+'</td><td>'+result[item].fid+'</td><td>'+result[item].food_name+'</td><td style="text-align:right">'+result[item].purchase_quantity+'</td><td style="text-align:right">'+result[item].sales_quantity+'</td><td style="text-align:right">'+result[item].closing_balance+'</td></tr>');
+		}
+		freezecolumn();
+    }   
+
+    }
+
+    $("#saveas").attr('href', csvLink);
+    }else{
+        no_data_records();
+     }
+    $("#saveas").removeClass("hide");
+    $("#saveas").addClass("show");
+    //alert(data);
+    },
+    error: function (jqxhr, textStatus, error)
+    {
+    var err_msg = textStatus + ", " + jqxhr.responseText;
+    console.error("get_transaction_information failed: " + err_msg);
+    },
+    contentType: "application/json",
+    dataType: 'text'
+    });
+
+});
+
+
+function freezecolumn()
+{
+    var report_type= $("#report_type").val();
+    if (report_type == "closing")
+    {
+    gridviewScroll("report_output_closing");
+    }
+    
+    else  if (report_type == "sales")
+    {
+    gridviewScroll("report_output_sales");
+    }
+    else if (report_type == "purchase")
+    {
+    gridviewScroll("report_output_purchase");
+    }
+    
+}
+
+function no_data_records()
+{
+ var report_type= $("#report_type").val();
+    if (report_type == "purchase")
+    {
+        $("#report_div_purchase").addClass("hide");
+        
+        
+         $('#report_output_purchase tfoot').append('<tr class="bold"><td colspan="5" style="line-height: 30px;">No records found</td></tr>');
+        }
+         else if (report_type == "sales")
+            {
+            $("#report_div_sales").addClass("hide");
+        
+        $('#report_output_sales tfoot').append('<tr class="bold"><td colspan="5" style="line-height: 30px;">No records found</td></tr>');
+        }
+         else{
+                $("#report_div_closing").removeClass("hide");
+                $("#report_div_closing").addClass("show");
+         $('#report_output_closing tfoot').append('<tr class="bold"><td colspan="24" style="line-height: 30px;">No records found</td></tr>');
+        }
+
+}
+ $.date = function(dateObject) {
+    var d = new Date(dateObject);
+    var day = d.getDate();
+    var month = d.getMonth() + 1;
+    var year = d.getFullYear();
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = day + "-" + month + "-" + year;
+
+    return date;
+};
+
+function db_date(selector) {
+    var from = selector.split("-");
+    var date= from[2]+"-"+from[1]+"-"+ from[0];
+    return date;
+}
+function gridviewScroll(idname) {
+	        gridView1 = $('#'+idname).gridviewScroll({
+                width: 1000,
+                height: 600,
+                railcolor: "#F0F0F0",
+                barcolor: "#CDCDCD",
+                barhovercolor: "#606060",
+                bgcolor: "#F0F0F0",
+                freezesize: 1,
+                arrowsize: 30,
+                varrowtopimg: "Images/arrowvt.png",
+                varrowbottomimg: "Images/arrowvb.png",
+                harrowleftimg: "Images/arrowhl.png",
+                harrowrightimg: "Images/arrowhr.png",
+                headerrowcount: 2,
+                railsize: 16,
+                barsize: 8
+            });
+	    }
+{{/yield-scripts}}

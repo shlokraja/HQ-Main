@@ -79,6 +79,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
               city: results.city,
               restaurants: results.restaurants,
               user: req.user.usertype,
+              reportAugust:login_report_type=='after_august',
           };
 
 
@@ -181,8 +182,14 @@ router.get('/get_payment_information', function (req, res) {
             callback(err, null);
             return;
         }
+        var ispublicsector=false;
+        if (login_report_type=='after_august')
+            {
+                ispublicsector=true;
+            }
+
         var query = "select *  from payment_details"
-        query += "('" + account_id + "','" + from_date + "','" + to_date + "',false)";
+        query += "('" + account_id + "','" + from_date + "','" + to_date + "','"+ispublicsector+"')";
         //console.log("**************get_payment_information QUERY******" + query);
         client.query(query,
           function (query_err, result) {
