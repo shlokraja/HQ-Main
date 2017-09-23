@@ -37,16 +37,14 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var query = 'select distinct out.id,out.name,out.short_name from outlet out \
             inner join food_item fi on out.id=fi.outlet_id  \
             inner join restaurant res on fi.restaurant_id=res.id  \
-            where res.id>0 /*and out.active=true*/ ';
-            if (login_report_type=='after_august')
-                {
-                    query= query + ' and out.ispublicsector=true ';
-                }
-                else
-                {
-                        query= query + ' and out.ispublicsectorPriorAugust=true ';
-                }
-            
+            where res.id>0 and out.active=true ';
+    if (login_report_type == 'after_august') {
+        query = query + ' and out.ispublicsector=true ';
+    }
+    else {
+        query = query + ' and out.ispublicsectorPriorAugust=true ';
+    }
+
     if (user != "HQ") {
         query += "and res.entity='" + req.user.entity + "'";
     }
@@ -56,9 +54,9 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                         inner join food_item fi on fi.restaurant_id=res.id \
                         inner join outlet out on out.id=fi.outlet_id \
                         inner join restaurant_config rcon on rcon.restaurant_id=res.id \
-                        where res.id>0 and out.ispublicsector=true and out.active=true and res.active=true ';
+                        where res.id>0 and out.ispublicsector=true and out.active=true and res.active=true';
     if (user != "HQ") {
-        res_qry += "and res.entity='" + req.user.entity + "'";
+        res_qry += " and res.entity='" + req.user.entity + "'";
     }
     res_qry += ' order by res.name';
 
@@ -67,14 +65,17 @@ router.get('/', IsAuthenticated, function (req, res, next) {
         outlet: function (callback) {
 
             config.query(query,
-            [],
-            function (err, result) {
-                if (err) {
-                    callback('error running query' + err, null);
-                    return;
-                }
-                callback(null, result.rows);
-            });
+                [],
+                function (err, result) {
+                    //var feed  = {id:'-1', name:'All'};
+                    //result.push(feed);
+                    //console.log("result===============", result);
+                    if (err) {
+                        callback('error running query' + err, null);
+                        return;
+                    }
+                    callback(null, result.rows);
+                });
 
         },
         restaurants: function (callback) {
@@ -90,31 +91,51 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 });
 
         },
+        restaurantAll: function (callback) {
+            var retaurantAll = {};
+            config.query("select 'ALL' as outlet_short_name,id,name,'BN' as city from restaurant where active=true",
+                [],
+                function (err, rest) {
+                    if (err) {
+                        callback('transit_report error running query' + err, null);
+                        return;
+                    }
+                    callback(null, rest.rows);
+                });
+
+        },
     },
 
-    function (err, results) {
-        if (err) {
-            console.log("transit_report Error: " + err);
-            return;
-        }
+        function (err, results) {
+            if (err) {
+                console.log("transit_report Error: " + err);
+                return;
+            }
+            if (user == "HQ"){
+                var getALLrestaurant = {};
+                getALLrestaurant = results.restaurantAll;
 
-        var context = {
-            title: 'Transit Reports',
-            outlet: results.outlet,
-            restaurants: results.restaurants,
-            user: req.user.usertype,
-            reportAugust:login_report_type=='after_august',
-        };
-        console.log("process.env.August:"+process.env.August);
-        if (login_report_type=='after_august')
-            {
+                _.each(getALLrestaurant, function (value, key) {
+                    results.restaurants.push(value);
+                });
+
+                results.outlet.push({ id: '-1', name: 'All', short_name: 'ALL' });
+            }
+            var context = {
+                title: 'Transit Reports',
+                outlet: results.outlet,
+                restaurants: results.restaurants,
+                user: req.user.usertype,
+                reportAugust: login_report_type == 'after_august',
+            };
+            console.log("process.env.August:" + process.env.August);
+            if (login_report_type == 'after_august') {
                 res.render('transit_report_aug', context);
             }
-            else
-            {
+            else {
                 res.render('transit_report', context);
             }
-    });
+        });
 
 
 });
@@ -146,6 +167,9 @@ router.post('/get_transit_restaurant_details', function (req, res) {
     var report_type = req.body.report_type;
     var outlet_id = req.body.outlet_id;
     var isSummary = false;
+    console.log("restaurant_id--------------" + restaurant_id);
+    console.log("outlet_id----------------" + outlet_id);
+    console.log("report_type----------------" + report_type);
     pg.connect(conString, function (err, client, done) {
         if (err) {
             console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(err));
@@ -162,27 +186,27 @@ router.post('/get_transit_restaurant_details', function (req, res) {
 
         console.log("**************get_transit_restaurant_details QUERY******" + query);
         client.query(query,
-          function (query_err, result) {
-              if (query_err) {
-                  done(client);
-                  console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(query_err));
-                  return;
-              } else {
-                  done();
-                  var rows = [];
-                  var resut_data = result.rows;
-                  console.log('************** select get_transit_restaurant_details Scuccess -Count' + result.rows.length);
-                  console.log('************** select get_transit_restaurant_details Scuccess' + JSON.stringify(resut_data));
-                  if (result.rows.length != 0) {
-                      rows = generate_rows(resut_data, isSummary);
-                      res.send(rows);
-                  }
-                  else {
-                      res.send("NoData");
-                  }
+            function (query_err, result) {
+                if (query_err) {
+                    done(client);
+                    console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(query_err));
+                    return;
+                } else {
+                    done();
+                    var rows = [];
+                    var resut_data = result.rows;
+                    console.log('************** select get_transit_restaurant_details Scuccess -Count' + result.rows.length);
+                    console.log('************** select get_transit_restaurant_details Scuccess' + JSON.stringify(resut_data));
+                    if (result.rows.length != 0) {
+                        rows = generate_rows(resut_data, isSummary);
+                        res.send(rows);
+                    }
+                    else {
+                        res.send("NoData");
+                    }
 
-              }
-          });
+                }
+            });
     });
 });
 
@@ -219,13 +243,13 @@ function generate_rows(result, summary) {
         item["SoldQty"] = Number(resut_data[value].SoldQty);
         item["Wastage"] = Number(resut_data[value].Wastage);
         item["Transfer_to_Restaurant_from_Escrow"] = addCommas(Number(resut_data[value].Transfer_to_Restaurant_from_Escrow).toFixed(0));
-        item["GST"] = addCommas(Number(resut_data[value].Transfer_to_Restaurant_from_Escrow *.18).toFixed(2));
-        item["Total"] = addCommas(Number(resut_data[value].Transfer_to_Restaurant_from_Escrow*1.18).toFixed(2));
+        item["GST"] = addCommas(Number(resut_data[value].Transfer_to_Restaurant_from_Escrow * .18).toFixed(2));
+        item["Total"] = addCommas(Number(resut_data[value].Transfer_to_Restaurant_from_Escrow * 1.18).toFixed(2));
         item["Payment"] = addCommas(payment);
         item["Payment_Date"] = resut_data[value].Payment_Date != null ? moment(resut_data[value].Payment_Date).format('Do MMM YYYY') : "-";
         item["Remarks"] = resut_data[value].Remarks != null ? resut_data[value].Remarks : "-";
         Outstanding = (Number(Outstanding) + Number(Escrow)) - Number(payment);
-        item["Outstanding"] = addCommas(Number(Outstanding).toFixed(0));        
+        item["Outstanding"] = addCommas(Number(Outstanding).toFixed(0));
         rows.push(item);
     }
     var aggregates = null;
@@ -235,8 +259,8 @@ function generate_rows(result, summary) {
         item["SoldQty"] = aggregateByColumn(rows, 'SoldQty');
         item["Wastage"] = aggregateByColumn(rows, 'Wastage');
         item["Transfer_to_Restaurant_from_Escrow"] = addCommas(sum(_.pluck(rows, 'Transfer_to_Restaurant_from_Escrow')).toFixed(0));
-        item["GST"] =addCommas(sum(_.pluck(rows, 'GST')).toFixed(2));
-        item["Total"] = addCommas(sum(_.pluck(rows, 'Total')).toFixed(2 ));
+        item["GST"] = addCommas(sum(_.pluck(rows, 'GST')).toFixed(2));
+        item["Total"] = addCommas(sum(_.pluck(rows, 'Total')).toFixed(2));
         item["Payment"] = "";
         item["Payment_Date"] = "";
         item["Remarks"] = "";
@@ -359,20 +383,20 @@ router.get('/downloadcsv', function (req, res) {
             return;
         }
         client.query(query, [],
-              function (query_err, result) {
-                  if (query_err) {
-                      done(client);
-                      console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(query_err));
-                      return;
-                  } else {
-                      done();
-                      var rows = [];
-                      var resut_data = result.rows;
-                      rows = generate_rows(resut_data, isSummary);
-                      //console.log('************** select convert data Scuccess rows' + JSON.stringify(rows));
-                      csvOut(reportName, rows, report_type, res);
-                  }
-              });
+            function (query_err, result) {
+                if (query_err) {
+                    done(client);
+                    console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(query_err));
+                    return;
+                } else {
+                    done();
+                    var rows = [];
+                    var resut_data = result.rows;
+                    rows = generate_rows(resut_data, isSummary);
+                    //console.log('************** select convert data Scuccess rows' + JSON.stringify(rows));
+                    csvOut(reportName, rows, report_type, res);
+                }
+            });
     });
 
     // res.send("success");
