@@ -249,8 +249,8 @@ $(".datechange").trigger("change");
     var account_id=$("#restaurant_id").val();
     
     var sale_gst='2017-07-31';
-        var fromdate = $("#from_date").val();
-        var todate = $("#to_date").val();
+        var fromdate = $("#from").val();
+        var todate = $("#to").val();
         fromdate= fromdate.split("-").reverse().join("-");
         todate= todate.split("-").reverse().join("-");
         

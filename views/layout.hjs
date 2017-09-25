@@ -271,7 +271,7 @@
                                 <li><a id="home" href="/accounts">Operations</a></li>
                                 <li><a id="fin_ops_report" href="/fin_ops_reports">Non-Trading &nbsp;Report</a></li>
                                 <li><a id="transit_report" href="/transit_report">Trading &nbsp;Report</a></li>
-                                <li><a id="transit_payment" href="/transaction">Payment</a></li>
+                                <li><a id="transaction" href="/transaction">Payment</a></li>
                                 <li>
                                     <a id="monthly_reconcile" href="#"> Monthly &nbsp;Reconciliation</a>
                                     <ul>
@@ -285,7 +285,7 @@
                             <ul class="vertical medium-horizontal menu hide" id="fv-menu">
                                 <li><a id="home" href="/accounts">Operations</a></li>
                                 <li id="nontransit" class="hide" ><a id="fin_ops_report" href="/fin_ops_reports">Non&nbsp;Transit&nbsp;Report</a></li>
-                                <li id="transit" class="hide"><a id="transit_report" href="/transit_report">Transit&nbsp;Report</a></li>
+                                <li id="transit" class="hide"><a id="transit_report" href="/transit_report">Trading&nbsp;Report</a></li>
                                 <li><a id="tataReports" href="/daily_reports">Daily Reports</a></li>
                                 <li><a href="/login">Logout</a></li>
                                 <li><a id="chargeback" class="hide" href="/chargeback_report">Charge&nbsp;Back</a></li>
