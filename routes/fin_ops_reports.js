@@ -38,7 +38,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var query = "SELECT id,name FROM restaurant where active=true and istrading=" +istrading;
     
     if (user != "HQ") {
-        query += "and entity='" + req.user.entity + "'";
+        query += " and entity='" + req.user.entity + "'";
     }
     query += " order by name";
 
