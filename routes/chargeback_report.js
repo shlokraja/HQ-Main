@@ -333,23 +333,23 @@ function generate_rows(result, is_gst) {
         item["restaurant_err_qty"] = resut_data[value].restaurant_err_qty;
 
         if (is_gst) {
-            var gst = resut_data[value].gst;
+            var gst = Number(resut_data[value].gst).toFixed(2);
 
             item["gst"] = gst;
             item["po_qty"] = resut_data[value].po_qty;
             item["frshly_err_qty"] = resut_data[value].frshly_err_qty;
             item["transport_err_qty"] = resut_data[value].transport_err_qty;
-            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue);
-            item["Chargebackgstvalue"] = Number(resut_data[value].Chargebackvalue) + gst;
+            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue).toFixed(2);
+            item["Chargebackgstvalue"] = (Number(resut_data[value].Chargebackvalue) + Number(gst)).toFixed(2);
         }
         else {
-            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue);
+            item["Chargebackvalue"] = Number(resut_data[value].Chargebackvalue).toFixed(2);
         }
 
         item["reimbursed_by_food_box"] = resut_data[value].reimbursed_by_food_box;
         var conversion = sold != 0 ? Number((sold / taken) * 100).toFixed(0) : 0
         item["conversion"] = conversion.toString() + "%";
-        item["Shareperunit"] = resut_data[value].Shareperunit;
+        item["Shareperunit"] = Number(resut_data[value].Shareperunit).toFixed(2);
         rows.push(item);
 
     }

@@ -100,6 +100,9 @@
             float: right;
         margin-left: 30px;
     }
+    #chargeback_report_output td + td {
+        text-align:right;
+    }
 {{/yield-styles}}
 
 

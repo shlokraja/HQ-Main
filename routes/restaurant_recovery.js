@@ -244,12 +244,12 @@ function generate_rows(result, report_type) {
 
         if (report_type == "item") {
             item["item_id"] = resut_data[value].Item_Id;
-            item["price"] = resut_data[value].Frshly_Fee;
+            item["price"] = Number(resut_data[value].Frshly_Fee).toFixed(2);
         }
 
         item["name"] = resut_data[value].Name;
         item["qty"] = resut_data[value].restaurant_err_qty;
-        item["total"] = resut_data[value].Total;
+        item["total"] = Number(resut_data[value].Total).toFixed(2);
         rows.push(item);
 
     }
