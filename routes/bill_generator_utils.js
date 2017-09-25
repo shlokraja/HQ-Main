@@ -329,10 +329,8 @@ function get_bill_restaurant_details(outlet_id, bill_date, grouped, callback) {
         }
         var query = "select r.* from outlet o inner join restaurant r on o.public_restaurant_id = r.id where o.id =$1 and 'true' = ";
         if (bill_date >= '2017-08-01') {
-            console.log("August +++++++++++++++++++++++++++++++++++++");
             query += "ispublicsector";
         } else {
-            console.log('Before August +++++++++++++++++++++++++++++++');
             query += "ispublicsectorprioraugust";
         }
         console.log(query);
