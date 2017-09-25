@@ -32,9 +32,18 @@ function IsAuthenticated(req, res, next) {
 }
 router.get('/', IsAuthenticated, function (req, res, next) {
     console.log("tata report");
+    console.log(req.user);
     var query = "SELECT id,name FROM outlet ";
     var user = req.user.usertype;
-    var query = "SELECT id,name FROM outlet where active=true ";
+    if (user!='HQ')
+        {
+            query="select distinct o.id,o.name from outlet o \
+            inner join food_item f on f.outlet_id=o.id \
+            inner join restaurant r on r.id=f.restaurant_id \
+            where r.entity='"+req.user.entity+"'";
+
+        }
+    
     /*if (user != "HQ") {
         query += "and entity='" + req.user.entity + "'";
     }*/
@@ -54,6 +63,18 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 });
 
         },
+        restaurant: function (callback) {
+            config.query("select id from restaurant where entity=$1 limit 1",
+                [req.user.entity],
+                function (err, result) {
+                    if (err) {
+                        callback('fin_ops_reports error running query' + err, null);
+                        return;
+                    }
+                    callback(null, result.rows);
+                });
+
+        },
     },
 
         function (err, results) {
@@ -61,10 +82,18 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 console.log("fin_ops_reports Error: " + err);
                 return;
             }
+            results.outlets.push({id: -1, name: 'ALL'});
+            console.log("result.restaurant");
+            console.log(results.restaurant[0].id);
+            if(req.user.usertype=='HQ')
+                {
+                    results.restaurant=[{id:-1}];
+                }
 
             var context = {
                 title: 'Reports',                
                 outlets :results.outlets,
+                restaurants:results.restaurant[0].id,
                 user: user,
                 reportAugust:login_report_type=='after_august',
             };
@@ -74,54 +103,13 @@ router.get('/', IsAuthenticated, function (req, res, next) {
 });
 
 
-router.post('/get_purchase_details', function (req, res) {
-    var from_dt = req.body.from_date;
-    var to_dt = req.body.to_date;
-    var outlet_id=req.body.outlet_id;
-    console.log(from_dt+":"+to_dt);
-    pg.connect(conString, function (err, client, done) {
-        console.log("pg connect");
-        if (err) {
-            console.log('**************get purchase order details Error ' + JSON.stringify(err));
-            return;
-        }
-        var query = " select p.id,scheduled_delivery_time::date as purchasedate,r.name as restaurantname,f.name as foodname,pl.quantity as quantity from purchase_order p    \
-         inner join purchase_order_master_list pl on pl.purchase_order_id=p.id \
-         inner join food_item f on f.id=pl.food_item_id \
-         inner join restaurant r on r.id=f.restaurant_id \
-         where scheduled_delivery_time::date between $1 and $2 and p.outlet_id=$3 order by scheduled_delivery_time ";
-        //console.log("**************purchase QUERY******" + query);
-        client.query(query,[from_dt,to_dt,outlet_id],
-            function (query_err, result) {
-                console.log("purchase query executed")
-                if (query_err) {
-                    done(client);
-                    console.log('**************get_Purchase_details Error ' + JSON.stringify(query_err));
-                    return;
-                } else {
-                    done();
-                    console.log('************** select get_Purchase_details Scuccess');
-                    var rows = [];
-                    console.log(result);
-                    var result_data = result.rows;
-                    if (result.rows.length != 0) {
-                        rows= generate_purchase_rows(result_data);
-                        res.send(rows);
-                    }
-                    else {
-                        res.send("NoData");
-                    }
-
-                }
-            });
-    });
-});
 
 
 router.post('/get_sales_details', function (req, res) {
     var from_dt = req.body.from_date;
     var to_dt = req.body.to_date;
     var outlet_id=req.body.outlet_id;
+    var restaurant_id= req.body.restaurant_id;
     console.log(from_dt+":"+ to_dt+" + interval \'1 day\'");
     pg.connect(conString, function (err, client, done) {
         console.log("pg connect");
@@ -136,9 +124,17 @@ router.post('/get_sales_details', function (req, res) {
             inner join food_item f on f.id=b.food_item_id\
             inner join restaurant r on r.id=f.restaurant_id\
             inner join outlet o on o.id=f.outlet_id\
-            where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\'     and s.outlet_id=$3 order by s.time,b.bill_no ";
+            where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\'";
+            if (restaurant_id!='-1')
+                {
+                    query+=" and r.id="+restaurant_id; 
+                }
+                if(outlet_id != '-1'){
+                    query+=" and s.outlet_id="+outlet_id;
+                }
+            query+="  order by s.time,b.bill_no ";
         console.log("**************sales  QUERY******" + query);
-        client.query(query,[from_dt+' 02:30',to_dt ,outlet_id ],
+        client.query(query,[from_dt+' 02:30',to_dt ],
             function (query_err, result) {
                 console.log("purchase query executed")
                 if (query_err) {
@@ -524,74 +520,33 @@ router.get('/downloadcsv', function (req, res) {
     var to_date = req.query.to_date;
     var report_type = req.query.report_type;
     var csvOutput = true;
+    var outlet_id=req.query.outlet_id;
+    
     var reportName = report_type + '-from-' + req.query.from_date+'.csv';
     //console.log("Generating " + report_type + ", from: " + from_date  + ", to: " + to_date + ", restaurant_id: " + restaurant_id, "report_type:" + report_type);
-var query="";
-if (report_type=="purchase")
-{
- query = " select p.id,scheduled_delivery_time::date as purchasedate,r.name as restaurantname,f.name as foodname,pl.quantity as quantity from purchase_order p    \
-         inner join purchase_order_master_list pl on pl.purchase_order_id=p.id \
-         inner join food_item f on f.id=pl.food_item_id \
-         inner join restaurant r on r.id=f.restaurant_id \
-         where scheduled_delivery_time::date between $1 and $2 and p.outlet_id=$3 order by scheduled_delivery_time ";
-}
-else if(report_type=="sales")
-{
- query = " select s.id as SalesId,bill_no as BillNo, s.time as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType,\
-            s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,f.take_away, \
+
+ var query = " select s.id as SalesId,bill_no as BillNo, s.time as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
+            s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
             f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
             inner join bill_items b on b.sales_order_id=s.id\
             inner join food_item f on f.id=b.food_item_id\
             inner join restaurant r on r.id=f.restaurant_id\
             inner join outlet o on o.id=f.outlet_id\
-            where s.time::date between $1 and  $2 and s.outlet_id=$3 order by s.time,b.bill_no ";
-}
-else{
-  var query = "with purchase_opening_stock as (select p.id,sum(pl.quantity) as purQty,pl.food_item_id,p.scheduled_delivery_time::Date as purchase_date from purchase_order p \
-inner join purchase_order_master_list pl on pl.purchase_order_id=p.id \
-where p.scheduled_delivery_time::date < $2 and p.outlet_id=$3 \
-group by p.id,pl.food_item_id order by p.id,pl.food_item_id,p.scheduled_delivery_time::Date) \
- \
-, sales_stock as (select substring(si.barcode,28,7)::int as pid, si.food_item_id,sum(si.quantity) as salesQty from sales_order s \
-inner join sales_order_items si on si.sales_order_id=s.id \
-where s.time::Date<$1 and s.outlet_id=$3 \
-group by si.food_item_id,pid) \
-,openingStock as ( \
-select pos.purchase_date, pos.id as purchase_id,pos.food_item_id,sum(coalesce(purQty,0)- coalesce(salesQty,0)) as opening_stock from purchase_opening_stock pos \
-left join sales_stock s on s.pid=pos.id and pos.food_item_id=s.food_item_id \
-group by pos.id,pos.food_item_id,pos.purchase_date) \
-,purchase as ( \
-select scheduled_delivery_time::Date , p.id ,pl.food_item_id  ,quantity  from purchase_order p \
-inner join purchase_order_master_list pl on pl.purchase_order_id=p.id \
-inner join food_item f on f.id=pl.food_item_id \
-where scheduled_delivery_time::Date between $1 and  $2::date+ interval \'1 day'+'02:30' and p.outlet_id=$3), \
- sales as  ( \
-select s.time::date  as sale_date, substring(si.barcode,28,7)::int as pid ,si.food_item_id,sum(quantity) quantity from sales_order s \
-inner join sales_order_items si on si.sales_order_id=s.id \
- \
-where s.time between $1 and  $2::date+ interval \'1 day'+'02:30' and s.outlet_id=$3 \
-group by food_item_id ,substring(si.barcode,28,7)::int,s.time::date \
-), \
-movement as ( \
-select p.scheduled_delivery_time as Purchase_Date,p.id as Purchase_id, p.food_item_id as fid ,f.name as food_name,sum(p.quantity) as Purchase_Quantity,sum( coalesce( s.quantity,0)) as sales_quantity, sum(p.quantity-coalesce(s.quantity,0)) as Closing_Balance from purchase p  \
-left join sales s on s.pid=p.id and p.food_item_id=s.food_item_id \
-inner join food_item f on f.id=p.food_item_id \
-group by purchase_date,fid,food_name,p.id \
-order by purchase_date,food_name) \
-select  os.purchase_date,s.sale_date,os.purchase_id, os.food_item_id, f.name as food_name, os.opening_Stock ,coalesce( s.quantity,0) as movement , \
- os.opening_Stock- coalesce( s.quantity,0) as closing_balance from openingStock os \
- inner join food_item f on f.id=os.food_item_id \
-inner join sales s on s.pid=os.purchase_id and s.food_item_id=os.food_item_id  /*where os.food_item_id=8987 */  \
-order by os.purchase_date,s.sale_date   "; 
-}
-
-
+            where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\'";
+            if (restaurant_id!='-1')
+                {
+                    query+=" and r.id="+restaurant_id; 
+                }
+                if(outlet_id != '-1'){
+                    query+=" and s.outlet_id="+outlet_id;
+                }
+            query+="  order by s.time,b.bill_no ";
     pg.connect(conString, function (err, client, done) {
         if (err) {
-            console.log('**************get_restaurant_details Error ' + JSON.stringify(err));
+            console.log('**************get_restaurant_details Error1 ' + JSON.stringify(err));
             return;
         }
-        client.query(query, [from_date,to_date],
+        client.query(query, [from_date+' 02:30',to_date],
             function (query_err, result) {
                 if (query_err) {
                     done(client);
@@ -627,8 +582,8 @@ function csvOut(reportName, reportJson, report_type, res) {
         fieldNames = ["PO ID", "PO Date", "Restaurant Name", "Food Name", "Quantity"];
     }
     else if (report_type == "sales") {
-        fields = ["salesid", "billno", "salesdate","billtime", "foodid", "foodname","quantity","sellingprice","gst","unitprice","total","restaurant","outlet","paymenttype","mobileno","billslot","billhour","takeaway"];
-        fieldNames = ["Sales Order Id", "Bill No", "Bill Date","Bill Time", "Item Id", "Item Name","Quantity","Price without GST","GST Amount","MRP","Bill Amount","Restaurant","Outlet","Payment Type","Mobile Number","Bill Slot","Bill Hour","Take Away"];
+        fields = ["salesid", "billno", "salesdate","billtime", "foodid", "foodname","quantity","sellingprice","gst","unitprice","total","restaurant","outlet","paymenttype","mobileno","billslot","billhour"];
+        fieldNames = ["Sales Order Id", "Bill No", "Bill Date","Bill Time", "Item Id", "Item Name","Quantity","Price without GST","GST Amount","MRP","Bill Amount","Restaurant","Outlet","Payment Type","Mobile Number","Bill Slot","Bill Hour"];
     }
     else if (report_type == "closing") {
         fields = ["purchase_date","purchase_id", "sale_date","fid", "food_name", "purchase_quantity", "sales_quantity", "closing_balance"];

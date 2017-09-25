@@ -7,13 +7,14 @@
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
     <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
+    <input type="hidden" value="{{restaurants}}" id="restaurant_id" />
     
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
                 <div class="large-4 small-6 columns">
                     <label>Outlet Name </label>
-                    <select id="outlet_id">
+                    <select id="outlet_id" name="outlet_id">
                         {{#outlets}}
                         <option value={{id}}>{{name}}</option>
                         {{/outlets}}
@@ -23,7 +24,6 @@
                 <div class="large-4 small-6 columns">
                     <label>Report Type</label>
                     <select id="report_type">
-                        <option value="purchase">Purchase</option>
                         <option value="sales">Sales</option>                       
                     </select>
                 </div>
@@ -206,7 +206,7 @@ $("#report_div_purchase").addClass("hide");
 $("#report_div_sales").addClass("hide"); //gst changes 
 $("#saveas").addClass("hide");
 
-$("#restaurant_id").val(52);
+//$("#restaurant_id").val(52);
 
 $("#report_type").change(function() {
 
@@ -295,8 +295,8 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
     $("#err_daterange").text("");
 
     }
-
-    
+    var outlet_id = $("#outlet_id").val();
+    var restaurant_id = $("#restaurant_id").val();
     var reportUrl= location.origin + '/daily_reports/get_purchase_details';
     if (report_type=="purchase")
     {
@@ -313,13 +313,13 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
     $.ajax({
     type: 'POST',
     url: reportUrl,
-    data: JSON.stringify({ "from_date": from_date,"to_date": to_date,"outlet_id":outlet_id}),
+    data: JSON.stringify({ "from_date": from_date,"to_date": to_date,"outlet_id":outlet_id,"restaurant_id":restaurant_id}),
     success: function (data)
     {
     console.log(data);
     if(data!="NoData")
     {
-    var csvLink = '/daily_reports/downloadcsv?from_date=' + from_date+ '&to_date=' + to_date+'&report_type='+report_type;
+    var csvLink = '/daily_reports/downloadcsv?from_date=' + from_date+ '&to_date=' + to_date+'&report_type='+report_type +'&outlet_id='+outlet_id+'&restaurant_id='+restaurant_id;
 
     var result=JSON.parse(data);
     

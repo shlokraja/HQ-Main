@@ -51,7 +51,7 @@ var restaurant_FIELDS = {
         "Shareperunit": 'Restaurant share p.u',
         "Chargebackvalue": 'Charge back without GST',
         "gst": 'GST Amount',
-        "Chargebackgstvalue": 'Charge back',
+        "Chargebackgstvalue": 'Charge back(Incl. GST)',
         "conversion": 'Conversion'        
     }
 }

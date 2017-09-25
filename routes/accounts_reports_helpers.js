@@ -173,7 +173,7 @@ var REPORT_FIELDS = {
         "taken": 'Taken Qty',
         "sold": 'Sold Qty',
         "rev_share": 'Restaurant Fee for Sold',
-        "mrp_price": 'MRP for Product', //mrp
+       /* "mrp_price": 'MRP for Product', //mrp*/
         "wastage_qty": 'Wastage Qty',
         "foodbox_issues_qty": 'Frshly Error Qty',
         "foodbox_issues_value": 'Frshly Err Value',
@@ -195,8 +195,8 @@ var REPORT_FIELDS = {
         "taken": 'Taken Qty',
         "sold": 'Sold Qty',
         "rev_share": 'Restaurant Fee for Sold',
-        "rest_gst": 'GST',
-        "rev_share_rest_gst": 'Total',
+        "rest_gst": 'GST Amount',
+        "rev_share_rest_gst": 'Restaurant Fee for Sold(Incl. GST)',
         //"mrp_price": 'MRP for Product', //mrp
         "wastage_qty": 'Wastage Qty',
         "foodbox_issues_qty": 'Frshly Error Qty',
@@ -218,7 +218,7 @@ var REPORT_FIELDS = {
         "taken": 'Taken Qty',
         "sold": 'Sold Qty',
         "rev_share": 'Frshly Fee for Sold',
-        "mrp_price": 'MRP for Product', //mrp
+       /* "mrp_price": 'MRP for Product', //mrp*/
         "wastage_qty": 'Wastage Qty',
         "foodbox_issues_qty": 'Frshly Error Qty',
         "foodbox_issues_value": 'Frshly Err Value',
@@ -636,6 +636,7 @@ var compute_daily_revenue_analysis = function (date, outlet,
     return;
 };
 
+var gstDefaultPercent=9;
 var compute_daily_revenue_analysis_gst = function (date, outlet,
     entity, entity_consolidated_data, isHQ, callback) {
     var rows = [];
@@ -647,6 +648,12 @@ var compute_daily_revenue_analysis_gst = function (date, outlet,
     var sgst_percent = _.pluck(entity_consolidated_data, "rest_cgst_percent");
     var rest_cgst_percent = _.first(cgst_percent);
     var rest_sgst_percent = _.first(sgst_percent);
+    console.log("rest_sgst_percent:"+rest_sgst_percent);
+    if (rest_cgst_percent==undefined) 
+    { 
+        rest_cgst_percent=gstDefaultPercent;
+        rest_sgst_percent=gstDefaultPercent;
+    }
     var groupBySession = _.groupBy(entity_consolidated_data, "session");
     _.each(_.keys(groupBySession), function (session) {
         var session_data = groupBySession[session];
@@ -768,8 +775,11 @@ var compute_daily_revenue_analysis_gst = function (date, outlet,
             if (isNaN(Number(item["taken"]))) {
                 item["taken"] = item["sold"];
             }
-            console.log("item");
-            console.log(item);
+            if (isNaN(Number(item["po_quantity"]))) {
+                item["po_quantity"] = item["taken"];
+            }
+          //  console.log("item");
+           // console.log(item);
             rows.push(item);
         });
     });
@@ -1074,11 +1084,11 @@ var HQ_REPORTS = {
         generator: compute_daily_revenue_analysis_hq
     },
     non_transit_tender_type_reports: {
-        name: "Aggregation Tender Type Reports",
+        name: "Non Transit Tender Type Reports",
         generator: generate_report_for_tender_type
     },
     transit_tender_type_reports: {
-        name: "Trading Tender Type Reports",
+        name: "Transit Tender Type Reports",
         generator: generate_report_for_tender_type
     }
 };

@@ -157,7 +157,7 @@ font-weight:bold;
 
     var allOptions = $('#restaurant_id option')
     $("#outlet_id").trigger("change");
-
+   $('#restaurant_id option').remove();
     function outlet_wise_restaurant() {
         $('#restaurant_id option').remove()
         var classN = $('#outlet_id option:selected').prop('class');
