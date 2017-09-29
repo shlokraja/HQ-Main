@@ -84,18 +84,23 @@ router.get('/', IsAuthenticated, function (req, res, next) {
             }
             results.outlets.push({id: -1, name: 'ALL'});
             console.log("result.restaurant");
-            console.log(results.restaurant[0].id);
+//            console.log(results.restaurant[0].id);
+var res_id=-1;
             if(req.user.usertype=='HQ')
                 {
                     results.restaurant=[{id:-1}];
                 }
-
+	else
+		{
+		res_id=results.restaurant[0].id;
+		}
+console.log(res_id);
             var context = {
                 title: 'Reports',                
                 outlets :results.outlets,
-                restaurants:results.restaurant[0].id,
+                restaurants:res_id,
                 user: user,
-                reportAugust:login_report_type=='after_august',
+                reportAugust:req.user.login_report_type=='after_august',
             };
             res.render('tata_fin_ops_reports', context);
         });

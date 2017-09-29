@@ -34,11 +34,13 @@ function IsAuthenticated(req, res, next) {
 router.get('/', IsAuthenticated, function (req, res, next) {
     var user = req.user.usertype;
     console.log("transit_report User :" + user);
+    var istrading;
+    istrading = req.user.login_report_type=='after_august'?true:false;
     var query = 'select distinct out.id,out.name,out.short_name from outlet out \
             inner join food_item fi on out.id=fi.outlet_id  \
             inner join restaurant res on fi.restaurant_id=res.id  \
-            where res.id>0 and out.active=true ';
-    if (login_report_type == 'after_august') {
+            where res.id>0 and res.active=true ';
+    if (req.user.login_report_type == 'after_august') {
         query = query + ' and out.ispublicsector=true ';
     }
     else {
@@ -54,12 +56,17 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                         inner join food_item fi on fi.restaurant_id=res.id \
                         inner join outlet out on out.id=fi.outlet_id \
                         inner join restaurant_config rcon on rcon.restaurant_id=res.id \
-                        where res.id>0 and out.ispublicsector=true and out.active=true and res.active=true';
+                        where res.id>0 ';
+    if(req.user.login_report_type == 'after_august'){
+        res_qry += ' and out.ispublicsector=true and res.istrading=true';
+    }else{
+        res_qry += '  and out.ispublicsectorprioraugust=true';
+    }
     if (user != "HQ") {
         res_qry += " and res.entity='" + req.user.entity + "'";
     }
     res_qry += ' order by res.name';
-
+    console.log("query==========="+res_qry);
     async.parallel({
 
         outlet: function (callback) {
@@ -93,7 +100,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
         },
         restaurantAll: function (callback) {
             var retaurantAll = {};
-            config.query("select 'ALL' as outlet_short_name,id,name,'BN' as city from restaurant where active=true",
+            config.query("select 'ALL' as outlet_short_name,id,name,'BN' as city from restaurant where active=true and istrading=true",
                 [],
                 function (err, rest) {
                     if (err) {
@@ -101,6 +108,17 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                         return;
                     }
                     callback(null, rest.rows);
+                });
+        },
+        istrading: function (callback) {
+            config.query("select case when "+istrading +" then istrading else  istradingprioraugust end as istrading from restaurant where entity='"+req.user.entity+"'",
+            [],
+            function (err, result) {
+                if (err) {
+                    callback('fin_ops_reports error running query' + err, null);
+                    return;
+                }
+                callback(null, result.rows);
                 });
 
         },
@@ -111,6 +129,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 console.log("transit_report Error: " + err);
                 return;
             }
+	var  isTrading=false;
             if (user == "HQ"){
                 var getALLrestaurant = {};
                 getALLrestaurant = results.restaurantAll;
@@ -121,15 +140,19 @@ router.get('/', IsAuthenticated, function (req, res, next) {
 
                 results.outlet.push({ id: '-1', name: 'All', short_name: 'ALL' });
             }
+else{
+isTrading=results.istrading[0].istrading;
+}
             var context = {
                 title: 'Transit Reports',
                 outlet: results.outlet,
                 restaurants: results.restaurants,
+                istrading:isTrading,
                 user: req.user.usertype,
-                reportAugust: login_report_type == 'after_august',
+                reportAugust: req.user.login_report_type == 'after_august',
             };
             console.log("process.env.August:" + process.env.August);
-            if (login_report_type == 'after_august') {
+            if (req.user.login_report_type == 'after_august') {
                 res.render('transit_report_aug', context);
             }
             else {
