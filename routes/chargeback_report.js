@@ -27,6 +27,7 @@ format.extend(String.prototype);
 var restaurant_FIELDS = {
     restaurant_receipts:
     {
+        "Restaurant_Name":'Restaurant',
         "Name": 'Name',
         "taken": 'Taken Qty',
         "sold": 'Sold Qty',
@@ -39,6 +40,7 @@ var restaurant_FIELDS = {
     },
     restaurant_receipts_gst:
     {
+        "Restaurant_Name":'Restaurant',
         "Name": 'Name',
         "po_qty": 'PO Qty',
         "taken": 'Taken Qty',
@@ -61,7 +63,11 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     console.log("user details: " + JSON.stringify(req.user));
     var user = req.user.usertype;
     console.log("user entity details: " + user);
-    var query = "SELECT id,name FROM restaurant where active=true ";
+    var query = "SELECT id,name FROM restaurant where 1=1  ";
+    if(login_report_type == 'after_august')
+        {
+            query+=" and active=true ";
+        }
     if (user != "HQ") {
         query += "and entity='" + req.user.entity + "'";
     }
@@ -326,6 +332,7 @@ function generate_rows(result, is_gst) {
         var item = {};
         var taken = Number(resut_data[value].taken);
         var sold = Number(resut_data[value].sold);
+        item["Restaurant_Name"]=resut_data[value].Restaurant_Name;
         item["Name"] = resut_data[value].Name;
         item["taken"] = taken;
         item["sold"] = sold;
