@@ -414,7 +414,7 @@ var food_item_query="SELECT  f.id, f.name, f.item_tag, f.veg, f.location, f.side
                     inner join  outlet o on  o.id=f.outlet_id \
                     left join restaurant rr on rr.id=o.public_restaurant_id \
                     left join restaurant_config rcc on rcc.restaurant_id=o.public_restaurant_id \
-                    WHERE   outlet_id=$1";
+                    WHERE  f.active=true and  outlet_id=$1";
 
                
         client.query(food_item_query, [outlet_id], function (query_err, result) {
