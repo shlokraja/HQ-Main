@@ -17,6 +17,7 @@ var app = express();
 var restaurant_FIELDS = {
     restaurant_receipts:
     {
+        "Restaurant_Name":'Restaurant', 
         "item_id": 'Item Id',
         "name": 'Item Name',
         "qty": 'Error Qty',
@@ -33,7 +34,11 @@ var restaurant_FIELDS = {
 
 router.get('/', IsAuthenticated, function (req, res, next) {
     var user = req.user.usertype;
-    var query = "SELECT id,name FROM restaurant where active=true ";
+    var query = "SELECT id,name FROM restaurant where  1=1 ";
+	if (req.user.login_report_type=='after_august')
+	{
+		query+=" and active=true ";
+	}
     if (user != "HQ") {
         query += "and entity='" + req.user.entity + "'";
     }
@@ -64,7 +69,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 title: 'Restaurant Recover Details',
                 restaurants: results.restaurants,
                 user: user,
-                reportAugust:login_report_type=='after_august' 
+                reportAugust: req.user.login_report_type=='after_august' 
             };
             res.render('restaurant_recovery', context);
         });
@@ -243,6 +248,7 @@ function generate_rows(result, report_type) {
         var item = {};
 
         if (report_type == "item") {
+	    item["Restaurant_Name"]=resut_data[value].Restaurant_Name;
             item["item_id"] = resut_data[value].Item_Id;
             item["price"] = Number(resut_data[value].Frshly_Fee).toFixed(2);
         }
@@ -260,6 +266,7 @@ function generate_rows(result, report_type) {
         var item = {};
 
         if (report_type == "item") {
+	    item["Restaurant_Name"]="";
             item["item_id"] = "Total";
             item["name"] = "";
             item["price"] = sum(_.pluck(rows, 'price'));

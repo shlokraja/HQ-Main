@@ -184,7 +184,13 @@ function send_pivot_mail(date_selected, restaurant_id, subject, city_response) {
 			    
 			    //sleep(3000);
                             transporter.sendMail(mailOptions, function (error, info) {
-                                if (error) {                                  
+                                if (error) {
+                                    transporter.sendMail(mailOptions, function (error, info) {
+                                        if (error) {
+                                            return console.log(error);
+                                        }
+                                        console.log('Message sent: ' + info.response);
+                                    });
                                     return console.log(error);
                                 }
                                 console.log('Message sent: ' + info.response);

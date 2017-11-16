@@ -748,7 +748,7 @@ router.post('/save_volume_plan_details', function (req, res) {
 
                 client.query("select distinct vp.restaurant_id,vp.date as vp_avail_date  from volume_plan_automation as vp \
                                       left outer join volume_plan_automation_master as vp_master on vp.date = vp_master.vp_avail_date \
-                                      and vp.restaurant_id = vp_master.restaurant_id",
+                                      and vp.restaurant_id = vp_master.restaurant_id where date >=$1", [ date_conversion ],
                     function (query_err, master_data_result) {
                         done();
                         if (query_err) {
@@ -769,19 +769,19 @@ router.post('/save_volume_plan_details', function (req, res) {
                                 //console.log('***********vp_avail_date in get_date_from_vp formated_date()' + formated_date);
                                 if (formated_date && restaurant_id) {
 
-                                    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$Volume plan automation master")
+                                    console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$Volume plan automation master rest: "+ restaurant_id +" date:"+ date_conversion);
 
                                     // new changes start 
                                     client.query("select count(*) as count from volume_plan_automation_master where restaurant_id = $1 and vp_avail_date = $2",
-                                        [restaurant_id, date_conversion],
+                                        [restaurant_id, date_conversion],   
                                         function (query_err_vpam, select_vpamdata_result) {
                                             done();
                                             if (query_err_vpam) {
-                                                console.error('error running query' + query_err_vpam, null);
+                                                console.error('error running query  775 ' + query_err_vpam, null);
                                                 return;
                                             }
                                             // done();
-                                            //console.log("##########################################" + JSON.stringify(select_vpamdata_result.rows[0]));
+                                            console.log("##########################################" +restaurant_id+" " + JSON.stringify(select_vpamdata_result.rows[0]));
                                             if (select_vpamdata_result) {
                                                 if (select_vpamdata_result.rows[0].count == 0) {
 
@@ -836,7 +836,9 @@ router.post('/save_volume_plan_details', function (req, res) {
 
                         });
 
-                        client.query('select count(vp_id) as count from volume_plan_automation where date=$1 and city_id=$2',
+                        client.query('select count(vp_id) as count,store_managers_mail_id as mail_ids from volume_plan_automation vp \
+                         inner join city c on c.short_name=vp.city_id where vp.date=$1 and vp.city_id=$2 \
+                         GROUP BY  store_managers_mail_id ',
                             [date_selected, city_selected],
                             function (query_err, check_result) {
                                 done();
@@ -847,6 +849,9 @@ router.post('/save_volume_plan_details', function (req, res) {
                                 if (check_result) {
                                     console.log('************************check_result.rows.length' + check_result.rows.length)
                                     if (check_result.rows[0].count > 0) {
+                                        console.log("Executing Query sucessfully");
+                                        console.log(check_result);
+
 
                                         volume_planning_helper.Pivot_generation(date_selected, city_selected, helper.volume_plan_automation, function (err, response) {
                                             //console.log("************************* send_hq_mail called");
@@ -856,7 +861,7 @@ router.post('/save_volume_plan_details', function (req, res) {
                                             var date_hr = moment(date_selected).format('LL ') + moment().format('LTS');
                                             var mailOptions = {
                                                 from: 'no-reply@atchayam.in', // sender address
-                                                to: process.env.SEND_PLANS_ADDRESS, // list of receivers
+                                                to: check_result.rows[0].mail_ids, // list of receivers
                                                 subject: 'Overall volume plan details ' + date_hr + ' - ' + city_selected,
                                                 text: response, // plaintext body
                                                 html: response
@@ -864,9 +869,10 @@ router.post('/save_volume_plan_details', function (req, res) {
 
                                             transporter.sendMail(mailOptions, function (error, info) {
                                                 if (error) {
+						    console.log("date :"+date_selected+ "city:"+ city_selected);
                                                     return console.log(error);
                                                 }
-                                                console.log('Message sent: ' + info.response);
+                                                console.log('Message OverAll Volume Plan sent: ' + info.response);
                                             });
 
                                             client.query('delete from volume_plan_automation_temp where date=$1 and city_id=$2',
