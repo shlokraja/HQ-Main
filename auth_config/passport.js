@@ -8,20 +8,21 @@ var dbUtils = require('../models/dbUtils');
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
-    passport.serializeUser(function(user, done){
-      done(null, user.username);
+    passport.serializeUser(function (user, done) {
+        done(null, user);
     });
 
-    passport.deserializeUser(function(username, done){
-      dbUtils.getAccountReportUser(username, function(err, user){
+    passport.deserializeUser(function (user1, done) {
+        dbUtils.getAccountReportUser(user1.username, function(err, user){
         debugger;
         if(err) {
           console.error(err);
           return done(err);
         } else if(!user) {
-          return done(new Error('User with username ' + username + ' does not exist'));
+          return done(new Error('User with username ' + user1.username + ' does not exist'));
         } else {
-          done(null, user);
+            user.login_report_type = user1.login_report_type;
+            done(null, user);
         }
       });
     });
@@ -31,10 +32,8 @@ module.exports = function(passport) {
         passwordField: 'password',
         passReqToCallback: true
       }, function(req, username, password, done) {
-        debugger;
+          debugger;
         login_report_type = req.body.report_type;
-        console.log("Login report type-----" + login_report_type);
-        console.log("Checking db: " + username + "/" + password);
         /* get username and password from db */
         dbUtils.getAccountReportUserWithPasswd(username, password, function(err, user) {
           debugger;
@@ -44,6 +43,7 @@ module.exports = function(passport) {
           } else if(!user) {
             return done(null, false, req.flash('loginMessage', 'Wrong username or password'));
           } else {
+              user["login_report_type"] = login_report_type;
             return done(null, user);
           }
         });
