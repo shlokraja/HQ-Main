@@ -19,7 +19,7 @@ var dbUtils = require('../models/dbUtils');
 router.get('/', IsAuthenticated, function(req, res, next){
  var user = req.user;
  
- user.reportAugust=login_report_type=='after_august';  
+ user.reportAugust=login_report_type;  
  var reports = accounts_reports_helpers.get_reoprt_types_for_user(user);
  accounts_reports_helpers.get_outlets_for_user(user, function(err, outlets){
   if(err) {
@@ -31,7 +31,7 @@ router.get('/', IsAuthenticated, function(req, res, next){
   //passing month parameter
   outlets.push({id:'-1', name:'All'});
   res.render('reports_main',
-    {title: 'Daily Reports', 'reports': reports, 'outlets':outlets, user:user.usertype,reportAugust:login_report_type=='after_august' });
+    {title: 'Daily Reports', 'reports': reports, 'outlets':outlets, user:user.usertype,reportAugust:login_report_type });
  });
 });
 

@@ -20,8 +20,9 @@
                             <div class="row">
                                 <div class="large-12 columns">
                                     <select name="report_type" >
-                                        <option name="report_bf" value="after_august">From  August 2017 </option>
+                                        <option name="report_bf" value="after_august">From  AUG 2017  to NOV 20th </option>
                                         <option name="report_bf" value="prior_august">Prior August 2017</option>
+                                        <option name="report_bf" value="after_november">From NOV 20th 2017</option>
                                     </select>
                                 </div>
                             </div>
