@@ -1,4 +1,3 @@
-
 {{#yield-body}}
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
@@ -78,12 +77,13 @@ $("#get_reports").click(function() {
   var to_date = $("#to_date").val();
   var outlet_id = $("#outlet_id").val();
   var report_type = $("#report_type").val();
-    // GST validation 
+    // GST validation
     var gst_date='2017-07-01';
     var gst_end_date ='2017-07-31';
 
     var sale_gst='2017-08-01';
     var sale_gst_end = '2017-08-31';
+    var sale_gst_nov='2017-11-20';
     //Cross GST
     // Check if period is Prior august or from august and validate
 
@@ -97,116 +97,125 @@ toastr.options = {
   "extendedTimeOut": 1000
 }
 
-    if($("#reportAugust").val()=='true')
+    if($("#reportAugust").val()=='after_august')
     {
       /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
-        if (from_date< sale_gst || to_date <sale_gst)
-        {
-           toastr.error('Report Only Available from August 2017');
-            return;
-        }
-    }
-    else
+        if (from_date< sale_gst || to_date < sale_gst) {
+                                                      toastr.error('Report Only Available from August 2017');
+                                                      return;
+                                                      }
+                                                      }
+                                                      else if($("#reportAugust").val()= ='prior_august' )
+                                                      {
+                                                      if (from_date>
+    sale_gst || to_date >sale_gst)
     {
-        if (from_date> sale_gst || to_date >sale_gst)
-        {
-            toastr.error('Report Only Available Upto  July 2017');
-            return;
-        }
+    toastr.error('Report Only Available Upto  July 2017');
+    return;
+    }
+    }
+    else if($("#reportAugust").val()=='after_november')
+    {
+    if (from_date< sale_gst_nov || to_date < sale_gst_nov) {
+                                                          toastr.error('Report Only Available From Novemeber 20th 2017');
+         //   return;
+    }
+
     }
 
     if (report_type=='daily_receipts' || report_type=='daily_receipts_gst' || report_type=='daily_sale_gst' )
     {
-        if (from_date<  gst_date && to_date>=gst_date)
-        {
-            alert("Report not Available for period overlapping GST and ST");
-            return;
-        }
-        if(report_type=='daily_receipts' && (from_date>=  gst_date || to_date>=gst_date) )
-        {
-            alert("Report is not valid for the period Please check the start date and end date");
-            return;
-        }
-        if(report_type=='daily_receipts_gst' && (from_date<  gst_date || to_date<gst_date) )
-        {
-            alert("Report is not valid for the period Please check the start date and end date");
-            return;
-        }
-	    if(report_type=='daily_receipts_gst'  && (from_date > gst_end_date || to_date> gst_end_date))
-		{
-			alert("Daily Receipts GST Report is only available for July 2017. So please select the Daily Receipts Sales Report");
-            return;
-		}
-      if( report_type=='daily_sale_gst' && (from_date < sale_gst || to_date < sale_gst)){
-			alert("Daily Receipts Sales GST Report is only available from August 2017");
-            return;
-      }
-    }
- var repEndDate='2017-07-31';
-   
- //Validate days of the report  Only Allow 15-days
-    var dt1=new Date(to_date);
-    var dt2= new Date(from_date);
-    var diff=new Date(dt1-dt2);
-
-    days  = Math.round( diff/1000/60/60/24);
-    /*if (days >15)
+    if (from_date<  gst_date && to_date>=gst_date)
     {
+    alert("Report not Available for period overlapping GST and ST");
+    return;
+    }
+    if(report_type=='daily_receipts' && (from_date>=  gst_date || to_date>=gst_date) )
+    {
+    alert("Report is not valid for the period Please check the start date and end date");
+    return;
+    }
+    if(report_type=='daily_receipts_gst' && (from_date<  gst_date || to_date< gst_date) )
+                                                                                       {
+                                                                                       alert("Report is not valid for the period Please check the start date and end date");
+                                                                                       return;
+                                                                                       }
+                                                                                       if(report_type= ='daily_receipts_gst' && (from_date>
+        gst_end_date || to_date> gst_end_date))
+        {
+        alert("Daily Receipts GST Report is only available for July 2017. So please select the Daily Receipts Sales Report");
+        return;
+        }
+        if( report_type=='daily_sale_gst' && (from_date < sale_gst || to_date < sale_gst)){
+        alert("Daily Receipts Sales GST Report is only available from August 2017");
+        return;
+        }
+        }
+        var repEndDate='2017-07-31';
+
+        //Validate days of the report  Only Allow 15-days
+        var dt1=new Date(to_date);
+        var dt2= new Date(from_date);
+        var diff=new Date(dt1-dt2);
+
+        days  = Math.round( diff/1000/60/60/24);
+        /*if (days >15)
+        {
         alert ("Report Only possible for 15-days");
         return;
-    }*/
-    
-    
+        }*/
 
-  $.get('/accounts/report?from_date=' + from_date
-    + '&to_date=' + to_date
-    + '&outlet_id=' + outlet_id
-    + '&report_type=' + report_type)
-  .done(function(data) {
-    // Clearing off previous values
-    $("#report_output thead tr").empty();
-    $("#report_output tbody").empty();
-    // Add the rows in the table
-    var fields = data["fields"];
-    var fieldNames = _.keys(fields);
-    // Table headers
-    var thead = $("#report_output thead tr");
-    fieldNames.map(function(fname) {
-      $(thead).append("<td>" + fields[fname] + "</td>");
-    });
 
-    // Table rows
-    var rows = data["rows"];
-    var tbody = $("#report_output tbody");
-    rows.map(function(row){
-      var trow = $('<tr />');
-      $(tbody).append(trow);
-      fieldNames.map(function(fname){
+
+        $.get('/accounts/report?from_date=' + from_date
+        + '&to_date=' + to_date
+        + '&outlet_id=' + outlet_id
+        + '&report_type=' + report_type)
+        .done(function(data) {
+        // Clearing off previous values
+        $("#report_output thead tr").empty();
+        $("#report_output tbody").empty();
+        // Add the rows in the table
+        var fields = data["fields"];
+        var fieldNames = _.keys(fields);
+        // Table headers
+        var thead = $("#report_output thead tr");
+        fieldNames.map(function(fname) {
+        $(thead).append("<td>" + fields[fname] + "</td>");
+        });
+
+        // Table rows
+        var rows = data["rows"];
+        var tbody = $("#report_output tbody");
+        rows.map(function(row){
+        var trow = $('<tr />');
+        $(tbody).append(trow);
+        fieldNames.map(function(fname){
         var fname_value =row[fname];
         trow.append($("<td>" + fname_value + "</td>"));
-      });
-    });
-    // Aggregates
-    var total = data["aggregates"];
-    if(total){
-      var trow = $('<tr />');
-      $(tbody).append(trow);
-      fieldNames.map(function(fname){
+        });
+        });
+        // Aggregates
+        var total = data["aggregates"];
+        if(total){
+        var trow = $('<tr />');
+        $(tbody).append(trow);
+        fieldNames.map(function(fname){
         trow.append($("<td><b>" + total[fname] + "</b></td>"));
-      });
-    }
-    var csvLink = '/accounts/report?from_date=' + from_date
-    + '&to_date=' + to_date
-    + '&outlet_id=' + outlet_id
-    + '&report_type=' + report_type
-    + '&csv=true';
+        });
+        }
+        var csvLink = '/accounts/report?from_date=' + from_date
+        + '&to_date=' + to_date
+        + '&outlet_id=' + outlet_id
+        + '&report_type=' + report_type
+        + '&csv=true';
 
-    $("#saveas").attr('href', csvLink);
-  })
-  .fail(function(jqxhr, textStatus, error) {
-    var err_msg = textStatus + ", " + jqxhr.responseText;
-    console.error("Request Failed: " + err_msg);
-  });
-});
+        $("#saveas").attr('href', csvLink);
+        })
+        .fail(function(jqxhr, textStatus, error) {
+        var err_msg = textStatus + ", " + jqxhr.responseText;
+        console.error("Request Failed: " + err_msg);
+        });
+        });
 
-{{/yield-scripts}}
+        {{/yield-scripts}}
