@@ -120,7 +120,7 @@ toastr.options = {
         if (from_date< sale_gst_nov || to_date <sale_gst_nov)
         {
             toastr.error('Report Only Available From  Novemeber 20th 2017');
-         //   return;
+            return;
         }
 
     }
