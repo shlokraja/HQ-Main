@@ -84,6 +84,7 @@ $("#get_reports").click(function() {
 
     var sale_gst='2017-08-01';
     var sale_gst_end = '2017-08-31';
+    var sale_gst_nov='2017-11-20';
     //Cross GST
     // Check if period is Prior august or from august and validate
 
@@ -97,7 +98,7 @@ toastr.options = {
   "extendedTimeOut": 1000
 }
 
-    if($("#reportAugust").val()=='true')
+    if($("#reportAugust").val()=='after_august')
     {
       /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
         if (from_date< sale_gst || to_date <sale_gst)
@@ -106,13 +107,22 @@ toastr.options = {
             return;
         }
     }
-    else
+    else if($("#reportAugust").val()=='prior_august')
     {
         if (from_date> sale_gst || to_date >sale_gst)
         {
             toastr.error('Report Only Available Upto  July 2017');
             return;
         }
+    }
+    else if($("#reportAugust").val()=='after_november')
+    {
+        if (from_date< sale_gst_nov || to_date <sale_gst_nov)
+        {
+            toastr.error('Report Only Available From  Novemeber 20th 2017');
+         //   return;
+        }
+
     }
 
     if (report_type=='daily_receipts' || report_type=='daily_receipts_gst' || report_type=='daily_sale_gst' )
