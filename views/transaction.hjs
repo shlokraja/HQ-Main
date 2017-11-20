@@ -249,26 +249,37 @@ $(".datechange").trigger("change");
     var account_id=$("#restaurant_id").val();
     
     var sale_gst='2017-07-31';
+    var sale_gst_nov='2017-11-12';
         var fromdate = $("#from").val();
         var todate = $("#to").val();
         fromdate= fromdate.split("-").reverse().join("-");
         todate= todate.split("-").reverse().join("-");
         
-    if($("#reportAugust").val()=='true')
+    if($("#reportAugust").val()=='after_august')
     {
-        if (fromdate<= sale_gst || todate <=sale_gst)
+        if ((fromdate<= sale_gst || todate <=sale_gst) || (fromdate> sale_gst_nov || todate > sale_gst_nov))
         {
-            toastr.error('Payment Possible only From August 2017');
+            toastr.error('Payment Possible only From August 1st to November 19th 2017');
             return;
         }
     }
-    else
+
+    else if ( $("#reportAugust").val()=='prior_august')
     {
-        if (fromdate> sale_gst || todate >sale_gst)
+        if (from_date> sale_gst || to_date >sale_gst)
         {
             toastr.error('Payment Possible only Upto July 2017');
             return;
         }
+    }
+    else  // novemeber validation
+    {
+          if (from_date< sale_gst_nov || to_date < sale_gst_nov)
+        {
+           toastr.error('Payment Possible only from November 20th 2017');
+            return;
+        }
+
     }
     
     if(new Date(from_date) <= new Date(to_date))

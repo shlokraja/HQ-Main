@@ -409,14 +409,9 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
      if($("#reportAugust").val()=='after_august')
     {
       /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
-        if (from_date< sale_gst || to_date <sale_gst)
+        if ((from_date< sale_gst || to_date < sale_gst) || (fromdate> sale_gst_nov || todate > sale_gst_nov))
         {
-           toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
-            return;
-        }
-          if (from_date> sale_gst_nov || to_date >sale_gst_nov)
-        {
-           toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
+           toastr.error('Report Only Available from August 1st to November 19th 2017');
             return;
         }
     }
@@ -430,7 +425,7 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
     }
     else  // novemeber validation
     {
-          if (from_date< sale_gst_nov || to_date <sale_gst_nov)
+          if (from_date< sale_gst_nov || to_date < sale_gst_nov)
         {
            toastr.error('Report Only Available from November 20th 2017');
             return;

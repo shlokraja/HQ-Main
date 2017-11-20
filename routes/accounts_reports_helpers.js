@@ -1415,11 +1415,9 @@ var generate_report_for_user = function (from_date, to_date, outlet_id,
                 reportMonthFV = FV_REPORTS_AUGUST;
             }
             else if (login_report_type == 'after_november')
-{
+            {
                 reportMonth = HQ_REPORTS_NOV;
-                reportMonthFV = FV_REPORTS_AUGUST; //to be changed
-            console.log(result);
-
+                reportMonthFV = FV_REPORTS_November; //to be changed
             }
             var report_generator, entity = null;
             if (user.usertype == "HQ")

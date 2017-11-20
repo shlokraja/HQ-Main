@@ -383,22 +383,22 @@ router.get('/price_info/:outlet_id', function (req, res, next) {
 
 var food_item_query="SELECT  f.id, f.name, f.item_tag, f.veg, f.location, f.side_order, f.master_id, \
                         f.mrp, f.cgst_percent,f.sgst_percent,service_tax_percent, f.vat_percent, f.heating_required, f.heating_reduction, f.condiment_slot, o.abatement_percent, \
-                        (case when ispublicsector and rr.id is not null  then rr.id else   r.id end ) as r_id,\
-                        (case when ispublicsector and rr.id is not null then rr.name else   r.name end ) as r_name,\
-                        (case when ispublicsector and rr.id is not null then rr.address else   r.address end ) as r_address,\
-                        (case when ispublicsector and rr.id is not null then rr.gstin_no else   r.gstin_no end ) as r_tin_no, \
-                        (case when ispublicsector and rr.id is not null then rr.st_no else   r.st_no end ) as r_st_no, \
-                        (case when ispublicsector and rr.id is not null then rr.pan_no else   r.pan_no end )as r_pan_no,\
-                        (case when ispublicsector and rr.id is not null then rr.entity_name else   r.entity_name end )as r_entity, \
+                        (case when ispublicsectorprioraugust and rr.id is not null  then rr.id else   r.id end ) as r_id,\
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.name else   r.name end ) as r_name,\
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.address else   r.address end ) as r_address,\
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.gstin_no else   r.gstin_no end ) as r_tin_no, \
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.st_no else   r.st_no end ) as r_st_no, \
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.pan_no else   r.pan_no end )as r_pan_no,\
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.entity_name else   r.entity_name end )as r_entity, \
                         f.cgst_percent as r_cgst_percent, \
                         f.sgst_percent as r_sgst_percent, \
-                        (case when ispublicsector and rc.restaurant_id is not null then rcc.sender_email else   rc.sender_email end )as r_sender_email, \
+                        (case when ispublicsectorprioraugust and rc.restaurant_id is not null then rcc.sender_email else   rc.sender_email end )as r_sender_email, \
                         b.discount_percent as discount_percent , \
                         (select r.id from restaurant r, food_item f where r.id=f.restaurant_id and f.id=b.bundle_item_id) b_r_id, \
                         (select r.name from restaurant r, food_item f where r.id=f.restaurant_id and f.id=b.bundle_item_id) b_r_name, \
-                        (case when ispublicsector and rr.id is not null then rr.cgst_percent else   r.cgst_percent end )as b_r_cgst_percent, \
-                        (case when ispublicsector and rr.id is not null then rr.sgst_percent else   r.sgst_percent end )as b_r_sgst_percent,\
-                        (case when ispublicsector and rr.id is not null then rr.entity_name else   r.entity_name end )as r_entity, \
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.cgst_percent else   r.cgst_percent end )as b_r_cgst_percent, \
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.sgst_percent else   r.sgst_percent end )as b_r_sgst_percent,\
+                        (case when ispublicsectorprioraugust and rr.id is not null then rr.entity_name else   r.entity_name end )as r_entity, \
                         (select r.address from restaurant r, food_item f where r.id=f.restaurant_id and f.id=b.bundle_item_id) b_r_address, \
                         (select r.gstin_no from restaurant r, food_item f where r.id=f.restaurant_id and f.id=b.bundle_item_id) b_r_tin_no, \
                         (select id from food_item where id=b.bundle_item_id) b_id, \

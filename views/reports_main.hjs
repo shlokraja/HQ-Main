@@ -102,12 +102,12 @@ toastr.options = {
     if($("#reportAugust").val()=='after_august')
     {
       /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
-        if (from_date< sale_gst || to_date <sale_gst)
+        if (from_date< sale_gst || to_date < sale_gst)
         {
            toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
             return;
         }
-         if (from_date> sale_gst_nov || to_date >sale_gst_nov)
+         if (from_date >= sale_gst_nov || to_date >=sale_gst_nov)
         {
            toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
             return;

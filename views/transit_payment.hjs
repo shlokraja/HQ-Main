@@ -286,11 +286,40 @@ $(".datechange").trigger("change");
     $("#amt_msg").text("");
     }
 
+    //validation
+     var sale_gst='2017-08-01';
+     var sale_gst_nov='2017-11-15'; // tobe replaced to 20th nov
+    var from_date = db_date($("#from").val());
+    var to_date =db_date($("#to").val());
 
     if((document.getElementById("from").value != "") && (document.getElementById("to").value != ""))
    {
-    var from_date = db_date($("#from").val());
-    var to_date =db_date($("#to").val());
+        if($("#reportAugust").val()=='after_august')
+        {
+            if ((from_date< sale_gst || to_date < sale_gst) || (fromdate> sale_gst_nov || todate > sale_gst_nov))
+            {
+                toastr.error('Payment Possible only From August 1st to November 19th 2017');
+                return;
+            }
+        }
+        else  if($("#reportAugust").val()=='prior_august')
+                {
+
+            if (from_date>= sale_gst || to_date >=sale_gst)
+            {
+                toastr.error('Payments can be updated Only  Upto July 2017');
+                return;
+            }
+        }
+        else
+        {
+            if (from_date< sale_gst_nov || to_date < sale_gst_nov)
+            {
+                toastr.error('Payments can be updated Only  From November 20th 2017');
+                return;
+            }
+        }
+
     var account_id=$("#restaurant_id").val();
     if(new Date(from_date) <= new Date(to_date))
     {
@@ -432,9 +461,9 @@ $(".datechange").trigger("change");
         to_date= to_date.split("-").reverse().join("-");        
         if($("#reportAugust").val()=='after_august')
         {
-            if (from_date< sale_gst || to_date <sale_gst)
+            if ((from_date< sale_gst || to_date < sale_gst) || (fromdate> sale_gst_nov || todate > sale_gst_nov))
             {
-                toastr.error('Payments can be updated Only  for period from August 2017');            
+                toastr.error('Payment Possible only From August 1st to November 19th 2017');            
                 return;
             }
         }

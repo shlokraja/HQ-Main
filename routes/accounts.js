@@ -30,7 +30,7 @@ router.get('/', IsAuthenticated, function(req, res, next){
  if(user.usertype != 'HQ') {
       async.parallel({
         istrading: function (callback) {
-            config.query("select case when "+istrading +" then istrading else  istradingprioraugust end as istrading from restaurant where entity='"+req.user.entity+"'",
+            config.query("select case when " + istrading + " then istrading::text else tradingtype::text end as istrading from restaurant where entity='" + req.user.entity + "'",
             [],
             function (err, result) {
                 if (err) {

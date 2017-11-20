@@ -34,14 +34,18 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var istrading=false;
     var query = "SELECT id,name FROM restaurant ";
     var user = req.user.usertype;
-    istrading = (req.user.login_report_type=='prior_august' || req.user.login_report_type=='after_november') ?true:false;
+    istrading = (req.user.login_report_type == 'after_august') ? true : false;
        var query="SELECT id,name FROM restaurant where active=true";
     
-    if(req.user.login_report_type=='prior_august' || req.user.login_report_type=='after_november' ){
+       if (req.user.login_report_type == 'prior_august' || req.user.login_report_type == 'after_november')
+       {
         query += " and istradingprioraugust=false";
-    }else{
+       }
+       else
+       {
         query += " and istrading=false";
-    }
+       }
+
     if (user != "HQ") {
         query += " and entity='" + req.user.entity + "'";
     }
@@ -61,7 +65,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
             });
         },
         istrading: function (callback) {
-            config.query("select case when "+istrading +" then istrading else  istradingprioraugust end as istrading from restaurant where entity='"+req.user.entity+"'",
+            config.query("select case when " + istrading + " then istrading::text else  tradingtype::text end as istrading from restaurant where entity='" + req.user.entity + "'",
             [],
             function (err, result) {
                 if (err) {
@@ -79,11 +83,18 @@ router.get('/', IsAuthenticated, function (req, res, next) {
               console.log("fin_ops_reports Error: " + err);
               return;
           }
-//Passing month parmater to finops report
+
+          var isTrading;
+          if (user != "HQ")
+          {
+              isTrading = results.istrading[0].istrading;
+          }
+
+          //Passing month parmater to finops report
           var context = {
               title: 'Reports',
               restaurants: results.restaurants,
-              istrading: results.istrading,
+              istrading: isTrading,
               user: user,
               reportAugust:req.user.login_report_type
           };

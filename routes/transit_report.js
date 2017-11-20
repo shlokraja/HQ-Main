@@ -23,31 +23,38 @@ var app = express();
 
 format.extend(String.prototype);
 
-function IsAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
+function IsAuthenticated(req, res, next)
+{
+    if (req.isAuthenticated())
+    {
         var user = req.user.usertype;
         console.log("User :" + user);
-    } else {
+    } else
+    {
         res.redirect('/login');
     }
 }
-router.get('/', IsAuthenticated, function (req, res, next) {
+router.get('/', IsAuthenticated, function (req, res, next)
+{
     var user = req.user.usertype;
     console.log("transit_report User :" + user);
     var istrading;
-    istrading = req.user.login_report_type=='after_august'?true:false;
+    istrading = req.user.login_report_type == 'after_august' ? true : false;
     var query = 'select distinct out.id,out.name,out.short_name from outlet out \
             inner join food_item fi on out.id=fi.outlet_id  \
             inner join restaurant res on fi.restaurant_id=res.id  \
             where res.id>0 and res.active=true ';
-    if (req.user.login_report_type == 'after_august') {
+    if (req.user.login_report_type == 'after_august')
+    {
         query = query + ' and out.ispublicsector=true ';
     }
-    else {
+    else
+    {
         query = query + ' and out.ispublicsectorPriorAugust=true ';
     }
 
-    if (user != "HQ") {
+    if (user != "HQ")
+    {
         query += "and res.entity='" + req.user.entity + "'";
     }
     query += ' order by out.name';
@@ -57,27 +64,33 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                         inner join outlet out on out.id=fi.outlet_id \
                         inner join restaurant_config rcon on rcon.restaurant_id=res.id \
                         where res.id>0 ';
-    if(req.user.login_report_type == 'after_august'){
+    if (req.user.login_report_type == 'after_august')
+    {
         res_qry += ' and out.ispublicsector=true and res.istrading=true';
-    }else{
+    } else
+    {
         res_qry += '  and out.ispublicsectorprioraugust=true';
     }
-    if (user != "HQ") {
+    if (user != "HQ")
+    {
         res_qry += " and res.entity='" + req.user.entity + "'";
     }
     res_qry += ' order by res.name';
-    console.log("query==========="+res_qry);
+    console.log("query===========" + res_qry);
     async.parallel({
 
-        outlet: function (callback) {
+        outlet: function (callback)
+        {
 
             config.query(query,
                 [],
-                function (err, result) {
+                function (err, result)
+                {
                     //var feed  = {id:'-1', name:'All'};
                     //result.push(feed);
                     //console.log("result===============", result);
-                    if (err) {
+                    if (err)
+                    {
                         callback('error running query' + err, null);
                         return;
                     }
@@ -85,12 +98,15 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 });
 
         },
-        restaurants: function (callback) {
+        restaurants: function (callback)
+        {
 
             config.query(res_qry,
                 [],
-                function (err, result) {
-                    if (err) {
+                function (err, result)
+                {
+                    if (err)
+                    {
                         callback('transit_report error running query' + err, null);
                         return;
                     }
@@ -98,65 +114,81 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 });
 
         },
-        restaurantAll: function (callback) {
+        restaurantAll: function (callback)
+        {
             var retaurantAll = {};
             config.query("select 'ALL' as outlet_short_name,id,name,'BN' as city from restaurant where active=true and istrading=true",
                 [],
-                function (err, rest) {
-                    if (err) {
+                function (err, rest)
+                {
+                    if (err)
+                    {
                         callback('transit_report error running query' + err, null);
                         return;
                     }
                     callback(null, rest.rows);
                 });
         },
-        istrading: function (callback) {
-            config.query("select case when "+istrading +" then istrading else  istradingprioraugust end as istrading from restaurant where entity='"+req.user.entity+"'",
+        istrading: function (callback)
+        {
+            config.query("select case when " + istrading + " then istrading::text else  tradingtype::text end as istrading from restaurant where entity='" + req.user.entity + "'",
             [],
-            function (err, result) {
-                if (err) {
+            function (err, result)
+            {
+                if (err)
+                {
                     callback('fin_ops_reports error running query' + err, null);
                     return;
                 }
                 callback(null, result.rows);
-                });
+            });
 
         },
     },
 
-        function (err, results) {
-            if (err) {
+        function (err, results)
+        {
+            if (err)
+            {
                 console.log("transit_report Error: " + err);
                 return;
             }
-	var  isTrading=false;
-            if (user == "HQ"){
+            var isTrading;
+            if (user == "HQ")
+            {
                 var getALLrestaurant = {};
                 getALLrestaurant = results.restaurantAll;
 
-                _.each(getALLrestaurant, function (value, key) {
+                _.each(getALLrestaurant, function (value, key)
+                {
                     results.restaurants.push(value);
                 });
 
                 results.outlet.push({ id: '-1', name: 'All', short_name: 'ALL' });
             }
-else{
-isTrading=results.istrading[0].istrading;
-}
+            else
+            {
+                isTrading = results.istrading[0].istrading;
+            }
+
+
+
             var context = {
                 title: 'Transit Reports',
                 outlet: results.outlet,
                 restaurants: results.restaurants,
-                istrading:isTrading,
+                istrading: isTrading,
                 user: req.user.usertype,
-                reportAugust: req.user.login_report_type 
+                reportAugust: req.user.login_report_type
             };
             console.log("process.env.August:" + process.env.August);
 
-            if (req.user.login_report_type == 'after_august') {
+            if (req.user.login_report_type == 'after_august')
+            {
                 res.render('transit_report_aug', context);
             }
-            else {
+            else
+            {
                 res.render('transit_report', context);
             }
         });
@@ -183,7 +215,8 @@ var REPORT_FIELDS = {
     }
 }
 
-router.post('/get_transit_restaurant_details', function (req, res) {
+router.post('/get_transit_restaurant_details', function (req, res)
+{
     //console.log("get_transit_restaurant_details************** called" + JSON.stringify(req.body))
     var restaurant_id = req.body.restaurant_id;
     var from_dt = req.body.from_date;
@@ -194,38 +227,47 @@ router.post('/get_transit_restaurant_details', function (req, res) {
     console.log("restaurant_id--------------" + restaurant_id);
     console.log("outlet_id----------------" + outlet_id);
     console.log("report_type----------------" + report_type);
-    pg.connect(conString, function (err, client, done) {
-        if (err) {
+    pg.connect(conString, function (err, client, done)
+    {
+        if (err)
+        {
             console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(err));
             return;
         }
         var query = "select * from ";
-        if (restaurant_id != 0) {
+        if (restaurant_id != 0)
+        {
             query += "restaurant_details('" + restaurant_id + "','" + from_dt + "','" + to_dt + "',true)";
         }
-        else {
+        else
+        {
             isSummary = true;
             query += "transit_restaurant_details_summary('" + from_dt + "','" + to_dt + "',true,'" + outlet_id + "')";
         }
 
         console.log("**************get_transit_restaurant_details QUERY******" + query);
         client.query(query,
-            function (query_err, result) {
-                if (query_err) {
+            function (query_err, result)
+            {
+                if (query_err)
+                {
                     done(client);
                     console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(query_err));
                     return;
-                } else {
+                } else
+                {
                     done();
                     var rows = [];
                     var resut_data = result.rows;
                     console.log('************** select get_transit_restaurant_details Scuccess -Count' + result.rows.length);
                     console.log('************** select get_transit_restaurant_details Scuccess' + JSON.stringify(resut_data));
-                    if (result.rows.length != 0) {
+                    if (result.rows.length != 0)
+                    {
                         rows = generate_rows(resut_data, isSummary);
                         res.send(rows);
                     }
-                    else {
+                    else
+                    {
                         res.send("NoData");
                     }
 
@@ -234,12 +276,14 @@ router.post('/get_transit_restaurant_details', function (req, res) {
     });
 });
 
-function generate_rows(result, summary) {
+function generate_rows(result, summary)
+{
     var Outstanding = 0;
     var rows = [];
     //console.log("***generate_rows started****");
     var resut_data = result;
-    if (!summary) {
+    if (!summary)
+    {
         Outstanding = resut_data[0].Oustanding_Payment;
         var item = {};
         item["ReportDate"] = "";
@@ -257,7 +301,8 @@ function generate_rows(result, summary) {
         rows.push(item);
     }
 
-    for (var value in resut_data) {
+    for (var value in resut_data)
+    {
         var item = {};
         var payment = resut_data[value].Payment != null ? Number(resut_data[value].Payment).toFixed(0) : 0;
         var Escrow = resut_data[value].Transfer_to_Restaurant_from_Escrow != null ? Number(resut_data[value].Transfer_to_Restaurant_from_Escrow).toFixed(0) : 0;
@@ -277,7 +322,8 @@ function generate_rows(result, summary) {
         rows.push(item);
     }
     var aggregates = null;
-    if (!_.isEmpty(rows)) {
+    if (!_.isEmpty(rows))
+    {
         var item = {};
         item["TakenQty"] = aggregateByColumn(rows, 'TakenQty');
         item["SoldQty"] = aggregateByColumn(rows, 'SoldQty');
@@ -299,15 +345,18 @@ function generate_rows(result, summary) {
 
 
 
-function sum(numbers) {
-    return _.reduce(numbers, function (result, current) {
+function sum(numbers)
+{
+    return _.reduce(numbers, function (result, current)
+    {
         current = current.replace('', '0');
         current = current.replace(',', '');
         return result + parseFloat(current);
     }, 0);
 }
 
-function addCommas(str) {
+function addCommas(str)
+{
     var parts = (str + "").split("."),
         main = parts[0],
         len = main.length,
@@ -315,16 +364,20 @@ function addCommas(str) {
         first = main.charAt(0),
         i;
 
-    if (first === '-') {
+    if (first === '-')
+    {
         main = main.slice(1);
         len = main.length;
-    } else {
+    } else
+    {
         first = "";
     }
     i = len - 1;
-    while (i >= 0) {
+    while (i >= 0)
+    {
         output = main.charAt(i) + output;
-        if ((len - i) % 3 === 0 && i > 0) {
+        if ((len - i) % 3 === 0 && i > 0)
+        {
             output = "," + output;
         }
         --i;
@@ -332,20 +385,25 @@ function addCommas(str) {
     // put sign back
     output = first + output;
     // put decimal part back
-    if (parts.length > 1) {
+    if (parts.length > 1)
+    {
         output += "." + parts[1];
     }
     return output;
 }
 // Totals of numerical columns for a report
-var aggregateReportColumns = function (rows) {
+var aggregateReportColumns = function (rows)
+{
     var sample = _.first(rows);
     var aggregates = {};
-    _.each(_.keys(sample), function (k) {
-        if (_.isNumber(sample[k])) {
+    _.each(_.keys(sample), function (k)
+    {
+        if (_.isNumber(sample[k]))
+        {
             var aggr = aggregateByColumn(rows, k);
             aggregates[k] = isFloat(aggr) ? (aggr.toFixed(0)) : aggr;
-        } else {
+        } else
+        {
             aggregates[k] = '';
         }
     });
@@ -354,31 +412,40 @@ var aggregateReportColumns = function (rows) {
 
 
 // aggregator helpers
-var aggregateByColumn = function (items, name) {
-    return _.reduce(items, function (memo, item) {
+var aggregateByColumn = function (items, name)
+{
+    return _.reduce(items, function (memo, item)
+    {
         var value = item[name] != "" ? item[name] : 0;
         return memo + value;
     }, 0);
 };
 
-var isInt = function (n) {
+var isInt = function (n)
+{
     return Number(n) === n && n % 1 === 0;
 };
 
-var isFloat = function isFloat(n) {
+var isFloat = function isFloat(n)
+{
     return n === Number(n) && n % 1 !== 0;
 };
 
-var formatNumbers = function (rows) {
-    _.each(rows, function (row) {
-        _.each(row, function (value, key, obj) {
-            if (isFloat(obj[key])) {
+var formatNumbers = function (rows)
+{
+    _.each(rows, function (row)
+    {
+        _.each(row, function (value, key, obj)
+        {
+            if (isFloat(obj[key]))
+            {
                 obj[key] = value.toFixed(0);
             }
         });
     });
 };
-router.get('/downloadcsv', function (req, res) {
+router.get('/downloadcsv', function (req, res)
+{
     //console.log("downloadcsv************** called");
     var restaurant_id = req.query.restaurant_id;
     var from_date = req.query.from_date;
@@ -391,28 +458,35 @@ router.get('/downloadcsv', function (req, res) {
     var isSummary = false;
 
     var query = "select * from ";
-    if (restaurant_id != 0) {
+    if (restaurant_id != 0)
+    {
         query += "restaurant_details('" + restaurant_id + "','" + from_date + "','" + to_date + "',true)";
     }
-    else {
+    else
+    {
         isSummary = true;
         query += "transit_restaurant_details_summary('" + from_date + "','" + to_date + "',true,'" + outlet_id + "')";
     }
 
     //console.log("**************get_transit_restaurant_details Download QUERY******" + query);
 
-    pg.connect(conString, function (err, client, done) {
-        if (err) {
+    pg.connect(conString, function (err, client, done)
+    {
+        if (err)
+        {
             console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(err));
             return;
         }
         client.query(query, [],
-            function (query_err, result) {
-                if (query_err) {
+            function (query_err, result)
+            {
+                if (query_err)
+                {
                     done(client);
                     console.log('**************get_transit_restaurant_details Error ' + JSON.stringify(query_err));
                     return;
-                } else {
+                } else
+                {
                     done();
                     var rows = [];
                     var resut_data = result.rows;
@@ -425,7 +499,8 @@ router.get('/downloadcsv', function (req, res) {
 
     // res.send("success");
 });
-function csvOut(reportName, reportJson, report_type, res) {
+function csvOut(reportName, reportJson, report_type, res)
+{
     var fields;
     var fieldNames;
 
@@ -434,15 +509,19 @@ function csvOut(reportName, reportJson, report_type, res) {
 
     var data = reportJson;
     data.push(reportJson.aggregates);
-    json2csv({ data: data, fields: fields, fieldNames: fieldNames }, function (err, csvData) {
-        if (err) {
+    json2csv({ data: data, fields: fields, fieldNames: fieldNames }, function (err, csvData)
+    {
+        if (err)
+        {
             handleError(res, err);
         }
 
         var rand_string = randomstring.generate(8);
         var rand_file = '/tmp/report-' + rand_string + '.csv';
-        fs.writeFile(rand_file, csvData, function (error) {
-            if (error) {
+        fs.writeFile(rand_file, csvData, function (error)
+        {
+            if (error)
+            {
                 handleError(res, error);
             }
             res.attachment(reportName);
@@ -450,10 +529,13 @@ function csvOut(reportName, reportJson, report_type, res) {
         });
     });
 }
-function IsAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
+function IsAuthenticated(req, res, next)
+{
+    if (req.isAuthenticated())
+    {
         next();
-    } else {
+    } else
+    {
         res.redirect('/login');
     }
 }

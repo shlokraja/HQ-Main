@@ -18,7 +18,6 @@
     <link rel="stylesheet" href="/css/foundation.css">
     <link rel="stylesheet" href="/css/foundation.min.css" />
     <link rel="stylesheet" href="/css/app.css">
-
     <style>
         .general-button {
             background-color: #231f20 !important;
@@ -37,11 +36,13 @@
         #report_outputPanelItemContentFreeze {
             width: 265px !important;
         }
+
         #report_output_gstPanelItemContentFreeze {
             width: 265px !important;
         }
-        #st_report_outputPanelItemContentFreeze{
-         width: 265px !important;   
+
+        #st_report_outputPanelItemContentFreeze {
+            width: 265px !important;
         }
 
         .loading {
@@ -106,19 +107,23 @@
 
             .top-bar ul li a {
                 text-align: left !important;
-                width:150px !important;
+                width: 150px !important;
             }
-            .top-bar ul li a:hover {
-                text-align: left !important;
-                width:150px !important;
-            }
+
+                .top-bar ul li a:hover {
+                    text-align: left !important;
+                    width: 150px !important;
+                }
+
             .menu li:hover {
-                width:150px !important;
+                width: 150px !important;
             }
         }
-         .menu li,.menu li:hover {
-                width:150px !important;
-            }
+
+        .menu li, .menu li:hover {
+            width: 150px !important;
+        }
+
             .menu li ul {
                 list-style: none;
                 position: absolute;
@@ -126,9 +131,11 @@
                 margin-left: .1em;
                 display: none;
             }
+
             .menu li:hover ul {
                 display: block;
             }
+
         .secondary {
             background-color: #e7e7e7;
             border-color: #b9b9b9;
@@ -231,24 +238,25 @@
             .menu-container .title-bar {
                 background-color: #fbb713 !important;
             }
+
         .label_aug {
             float: left;
-            margin: 20px 0px 0px -212px;
-            background-color: #fbb713 !important
-        }
-        .label_pri_hq{   
-            float:left;
-            margin: 0px 0px 0px 12px; 
+            margin: 20px 0px 0px -180px;
             background-color: #fbb713 !important;
         }
-        .label_aug_hq{   
-            float:left;
-            margin: 0px 0px 0px -166px; 
-            background-color: #fbb713 !important;
-        }
-            
 
-       {{{yield-styles}}}
+        .label_pri_hq {
+            float: left;
+            margin: 0px 0px 0px 12px;
+            background-color: #fbb713 !important;
+        }
+
+        .label_aug_hq {
+            float: left;
+            margin: 0px 0px 0px -166px;
+            background-color: #fbb713 !important;
+        }
+        {{{yield-styles}}}
     </style>
 </head>
 <body>
@@ -266,29 +274,29 @@
             <div class="row">
                 <div class="large-12 columns" role="content">
                     <div class="title-bar show-for-small-only" data-responsive-toggle="example-menu" data-hide-for="medium">
-                        <button class="menu-icon dark btn-customised" type="button" data-toggle></button>                      
+                        <button class="menu-icon dark btn-customised" type="button" data-toggle></button>
                         <div class="title-bar-title">{{title}}</div>
                     </div>
                     <div class="top-bar">
                         <div class="top-bar-left" id="example-menu">
                             <ul class="vertical medium-horizontal menu hide" id="hq-menu">
-                                
+
                                 <li><a id="home" href="/accounts">Operations</a></li>
                                 <li><a id="fin_ops_report" href="/fin_ops_reports">Non&nbsp;Transit&nbsp;Report</a></li>
                                 <li><a id="transaction" href="/transaction">Non&nbsp;Transit&nbsp;Payment&nbsp;&nbsp;&nbsp;</a></li>
                                 <li><a id="transit_report" href="/transit_report">Transit&nbsp;Report</a></li>
                                 <li><a id="transit_payment" href="/transit_payment">Transit&nbsp;Payment</a></li>
                                 <li><a id="chargeback" href="/chargeback_report">Charge&nbsp;Back</a></li>
-                                <li><a id="invoice" href="/invoice">Invoice</a></li>                                
-                                <li><a id="logout"  href="/login">Logout</a></li>
+                                <li><a id="invoice" href="/invoice">Invoice</a></li>
+                                <li><a id="logout" href="/login">Logout</a></li>
                             </ul>
                             <!-- Adding From August Menus-->
                             <ul class="vertical medium-horizontal menu hide" id="hq-august-menu">
-                                
+
                                 <li><a id="home" href="/accounts">Operations</a></li>
                                 <li><a id="fin_ops_report" href="/fin_ops_reports">Non-Trading &nbsp;Report</a></li>
                                 <li><a id="transit_report" href="/transit_report">Trading &nbsp;Report</a></li>
-                                <li><a id="transit_payment" href="/transaction">Trading Payment</a></li>                                
+                                <li><a id="transit_payment" href="/transaction">Trading Payment</a></li>
                                 <li>
                                     <a id="monthly_reconcile" href="#"> Monthly &nbsp;Reconciliation</a>
                                     <ul>
@@ -296,21 +304,20 @@
                                         <li><a id="restaurant_recovery" href="/restaurant_recovery">Restaurant&nbsp;Recovery</a></li>
                                     </ul>
                                 </li>
-                                <li><a id="tataReports" href="/daily_reports">Daily Reports</a></li>                                
-                                <li><a id="logout"  href="/login">Logout</a></li>
+                                <li><a id="tataReports" href="/daily_reports">Daily Reports</a></li>
+                                <li><a id="logout" href="/login">Logout</a></li>
                             </ul>
                             <ul class="vertical medium-horizontal menu hide" id="fv-menu">
                                 <!--<li><label id="label_prior" class="label_pri">Prior August 2017</label></li>-->
-                                
-                                <li><a id="home" href="/accounts">Operations</a></li>
-                                <li id="nontransit" class="hide" ><a id="fin_ops_report" href="/fin_ops_reports">Non&nbsp;Trading&nbsp;Report</a></li>
-                                <li id="transit" class="hide"><a id="transit_report" href="/transit_report">Trading&nbsp;Report</a></li>                                
-                                <li><a id="tataReports" href="/daily_reports">Daily Reports</a></li>
-                                <li><a id="logout" href="/login">Logout</a></li>  
-                                <li><a id="chargeback" class="hide" href="/chargeback_report">Charge&nbsp;Back</a></li>
-                               
-                            </ul>
 
+                                <li><a id="home" href="/accounts">Operations</a></li>
+                                <li id="nontransit" class="hide"><a id="fin_ops_report" href="/fin_ops_reports">Non&nbsp;Trading&nbsp;Report</a></li>
+                                <li id="transit" class="hide"><a id="transit_report" href="/transit_report">Trading&nbsp;Report</a></li>
+                                <li><a id="tataReports" href="/daily_reports">Daily Reports</a></li>
+                                <li><a id="logout" href="/login">Logout</a></li>
+                                <li><a id="chargeback" class="hide" href="/chargeback_report">Charge&nbsp;Back</a></li>
+
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -325,24 +332,17 @@
         </div>
     </section>
 
-
-
     <section id="footer">
         <footer class="row">
             <div class="large-12 columns">
-
             </div>
         </footer>
     </section>
 
-
-
     <script src="/js/vendor/foundation.js"></script>
     <script src="/js/vendor/jquery.datetimepicker.full.min.js"></script>
-
     <script src="/js/vendor/firebase.js"></script>
     <script src="/js/vendor/highcharts.js"></script>
-
     <script src="/js/vendor/jquery-confirm.js"></script>
     <script src="/js/vendor/gridviewScroll.min.js"></script>
     <script src="/js/vendor/jquery.ui.datepicker.min.js"></script>
@@ -356,9 +356,15 @@
     <script>
         var CLIENT_ID = '273587317115-dm0q6vvmolh1h3f1ajau9snd06au4qdt.apps.googleusercontent.com';
         var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
-        $(document).ready(function () {
-
+        $(document).ready(function ()
+        {
+            $("#logout").click(function ()
+            {
+                $("#label_august").text("");
+            })
         });
+        $(document).foundation();
+
         $(document).foundation();
 
         $.blockUI({ message: '<h2>Just a moment...</h2>' });
@@ -366,74 +372,109 @@
         $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
 
         {{{yield-scripts}}}
-        
-        var rptAugust=$("#reportAugust");
+
+        var rptAugust = $("#reportAugust");
 
         if (rptAugust == undefined)
         {
 
             $("#label_august").text("");
         }
-        else if (rptAugust.val()=='after_august')
-                {               
-             $("#label_august").text("From  Aug 2017  to Nov 19th 2017");
-         } else if (rptAugust.val()=='after_november') 
-         {
-             $("#label_august").text("From Nov 20th 2017");
-         }
-         else {
-             $("#label_august").text("Prior August 2017");
-             
-                }
-        if($("#usertype").val()=='HQ'){
+        else if (rptAugust.val() == 'after_august')
+        {
+            $("#label_august").text("From  Aug 2017  to Nov 19th 2017");
+        } else if (rptAugust.val() == 'after_november')
+        {
+            $("#label_august").text("From Nov 20th 2017");
+        }
+        else
+        {
+            $("#label_august").text("Prior August 2017");
 
-       if (rptAugust == undefined)
+        }
+        if ($("#usertype").val() == 'HQ')
         {
 
-            $("#label_august").text("");
-        }
-        else if (rptAugust.val()=='after_august')
-                {               
-             $("#label_august").text("From  Aug 2017  to Nov 19th 2017");
-         }
-         else if (rptAugust.val()=='after_november') {
-             $("#label_august").text("From Nov 20th 2017");
-         } 
-         else {
-             $("#label_august").text("Prior August 2017");
-             
+            if (rptAugust == undefined)
+            {
+
+                $("#label_august").text("");
+            }
+            else if (rptAugust.val() == 'after_august')
+            {
+                $("#label_august").text("From  Aug 2017  to Nov 19th 2017");
+            }
+            else if (rptAugust.val() == 'after_november')
+            {
+                $("#label_august").text("From Nov 20th 2017");
+            }
+            else
+            {
+                $("#label_august").text("Prior August 2017");
+
             }
 
         }
-        if ($("#usertype").val() != undefined) {
+        if ($("#usertype").val() != undefined)
+        {
             $("#div_body").removeClass("div_body");
             $("#menu_container").removeClass("hide");
             $("#menu_container").addClass("show");
-            if ($("#usertype").val() != "HQ") {                
+            if ($("#usertype").val() != "HQ")
+            {
                 $("#hq-menu").addClass("hide");
                 $("#hq-august-menu").addClass("hide");
                 $("#fv-menu").removeClass("hide");
                 $("#fv-menu").addClass("show");
-                
-               if ($("#reportAugust").val()=='after_august')
+
+                if ($("#reportAugust").val() == 'after_august')
                 {
-                
-		$("#transit #transit_report").text("Payment Report")
 
-		  }
+                    $("#transit #transit_report").text("Payment Report")
 
-                    if($("#istrading").val() == "true"){
+                }
+
+                $("#transit").removeClass("show");
+                $("#nontransit").removeClass("show");
+                $("#transit").addClass("hide");
+                $("#nontransit").addClass("hide");
+
+                if ($("#reportAugust").val() == 'after_august')
+                {
+                    if ($("#istrading").val() == "true")
+                    {
                         $("#transit").removeClass("hide");
                         $("#transit").addClass("show");
-                    }else{
-                    $("#nontransit").removeClass("hide");
-                    $("#nontransit").addClass("show");
+                    } 
+                }
+                else
+                {
+                    if ($("#istrading").val() == "1")
+                    {
+                        $("#transit").removeClass("hide");
+                        $("#transit").addClass("show");
+                        $("#transit_report").text("Transit Report");
                     }
-                                                
-
+                    else if ($("#istrading").val() == "2")
+                    {
+                        $("#nontransit").removeClass("hide");
+                        $("#nontransit").addClass("show");
+                        $("#fin_ops_report").text("Non Transit Report");
+                    }
+                    else if($("#istrading").val() == "3")
+                    {
+                        $("#transit").removeClass("hide");
+                        $("#transit").addClass("show");
+                        $("#nontransit").removeClass("hide");
+                        $("#nontransit").addClass("show");
+                        $("#transit_report").text("Transit Report");
+                        $("#fin_ops_report").text("Non Transit Report");
+                    }
+                }
             }
-            else {
-                if ($("#reportAugust").val()=='after_august')
+            else
+            {
+                if ($("#reportAugust").val() == 'after_august')
                 {
                     $("#hq-august-menu").removeClass("hide");
                     $("#hq-august-menu").addClass("show");
@@ -441,13 +482,14 @@
                 else
                 {
                     $("#hq-menu").removeClass("hide");
-                    $("#hq-menu").addClass("show");                    
-                }                
+                    $("#hq-menu").addClass("show");
+                }
                 $("#fv-menu").addClass("hide");
                 $("#label_prior").hide();
             }
         }
-        else {
+        else
+        {
             $("#div_body").addClass("div_body");
         }
 
