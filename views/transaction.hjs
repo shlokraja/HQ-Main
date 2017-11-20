@@ -254,13 +254,22 @@ $(".datechange").trigger("change");
         fromdate= fromdate.split("-").reverse().join("-");
         todate= todate.split("-").reverse().join("-");
         
-
+    if($("#reportAugust").val()=='true')
+    {
         if (fromdate<= sale_gst || todate <=sale_gst)
         {
-           toastr.error('Payment Possible only From August 2017');
+            toastr.error('Payment Possible only From August 2017');
             return;
         }
-
+    }
+    else
+    {
+        if (fromdate> sale_gst || todate >sale_gst)
+        {
+            toastr.error('Payment Possible only Upto July 2017');
+            return;
+        }
+    }
     
     if(new Date(from_date) <= new Date(to_date))
     {

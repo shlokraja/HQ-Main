@@ -277,7 +277,7 @@ var getTenderTypeRecords = function (outlet_id,from_date,to_date,ispublicsector,
                     sum(amount_collected) total \
                     from sales_order s \
                     inner join sales_order_payments p on p.sales_order_id = s.id \
-                    inner join outlet o on o.id= s.outlet_id  where o.ispublicsector=" + ispublicsector;
+                    inner join outlet o on o.id= s.outlet_id  where " + ispublicsector + "= (case when $1::date between '2017-08-01'::date and '2017-11-20'::date then  o.ispublicsector else \ o.ispublicsectorprioraugust end)";
 
         if (outlet_id != -1) {
         
@@ -286,7 +286,7 @@ var getTenderTypeRecords = function (outlet_id,from_date,to_date,ispublicsector,
                         
         query = query + " group by o.short_name, starttime , endtime,saledate) as final \
                           where final.saledate between $1 and $2 order by final.saledate";
-        //console.log("Query----" + query);
+        console.log("Query----" + query);
 
         client.query(query,
           [from_date,to_date],

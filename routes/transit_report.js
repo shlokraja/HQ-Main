@@ -149,9 +149,10 @@ isTrading=results.istrading[0].istrading;
                 restaurants: results.restaurants,
                 istrading:isTrading,
                 user: req.user.usertype,
-                reportAugust: req.user.login_report_type == 'after_august',
+                reportAugust: req.user.login_report_type 
             };
             console.log("process.env.August:" + process.env.August);
+
             if (req.user.login_report_type == 'after_august') {
                 res.render('transit_report_aug', context);
             }

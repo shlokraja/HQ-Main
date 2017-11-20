@@ -2,7 +2,8 @@
 {{#yield-body}}
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
-    <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
+    <input type="hidden" value="{{reportAugust}}" id="reportAugust" />    
+    <input type="hidden" value="{{istrading}}" id="istrading" />
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
@@ -10,7 +11,7 @@
                     <label>Outlet</label>
                     <select id="outlet_id">
                         {{#outlets}}
-                        <option value={{id}}>{{name}}</option>
+                        <option   value={{id}}>{{name}}</option>
                         {{/outlets}}
                     </select>
                 </div>
@@ -84,7 +85,7 @@ $("#get_reports").click(function() {
 
     var sale_gst='2017-08-01';
     var sale_gst_end = '2017-08-31';
-    var sale_gst_nov='2017-11-20';
+    var sale_gst_nov='2017-11-20'; //to be changed to 20th Novemeber
     //Cross GST
     // Check if period is Prior august or from august and validate
 
@@ -103,7 +104,12 @@ toastr.options = {
       /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
         if (from_date< sale_gst || to_date <sale_gst)
         {
-           toastr.error('Report Only Available from August 2017');
+           toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
+            return;
+        }
+         if (from_date> sale_gst_nov || to_date >sale_gst_nov)
+        {
+           toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
             return;
         }
     }
@@ -120,7 +126,7 @@ toastr.options = {
         if (from_date< sale_gst_nov || to_date <sale_gst_nov)
         {
             toastr.error('Report Only Available From  Novemeber 20th 2017');
-            return;
+           return;
         }
 
     }
@@ -142,10 +148,13 @@ toastr.options = {
             alert("Report is not valid for the period Please check the start date and end date");
             return;
         }
-	    if(report_type=='daily_receipts_gst'  && (from_date > gst_end_date || to_date> gst_end_date))
+        
+	    if(report_type=='daily_receipts_gst'  && (from_date > gst_end_date || to_date> gst_end_date ) && $("#reportAugust").val()=='after_august')
 		{
+                        
 			alert("Daily Receipts GST Report is only available for July 2017. So please select the Daily Receipts Sales Report");
             return;
+            
 		}
       if( report_type=='daily_sale_gst' && (from_date < sale_gst || to_date < sale_gst)){
 			alert("Daily Receipts Sales GST Report is only available from August 2017");
@@ -166,8 +175,7 @@ toastr.options = {
         return;
     }*/
     
-    
-
+   
   $.get('/accounts/report?from_date=' + from_date
     + '&to_date=' + to_date
     + '&outlet_id=' + outlet_id

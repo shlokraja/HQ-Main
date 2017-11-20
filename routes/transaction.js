@@ -79,7 +79,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
               city: results.city,
               restaurants: results.restaurants,
               user: req.user.usertype,
-              reportAugust:login_report_type=='after_august',
+              reportAugust:req.user.login_report_type,
           };
 
 
@@ -183,7 +183,7 @@ router.get('/get_payment_information', function (req, res) {
             return;
         }
         var ispublicsector=false;
-        if (login_report_type=='after_august')
+        if (req.user.login_report_type=='after_august')
             {
                 ispublicsector=true;
             }

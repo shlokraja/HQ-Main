@@ -7,6 +7,7 @@
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
     <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
+    <input type="hidden" value="{{istrading}}" id="istrading" />
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">

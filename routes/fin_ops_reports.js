@@ -34,9 +34,14 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var istrading=false;
     var query = "SELECT id,name FROM restaurant ";
     var user = req.user.usertype;
-    istrading = login_report_type=='prior_august'?true:false;
-    var query = "SELECT id,name FROM restaurant where active=true and istrading=" +istrading;
+    istrading = (req.user.login_report_type=='prior_august' || req.user.login_report_type=='after_november') ?true:false;
+       var query="SELECT id,name FROM restaurant where active=true";
     
+    if(req.user.login_report_type=='prior_august' || req.user.login_report_type=='after_november' ){
+        query += " and istradingprioraugust=false";
+    }else{
+        query += " and istrading=false";
+    }
     if (user != "HQ") {
         query += " and entity='" + req.user.entity + "'";
     }
@@ -46,6 +51,17 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     async.parallel({
         restaurants: function (callback) {
             config.query(query,
+            [],
+            function (err, result) {
+                if (err) {
+                    callback('fin_ops_reports error running query' + err, null);
+                    return;
+                }
+                callback(null, result.rows);
+            });
+        },
+        istrading: function (callback) {
+            config.query("select case when "+istrading +" then istrading else  istradingprioraugust end as istrading from restaurant where entity='"+req.user.entity+"'",
             [],
             function (err, result) {
                 if (err) {
@@ -67,8 +83,9 @@ router.get('/', IsAuthenticated, function (req, res, next) {
           var context = {
               title: 'Reports',
               restaurants: results.restaurants,
+              istrading: results.istrading,
               user: user,
-              reportAugust:login_report_type=='after_august'
+              reportAugust:req.user.login_report_type
           };
           res.render('fin_ops_reports', context);
       });
@@ -125,6 +142,7 @@ var REPORT_FIELDS = {
         "Foodbox_TDs": 'TDs',
         "Net_pay_to_restaurant": 'Net pay to restaurant'
     },
+    
 }
 
 router.post('/get_restaurant_details', function (req, res) {
@@ -166,13 +184,13 @@ router.post('/get_restaurant_details', function (req, res) {
                 query += "restaurant_details_summary_gst";
             }
         }
-
+        var transit = req.user.login_report_type != 'prior_august';
         if (restaurant_id == 0 && (report_type == "restaurant_payment" || report_type == "restaurant_payment_gst")) {
-            query += "('" + from_dt + "','" + to_dt + "',false)";
+            query += "('" + from_dt + "','" + to_dt + "'," + transit + ")";
             isSummary = true;
         }
         else if (report_type == "restaurant_payment" || report_type == "restaurant_payment_gst") {
-            query += "('" + restaurant_id + "','" + from_dt + "','" + to_dt + "',false)";
+            query += "('" + restaurant_id + "','" + from_dt + "','" + to_dt + "'," + transit + ")";
         }
         else {
             query += "('" + restaurant_id + "','" + from_dt + "','" + to_dt + "')";
@@ -263,40 +281,40 @@ function generate_rows(result, summary) {
     for (var value in resut_data) {
         //console.log(resut_data[value]);
         var item = {};
-        var payment = resut_data[value].Payment != null ? Number(resut_data[value].Payment).toFixed(0) : 0;
-        var Escrow = resut_data[value].Transfer_to_Restaurant_from_Escrow != null ? Number(resut_data[value].Transfer_to_Restaurant_from_Escrow).toFixed(0) : 0;
-        var Escrow_gst = resut_data[value].Transfer_to_Restaurant_from_Escrow_gst != null ? Number(resut_data[value].Transfer_to_Restaurant_from_Escrow_gst).toFixed(0) : 0;
+        var payment = resut_data[value].Payment != null ? Number(resut_data[value].Payment).toFixed(2) : 0;
+        var Escrow = resut_data[value].Transfer_to_Restaurant_from_Escrow != null ? Number(resut_data[value].Transfer_to_Restaurant_from_Escrow).toFixed(2) : 0;
+        var Escrow_gst = resut_data[value].Transfer_to_Restaurant_from_Escrow_gst != null ? Number(resut_data[value].Transfer_to_Restaurant_from_Escrow_gst).toFixed(2) : 0;
         item["ReportDate"] = resut_data[value].ReportDate != null ? moment(resut_data[value].ReportDate).format('Do MMM YYYY') : "";
         item["RestaurantName"] = resut_data[value].RestaurantName;
         item["TakenQty"] = Number(resut_data[value].TakenQty);
         item["SoldQty"] = Number(resut_data[value].SoldQty);
         item["Wastage"] = Number(resut_data[value].Wastage);
-        item["Gross"] = addCommas(Number(resut_data[value].Gross).toFixed(0));
-        item["Vat"] = addCommas(Number(resut_data[value].Vat).toFixed(0));
-        item["Gst"] = addCommas(Number(resut_data[value].Gst).toFixed(0));
-        item["ST_with_Abatement"] = addCommas(Number(resut_data[value].ST_with_Abatement).toFixed(0));
-        item["Net_Sales"] = addCommas(Number(resut_data[value].Net_Sales).toFixed(0));
-        item["Net_Sales_gst"] = addCommas(Number(resut_data[value].Net_Sales_gst).toFixed(0));
-        item["Foodbox_Fee"] = addCommas(Number(resut_data[value].Foodbox_Fee).toFixed(0));
-        item["Foodbox_st"] = addCommas(Number(resut_data[value].Foodbox_st).toFixed(0));
-        item["Foodbox_gst"] = addCommas(Number(resut_data[value].Foodbox_gst).toFixed(0));
-        item["Total_Foodbox"] = addCommas(Number(resut_data[value].Total_Foodbox).toFixed(0));
-        item["Total_Foodbox_gst"] = addCommas(Number(resut_data[value].Total_Foodbox_gst).toFixed(0));
-        item["Vat_on_Gross"] = addCommas(Number(resut_data[value].Vat_on_Gross).toFixed(0));
-        item["Gst_on_Gross"] = addCommas(Number(resut_data[value].Gst_on_Gross).toFixed(0));
-        item["St_on_Gross"] = addCommas(Number(resut_data[value].St_on_Gross).toFixed(0));
-        item["Foodbox_TDs"] = addCommas(Number(resut_data[value].Foodbox_TDs).toFixed(0));
-        item["Transaction_on_fee"] = addCommas(Number(resut_data[value].Transaction_on_fee).toFixed(0));
-        item["Service_Tax"] = addCommas(Number(resut_data[value].Service_Tax).toFixed(0));
-        item["Total_cost"] = addCommas(Number(resut_data[value].Total_cost).toFixed(0));
-        item["Cost_of_Food"] = addCommas(Number(resut_data[value].Cost_of_Food).toFixed(0));
+        item["Gross"] = addCommas(Number(resut_data[value].Gross).toFixed(2));
+        item["Vat"] = addCommas(Number(resut_data[value].Vat).toFixed(2));
+        item["Gst"] = addCommas(Number(resut_data[value].Gst).toFixed(2));
+        item["ST_with_Abatement"] = addCommas(Number(resut_data[value].ST_with_Abatement).toFixed(2));
+        item["Net_Sales"] = addCommas(Number(resut_data[value].Net_Sales).toFixed(2));
+        item["Net_Sales_gst"] = addCommas(Number(resut_data[value].Net_Sales_gst).toFixed(2));
+        item["Foodbox_Fee"] = addCommas(Number(resut_data[value].Foodbox_Fee).toFixed(2));
+        item["Foodbox_st"] = addCommas(Number(resut_data[value].Foodbox_st).toFixed(2));
+        item["Foodbox_gst"] = addCommas(Number(resut_data[value].Foodbox_gst).toFixed(2));
+        item["Total_Foodbox"] = addCommas(Number(resut_data[value].Total_Foodbox).toFixed(2));
+        item["Total_Foodbox_gst"] = addCommas(Number(resut_data[value].Total_Foodbox_gst).toFixed(2));
+        item["Vat_on_Gross"] = addCommas(Number(resut_data[value].Vat_on_Gross).toFixed(2));
+        item["Gst_on_Gross"] = addCommas(Number(resut_data[value].Gst_on_Gross).toFixed(2));
+        item["St_on_Gross"] = addCommas(Number(resut_data[value].St_on_Gross).toFixed(2));
+        item["Foodbox_TDs"] = addCommas(Number(resut_data[value].Foodbox_TDs).toFixed(2));
+        item["Transaction_on_fee"] = addCommas(Number(resut_data[value].Transaction_on_fee).toFixed(2));
+        item["Service_Tax"] = addCommas(Number(resut_data[value].Service_Tax).toFixed(2));
+        item["Total_cost"] = addCommas(Number(resut_data[value].Total_cost).toFixed(2));
+        item["Cost_of_Food"] = addCommas(Number(resut_data[value].Cost_of_Food).toFixed(2));
         item["Transfer_to_Restaurant_from_Escrow"] = addCommas(Escrow);
         item["Transfer_to_Restaurant_from_Escrow_gst"] = addCommas(Escrow_gst);
         item["Payment"] = addCommas(payment);
         item["Payment_Date"] = resut_data[value].Payment_Date != null ? moment(resut_data[value].Payment_Date).format('Do MMM YYYY') : "-";
         item["Remarks"] = resut_data[value].Remarks != null ? resut_data[value].Remarks : "-";
         Outstanding = (Number(Outstanding) + Number(Escrow)) - Number(payment);
-        item["Outstanding"] = addCommas(Number(Outstanding).toFixed(0));
+        item["Outstanding"] = addCommas(Number(Outstanding).toFixed(2));
         rows.push(item);
         console.log(item);
     }
@@ -306,26 +324,27 @@ function generate_rows(result, summary) {
         item["TakenQty"] = aggregateByColumn(rows, 'TakenQty');
         item["SoldQty"] = aggregateByColumn(rows, 'SoldQty');
         item["Wastage"] = aggregateByColumn(rows, 'Wastage');
-        item["Gross"] = addCommas(sum(_.pluck(rows, 'Gross')).toFixed(0));
-        item["Vat"] = addCommas(sum(_.pluck(rows, 'Vat')).toFixed(0));
-        item["Gst"] = addCommas(sum(_.pluck(rows, 'Gst')).toFixed(0));
-        item["ST_with_Abatement"] = addCommas(sum(_.pluck(rows, 'ST_with_Abatement')).toFixed(0));
-        item["Net_Sales"] = addCommas(sum(_.pluck(rows, 'Net_Sales')).toFixed(0));
-        item["Net_Sales_gst"] = addCommas(sum(_.pluck(rows, 'Net_Sales_gst')).toFixed(0));
-        item["Foodbox_Fee"] = addCommas(sum(_.pluck(rows, 'Foodbox_Fee')).toFixed(0));
-        item["Foodbox_st"] = addCommas(sum(_.pluck(rows, 'Foodbox_st')).toFixed(0));
-        item["Foodbox_gst"] = addCommas(sum(_.pluck(rows, 'Foodbox_gst')).toFixed(0));
-        item["Total_Foodbox"] = addCommas(sum(_.pluck(rows, 'Total_Foodbox')).toFixed(0));
-        item["Total_Foodbox_gst"] = addCommas(sum(_.pluck(rows, 'Total_Foodbox_gst')).toFixed(0));
-        item["Gst_on_Gross"] = addCommas(sum(_.pluck(rows,'Gst_on_Gross')).toFixed(0));
-        item["Vat_on_Gross"] = addCommas(sum(_.pluck(rows, 'Vat_on_Gross')).toFixed(0));        
-        item["St_on_Gross"] = addCommas(sum(_.pluck(rows, 'St_on_Gross')).toFixed(0));
-        item["Foodbox_TDs"] = addCommas(sum(_.pluck(rows, 'Foodbox_TDs')).toFixed(0));
-        item["Transaction_on_fee"] = addCommas(sum(_.pluck(rows, 'Transaction_on_fee')).toFixed(0));
-        item["Service_Tax"] = addCommas(sum(_.pluck(rows, 'Service_Tax')).toFixed(0));
-        item["Total_cost"] = addCommas(sum(_.pluck(rows, 'Total_cost')).toFixed(0));
-        item["Cost_of_Food"] = addCommas(sum(_.pluck(rows, 'Cost_of_Food')).toFixed(0));
-        item["Transfer_to_Restaurant_from_Escrow"] = addCommas(sum(_.pluck(rows, 'Transfer_to_Restaurant_from_Escrow')).toFixed(0));
+        item["Gross"] = addCommas(sum(_.pluck(rows, 'Gross')).toFixed(2));
+        item["Vat"] = addCommas(sum(_.pluck(rows, 'Vat')).toFixed(2));
+        item["Gst"] = addCommas(sum(_.pluck(rows, 'Gst')).toFixed(2));
+        item["ST_with_Abatement"] = addCommas(sum(_.pluck(rows, 'ST_with_Abatement')).toFixed(2));
+        item["Net_Sales"] = addCommas(sum(_.pluck(rows, 'Net_Sales')).toFixed(2));
+        item["Net_Sales_gst"] = addCommas(sum(_.pluck(rows, 'Net_Sales_gst')).toFixed(2));
+        item["Foodbox_Fee"] = addCommas(sum(_.pluck(rows, 'Foodbox_Fee')).toFixed(2));
+        item["Foodbox_st"] = addCommas(sum(_.pluck(rows, 'Foodbox_st')).toFixed(2));
+        item["Foodbox_gst"] = addCommas(sum(_.pluck(rows, 'Foodbox_gst')).toFixed(2));
+        item["Total_Foodbox"] = addCommas(sum(_.pluck(rows, 'Total_Foodbox')).toFixed(2));
+        item["Total_Foodbox_gst"] = addCommas(sum(_.pluck(rows, 'Total_Foodbox_gst')).toFixed(2));
+        item["Gst_on_Gross"] = addCommas(sum(_.pluck(rows,'Gst_on_Gross')).toFixed(2));
+        item["Vat_on_Gross"] = addCommas(sum(_.pluck(rows, 'Vat_on_Gross')).toFixed(2));        
+        item["St_on_Gross"] = addCommas(sum(_.pluck(rows, 'St_on_Gross')).toFixed(2));
+        item["Foodbox_TDs"] = addCommas(sum(_.pluck(rows, 'Foodbox_TDs')).toFixed(2));
+        item["Transaction_on_fee"] = addCommas(sum(_.pluck(rows, 'Transaction_on_fee')).toFixed(2));
+        item["Service_Tax"] = addCommas(sum(_.pluck(rows, 'Service_Tax')).toFixed(2));
+        item["Total_cost"] = addCommas(sum(_.pluck(rows, 'Total_cost')).toFixed(2));
+        item["Cost_of_Food"] = addCommas(sum(_.pluck(rows, 'Cost_of_Food')).toFixed(2));
+        item["Transfer_to_Restaurant_from_Escrow"] = addCommas(sum(_.pluck(rows, 'Transfer_to_Restaurant_from_Escrow')).toFixed(2));
+        item["Transfer_to_Restaurant_from_Escrow_gst"] = addCommas(sum(_.pluck(rows, 'Transfer_to_Restaurant_from_Escrow_gst')).toFixed(2));
         item["Payment"] = "";
         item["Payment_Date"] = "";
         item["Remarks"] = "";
@@ -333,7 +352,7 @@ function generate_rows(result, summary) {
         rows.push(item);
         //console.log("***result_rows aggregates****" + JSON.stringify(rows));
     }
-
+ 
     var result_rows = { fields: REPORT_FIELDS["restaurant_receipts"], rows: rows, aggregates: aggregates };    
     return result_rows.rows;
 }
@@ -622,9 +641,17 @@ function csvOut(reportName, reportJson, report_type, res) {
     }
     else {
 
-        fields = ["ReportDate", "RestaurantName"  , "TakenQty" , "SoldQty", "Wastage", "Gross"                        , "Gst"      , "Net_Sales_gst", "Foodbox_Fee"           , "Foodbox_gst"                   , "Total_Foodbox_gst"               , "Gst_on_Gross"      ,  "Foodbox_TDs"           , "Transaction_on_fee" ,  "Total_cost", "Cost_of_Food", "Transfer_to_Restaurant_from_Escrow_gst", "Payment", "Payment_Date", "Remarks", "Outstanding"];
+        
+        if ( login_report_type =='after_november')
+        {
+            fields = ["ReportDate", "RestaurantName"  , "TakenQty" , "SoldQty", "Wastage", "Gross"                        , "Gst"      , "Net_Sales_gst", "Foodbox_Fee"           , "Foodbox_gst"                   , "Total_Foodbox_gst"               , "Gst_on_Gross"      ,   "Transaction_on_fee" ,  "Total_cost", "Cost_of_Food", "Transfer_to_Restaurant_from_Escrow_gst", "Payment", "Payment_Date", "Remarks", "Outstanding"];
+            fieldNames = ["Date"  , "Restaurant Name" , "Taken"    , "Sold"   , "Wastage", "Gross Sales (excluding taxes)", "Total GST", "Net Sales", "Frshly Transaction Fee", "GST on Frshly Transaction Fee", "Total Frshly Transaction Fee", "GST on Gross Sales",   "Transaction Fee"    ,  "Total Cost"  , "Cost of Food"     , "Transfer to Restaurant from Escrow", "Payment", "Payment_Date", "Remarks", "Outstanding"];
+        }
+        else
+        {
+            fields = ["ReportDate", "RestaurantName"  , "TakenQty" , "SoldQty", "Wastage", "Gross"                        , "Gst"      , "Net_Sales_gst", "Foodbox_Fee"           , "Foodbox_gst"                   , "Total_Foodbox_gst"               , "Gst_on_Gross"      ,  "Foodbox_TDs"           , "Transaction_on_fee" ,  "Total_cost", "Cost_of_Food", "Transfer_to_Restaurant_from_Escrow_gst", "Payment", "Payment_Date", "Remarks", "Outstanding"];
         fieldNames = ["Date"  , "Restaurant Name" , "Taken"    , "Sold"   , "Wastage", "Gross Sales (excluding taxes)", "Total GST", "Net Sales", "Frshly Transaction Fee", "GST on Frshly Transaction Fee", "Total Frshly Transaction Fee", "GST on Gross Sales",  "TDS on Transaction fee", "Transaction Fee"    ,  "Total Cost"  , "Cost of Food"     , "Transfer to Restaurant from Escrow", "Payment", "Payment_Date", "Remarks", "Outstanding"];
-
+        }
 
     }
 

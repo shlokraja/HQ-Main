@@ -7,6 +7,7 @@
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
     <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
+    <input type="hidden" value="{{istrading}}" id="istrading" />
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
@@ -268,9 +269,13 @@ $(document).ajaxStart($.blockUI).ajaxStop($.unblockUI);
  $("#st_report_output_div").addClass("hide");
  $("#saveas").addClass("hide");
 
-if($("#reportAugust").val() == "true" )  {
+if($("#reportAugust").val() == "after_august" || $("#reportAugust").val() == "after_november" )  {
 $("#report_type").append("<option value='restaurant_payment_gst'>Restaurant payment</option>");
-}else{
+        if ($("#reportAugust").val()=='after_november')
+        {
+            $("#report_output_gst th:contains('TDS on Transaction fee')").hide();
+        }
+        }else{
     $("#report_type").append("<option value='restaurant_payment_gst'>Restaurant payment GST</option>");
     $("#report_type").append("<option value='vat'>Vat</option>");
     $("#report_type").append("<option value='st'>Service Tax</option>");
@@ -288,15 +293,16 @@ $("#report_type").change(function() {
 if( $("#report_type").val() != "restaurant_payment" )
 {
 remove_option();
-if ( $("#report_type").val() == "restaurant_payment_gst")
+        if ( $("#report_type").val() == "restaurant_payment_gst" && $("#usertype").val()=="HQ")
 {
     $("#restaurant_id").append("<option value='0'>Summary</option>");    
 }
 }
 else{
+        if($("#usertype").val()=="HQ"){
 $("#restaurant_id").append("<option value='0'>Summary</option>");
 }
-
+    }
 });
 function remove_option()
 {
@@ -399,22 +405,37 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
     // GST Validations
     var gst_date='2017-07-01';
     var sale_gst='2017-08-01';
-     if($("#reportAugust").val()=='true')
+    var sale_gst_nov='2017-11-20'; // to be changed to  2017-11-20
+     if($("#reportAugust").val()=='after_august')
     {
       /*  if (report_type=='daily_receipts') report_type='daily_sale_gst';*/
         if (from_date< sale_gst || to_date <sale_gst)
         {
-           toastr.error('Report Only Available from August 2017');
+           toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
+            return;
+        }
+          if (from_date> sale_gst_nov || to_date >sale_gst_nov)
+        {
+           toastr.error('Report Only Available from August 2017 to Novemeber 20th 2017');
             return;
         }
     }
-    else
+    else if ( $("#reportAugust").val()=='prior_august')
     {
         if (from_date> sale_gst || to_date >sale_gst)
         {
             toastr.error('Report Only Available Upto  July 2017');
             return;
         }
+    }
+    else  // novemeber validation
+    {
+          if (from_date< sale_gst_nov || to_date <sale_gst_nov)
+        {
+           toastr.error('Report Only Available from November 20th 2017');
+            return;
+        }
+        
     }
 
     if (report_type=='vat' || report_type=='st' || report_type=='restaurant_payment')
@@ -557,10 +578,24 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
         $("#Vat_report_output_div").addClass("hide");
         $("#st_report_output_div").addClass("hide");
         if(result[item].ReportDate!=null){
+            if($("#reportAugust").val()=='after_november')
+            {
+$('#report_output_gst tbody').append('<tr class="GridviewScrollItem"><td>'+result[item].ReportDate+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Gst+'</td><td>'+result[item].Net_Sales_gst+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_gst+'</td><td>'+result[item].Total_Foodbox_gst+'</td><td>'+result[item].Gst_on_Gross+'</td> <td style="display:none" >'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow_gst+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+            }
+            else
+            {
                 $('#report_output_gst tbody').append('<tr class="GridviewScrollItem"><td>'+result[item].ReportDate+'</td><td>'+result[item].RestaurantName+'</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Gst+'</td><td>'+result[item].Net_Sales_gst+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_gst+'</td><td>'+result[item].Total_Foodbox_gst+'</td><td>'+result[item].Gst_on_Gross+'</td> <td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow_gst+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+            }
         }else{
         if(item!=0){
+                        if($("#reportAugust").val()=='after_november')
+            {
+                        $('#report_output_gst tbody').append('<tr class="GridviewScrollItem bold"><td colspan="2">Total</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Gst+'</td><td>'+result[item].Net_Sales_gst+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_gst+'</td><td>'+result[item].Total_Foodbox_gst+'</td><td>'+result[item].Gst_on_Gross+'</td> <td style="display:none">'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+            }
+            else
+            {
         $('#report_output_gst tbody').append('<tr class="GridviewScrollItem bold"><td colspan="2">Total</td><td>'+result[item].TakenQty+'</td><td>'+result[item].SoldQty+'</td><td>'+result[item].Wastage+'</td><td>'+result[item].Gross+'</td><td>'+result[item].Gst+'</td><td>'+result[item].Net_Sales_gst+'</td><td>'+result[item].Foodbox_Fee +'</td><td>'+result[item].Foodbox_gst+'</td><td>'+result[item].Total_Foodbox_gst+'</td><td>'+result[item].Gst_on_Gross+'</td> <td>'+result[item].Foodbox_TDs+'</td><td>'+result[item].Transaction_on_fee+'</td>  <td>'+result[item].Service_Tax +'</td><td>'+result[item].Total_cost+'</td><td>'+result[item].Cost_of_Food+'</td><td>'+result[item].Transfer_to_Restaurant_from_Escrow+'</td><td>'+result[item].Payment+'</td><td>'+result[item].Payment_Date+'</td><td>'+result[item].Remarks+'</td><td>'+result[item].Outstanding+'</td></tr>');
+            }
         $("#saveas").removeClass("hide");
         $("#saveas").addClass("show");
         }

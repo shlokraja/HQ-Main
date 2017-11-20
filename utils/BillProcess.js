@@ -66,11 +66,11 @@ function Start_Bill_check() {
 // Function is to check the key is exist for the outlet
 function checkMissingBills(outlet) {
     if (outlet != undefined) {
-        //console.log("Outlet Id" + outlet.id)
+        console.log("Outlet Id" + outlet.id)
         redisClient.exists(outlet.id, function (err, reply) {
             if (!err) {
                 if (reply === 1) {
-              //      console.log("Key exists for outlet" + outlet.id);
+                    console.log("Key exists for outlet" + outlet.id);
                     CheckMissingBillforOutlet(outlet);
                 } else {
                     console.log("Does't exists");
@@ -83,7 +83,7 @@ function checkMissingBills(outlet) {
 
 //
 function CheckMissingBillforOutlet(outinfo) {
-   // console.log("CheckMissingBillforOutlet ---> Started");
+    console.log("CheckMissingBillforOutlet ---> Started");
     redisClient.lrange(outinfo.id, 0, -1, function (err, reply) {
         if (!err) {
             if (reply != undefined) {
@@ -125,9 +125,9 @@ function CheckMissingBillforOutlet(outinfo) {
                                     else {
                                         if (result.rows != undefined) {
                                             if (result.rows.length > 0) {
-                                           //     console.log("Key exists for outlet and length" + reply.length);
+                                                console.log("Key exists for outlet and length" + reply.length);
                                                 var MissingBill = FilteredArray(reply, result.rows);
-                                         //       console.log("Missing Bill Length" + MissingBill.length);
+                                                console.log("Missing Bill Length" + MissingBill.length);
                                                 cache.SetMissingBills(MissingBill);
                                                 ProcessMissingBills();
                                             }
@@ -237,7 +237,7 @@ function FilteredArray(BillArray, outletLst) {
         function (el) { // executed for each person
             for (var i = 0; i < outletLst.length; i++) { // iterate over filter
                 if (el.bill_no == outletLst[i].missing_bill_number) {
-                    //console.log(JSON.stringify(outletLst[i]));
+                    console.log(JSON.stringify(outletLst[i]));
                     return true; // if this person knows this language
                 }
             }
@@ -248,9 +248,9 @@ function FilteredArray(BillArray, outletLst) {
 }
 
 function ProcessMissingBills() {
-  //  console.log("ProcessMissingBills  -- Started");
+    console.log("ProcessMissingBills  -- Started");
     var bill = cache.GetNextMissingBills();
-    //console.log("ProcessMissingBills" + bill);
+    console.log("ProcessMissingBills" + bill);
     if (bill != undefined) {
         ProcessSales(bill);
     }
@@ -270,7 +270,7 @@ function ProcessSales(data) {
     var queueItem = data;
 
     var check_date = general.GetFormattedDateDDMMYYYY();
-    //console.log("Bill_Time" + data.bill_time + "Check Time :" + check_date);
+    console.log("Bill_Time" + data.bill_time + "Check Time :" + check_date);
     if (data.bill_time == check_date) {
         debug("Got order details from queue :" + queueItem.bill_no + "Outlet Id : " + queueItem.outlet_id);
         if (queueItem.name == "ORDER_DETAILS") {

@@ -67,7 +67,7 @@ var Pivot_generation = function (data_text, city_text, from_table, callback) {
                       var session_total_query = 'select vpa.session, \
                                             ' + result.rows[0].outlet_name + " from " + from_table + " vpa \
                                             inner join outlet out on vpa.outlet_id=out.id \
-                                            where date=$1 and city_id=$2  group by vpa.session order by vpa.session, CASE WHEN vpa.session='Early Breakfast' THEN 1 \
+                                            where date=$1 and city_id=$2  group by vpa.session order by /*vpa.session,*/ CASE WHEN vpa.session='Early Breakfast' THEN 1 \
                                             WHEN vpa.session='BreakFast' THEN 2 WHEN vpa.session='Lunch' THEN 3 \
                                             WHEN vpa.session='Lunch2' THEN 4 WHEN vpa.session='Dinner' THEN 5 \
                                             WHEN vpa.session='Late Dinner' THEN 6 END"
