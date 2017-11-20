@@ -27,7 +27,6 @@ format.extend(String.prototype);
 var restaurant_FIELDS = {
     restaurant_receipts:
     {
-        "Restaurant_Name":'Restaurant',
         "Name": 'Name',
         "taken": 'Taken Qty',
         "sold": 'Sold Qty',
@@ -64,7 +63,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var user = req.user.usertype;
     console.log("user entity details: " + user);
     var query = "SELECT id,name FROM restaurant where 1=1  ";
-    if(login_report_type == 'after_august')
+    if( req.user.login_report_type == 'after_august')
         {
             query+=" and active=true ";
         }
@@ -99,7 +98,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
              title: 'Charge Back Details',
              restaurants: results.restaurants,
              user: user,
-             reportAugust: login_report_type == 'after_august' 
+             reportAugust: req.user.login_report_type
          };
          res.render('chargeback_report', context);
      });
@@ -141,13 +140,14 @@ router.get('/get_item_wise_charge_back', function (req, res) {
                       done();
                       console.log('************** select get_item_wise_charge_back Scuccess');
 
-                      if (login_report_type == 'after_august') {
+                      if (req.user.login_report_type == 'after_august' || req.user.login_report_type == 'after_november' ) {
                           var rows = generate_rows(result.rows, true);
                           report_fields = restaurant_FIELDS["restaurant_receipts_gst"];
-                      } else {
+                      } else if (req.user.login_report_type == 'prior_august') {
                           var rows = generate_rows(result.rows, false);
                           report_fields = restaurant_FIELDS["restaurant_receipts"];
                       }
+                      
                       
                       // aggregates
                       console.log("get_chargeback_report_details rows");
@@ -210,7 +210,7 @@ router.get('/get_chargeback_report_details', function (req, res) {
                       done();
                       console.log('************** select get_chargeback_report_details Scuccess');
 
-                      if (login_report_type == 'after_august') {
+                      if (req.user.login_report_type == 'after_august') {
                           var rows = generate_rows(result.rows, true);
                           report_fields = restaurant_FIELDS["restaurant_receipts_gst"];
                       } else {
@@ -294,7 +294,7 @@ router.get('/downloadcsv', function (req, res) {
                           //console.log('************** select get_chargeback_report_details Scuccess' + JSON.stringify(result));
                           console.log('************** select get_chargeback_report_details Scuccess rows' + JSON.stringify(result.rows));
 
-                          if (login_report_type == 'after_august') {
+                          if (req.user.login_report_type == 'after_august') {
                               var rows = generate_rows(result.rows, true);
                               report_fields = restaurant_FIELDS["restaurant_receipts_gst"];
                           } else {
@@ -332,7 +332,7 @@ function generate_rows(result, is_gst) {
         var item = {};
         var taken = Number(resut_data[value].taken);
         var sold = Number(resut_data[value].sold);
-        item["Restaurant_Name"]=resut_data[value].Restaurant_Name;
+	item["Restaurant_Name"]=resut_data[value].Restaurant_Name==undefined?resut_data[value].Name:resut_data[value].Restaurant_Name;
         item["Name"] = resut_data[value].Name;
         item["taken"] = taken;
         item["sold"] = sold;
@@ -363,6 +363,7 @@ function generate_rows(result, is_gst) {
 
     if (!_.isEmpty(rows)) {
         var item = {};
+	item["Restaurant_Name"]="";
         item["Name"] = "Total";
         item["wastage_percentage"] = "";
         var taken = sum(_.pluck(rows, 'taken'));

@@ -51,7 +51,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                 inner join food_item fi on out.id=fi.outlet_id  \
                 inner join restaurant res on fi.restaurant_id=res.id  \
                 where res.id>0 ';
-                if (login_report_type=='after_august')
+                if (req.user.login_report_type=='after_august')
                     {
                         query=query+ ' and out.ispublicSector=true ';
                     }
@@ -103,7 +103,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
                outlet: results.outlet,
                restaurants: results.restaurants,
                user: user,
-               reportAugust:login_report_type=='after_august',
+               reportAugust:req.user.login_report_type,
            };
            res.render('transit_payment', context);
        });

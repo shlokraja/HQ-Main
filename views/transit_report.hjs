@@ -6,6 +6,8 @@
 {{#yield-body}}
 <section class="content">
     <input type="hidden" value="{{user}}" id="usertype" />
+    <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
+    <input type="hidden" value="{{istrading}}" id="istrading" />
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
@@ -175,7 +177,10 @@ font-weight:bold;
     $("#outlet_id").change(function () {
         outlet_wise_restaurant();
     });
-
+if($("#outlet_id").val() == 0){
+    $("#restaurant_id").empty();
+    $("#restaurant_id").append("<option value='0'>--Select--</option>");
+}
 
     $("#report_div").addClass("hide");
     $("#saveas").addClass("hide");
@@ -211,19 +216,30 @@ font-weight:bold;
    
     $("#get_reports").click(function () {
          var sale_gst='2017-07-31';
+         var sales_gst_nov='2017-11-20'; // to be changed to  20th nov 
         var from_date = $("#from_date").val();
         var to_date = $("#to_date").val();
         from_date= from_date.split("-").reverse().join("-");
         to_date= to_date.split("-").reverse().join("-");
         
 
+if ($("#reportAugust").val()=='prior_august')
+{
         if (from_date> sale_gst || to_date >sale_gst)
         {
            toastr.error('Report Only Available Upto July 2017');
             return;
         }
 
-
+}
+if ($("#reportAugust").val()=='after_november')
+{
+    if (from_date< sales_gst_nov || to_date <sales_gst_nov)
+        {
+           toastr.error('Report Only Available From November 20th 2017');
+            return;
+        }
+}
         var restaurant_id = $("#restaurant_id").val();
         var outlet_id=$("#outlet_id").val();
         var from_date = db_date($("#from_date").val());

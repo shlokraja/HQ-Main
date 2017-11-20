@@ -14,24 +14,56 @@ var randomstring = require('randomstring');
 var report_utils = require('./reports_utils');
 var accounts_reports_helpers = require('./accounts_reports_helpers');
 var dbUtils = require('../models/dbUtils');
- 
- 
+var config = require('../models/config');
+var conString = config.dbConn;
+
+
 router.get('/', IsAuthenticated, function(req, res, next){
  var user = req.user;
- 
- user.reportAugust=login_report_type;  
+ var istrading = user.login_report_type=='after_august'?true:false;
+ console.log("user.login_report_type");
+ console.log(user);
+ var istradingresult=false;
+ user.reportAugust = user.login_report_type=='after_august';  
  var reports = accounts_reports_helpers.get_reoprt_types_for_user(user);
+  console.log("accounts istrading ========" );
+ if(user.usertype != 'HQ') {
+      async.parallel({
+        istrading: function (callback) {
+            config.query("select case when "+istrading +" then istrading else  istradingprioraugust end as istrading from restaurant where entity='"+req.user.entity+"'",
+            [],
+            function (err, result) {
+                if (err) {
+                    callback('fin_ops_reports error running query' + err, null);
+                    return;
+                }
+                callback(null, result.rows);
+            });
+        },
+    },
+      function (err, results) {
+          if (err) {
+              console.log("fin_ops_reports Error: " + err);
+              return;
+          }
+  istradingresult=results.istrading[0].istrading;
+  console.log("******************************************"+istradingresult)
+      });
+ }
+  console.log("++++++++++++++++++++++++++++");
  accounts_reports_helpers.get_outlets_for_user(user, function(err, outlets){
   if(err) {
     handleError(res, err);
     return;
   }
-  console.log(login_report_type);
+  
   // Add option for all outlets
   //passing month parameter
+  
+ 
   outlets.push({id:'-1', name:'All'});
   res.render('reports_main',
-    {title: 'Daily Reports', 'reports': reports, 'outlets':outlets, user:user.usertype,reportAugust:login_report_type });
+      { title: 'Daily Reports', 'reports': reports, 'outlets': outlets, user: user.usertype, reportAugust: user.login_report_type,istrading:istradingresult });
  });
 });
 

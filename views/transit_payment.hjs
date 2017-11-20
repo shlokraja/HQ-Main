@@ -425,11 +425,12 @@ $(".datechange").trigger("change");
     }
     //validation
      var sale_gst='2017-08-01';
+     var sale_gst_nov='2017-11-20'; // tobe replaced to 20th nov
      var from_date = $("#from").val();
         var to_date = $("#to").val();
         from_date= from_date.split("-").reverse().join("-");
         to_date= to_date.split("-").reverse().join("-");        
-        if($("#reportAugust").val()=='true')
+        if($("#reportAugust").val()=='after_august')
         {
             if (from_date< sale_gst || to_date <sale_gst)
             {
@@ -437,11 +438,20 @@ $(".datechange").trigger("change");
                 return;
             }
         }
-        else
-        {
+        else  if($("#reportAugust").val()=='prior_august')
+                {
+
             if (from_date>= sale_gst || to_date >=sale_gst)
             {
             toastr.error('Payments can be updated Only  Upto July 2017');
+                return;
+            }
+        }
+        else
+        {
+            if (from_date< sale_gst_nov || to_date < sale_gst_nov)
+            {
+            toastr.error('Payments can be updated Only  From November 20th 2017');
                 return;
             }
         }

@@ -133,7 +133,7 @@
             var opt = document.createElement('option');
             opt.value = i;
             opt.innerHTML = i;
-            if ($("#reportAugust").val()=='false')
+            if ($("#reportAugust").val()=='prior_august')
             {
                 select.appendChild(opt);
             }else if(i > 2016){
@@ -181,6 +181,7 @@
 
         }
 var gst_date='2017-07-31';
+var gst_date_nov='2017-11-01';
         for (iIndex = 0; iIndex <= month_count; iIndex++) {
             var iIndex, sMonth;
             sMonth = moment.localeData().months(moment([0, iIndex]), "");
@@ -188,9 +189,9 @@ var gst_date='2017-07-31';
             var value = iIndex + 1;
             var month_value = value < 10 ? '0' + value : value;
             //Validation to retrieve data after October 2016
-  var reportDate=year_id+'-'+month_value+'-01';
+             var reportDate=year_id+'-'+month_value+'-01';
             if (Number(year_id) == 2016 && Number(month_value) <= 12) {
-                if ($("#reportAugust").val()=='false' ) //if report is july 
+                if ($("#reportAugust").val()=='prior_august' ) //if report is july 
                     {
                     if (Number(month_value) >= 10) {
                     opt.value = month_value;
@@ -202,7 +203,7 @@ var gst_date='2017-07-31';
             }
             else if (Number(year_id) > 2016 && Number(month_value) <= 12) {
                 //var reportDate=year_id+'-'+month_value+'-01';
-                if ($("#reportAugust").val()=='false' ) //if report is july 
+                if ($("#reportAugust").val()=='prior_august' ) //if report is july 
                 {
                     if (reportDate< gst_date )
                     {
@@ -213,12 +214,27 @@ var gst_date='2017-07-31';
                 }
                 else
                 {
-                      if (reportDate> gst_date )
+                    if ($("#reportAugust").val()=='after_august')
                     {
+                      if (reportDate> gst_date  && reportDate < gst_date_nov )
+                    {
+                        
                         opt.value = month_value;
-                opt.innerHTML = sMonth;                
-                month.appendChild(opt);
-
+                        opt.innerHTML = sMonth;                
+                        month.appendChild(opt);
+                        
+                    }
+                    }
+                    else 
+                    { 
+                        if (reportDate>= gst_date_nov  )
+                    {
+                        
+                        opt.value = month_value;
+                        opt.innerHTML = sMonth;                
+                        month.appendChild(opt);
+                        
+                    }
                     }
                 }
                 
@@ -248,8 +264,9 @@ var gst_date='2017-07-31';
             $("#year_msg").text("");
         }
         var gst_date='2017-08-01';
+        var gst_date_nov='2017-11-01'; //to be changed to 20th nov 2017
         var reportDate=year_id+'-'+month_id+'-01';
-        if (reportAugust=='true')
+        if (reportAugust=='after_august')
         {
             if (reportDate< gst_date )
             {
@@ -258,11 +275,20 @@ var gst_date='2017-07-31';
             }
 
         }
-        else
+        else if (reportAugust=='prior_august')
         {
             if (reportDate>=gst_date )
             {
                 toastr.info("Report only possible upto July 2017");
+                return;
+            }
+
+        }
+        else
+        {
+            if (reportDate<gst_date_nov )
+            {
+                toastr.info("Report only possible From November 20th 2017"+reportDate+" "+gst_date_nov);
                 return;
             }
 

@@ -73,7 +73,7 @@ var prepare_and_store_bill_data = function (bill_date, outlet_id, callback) {
     AND \
     coalesce(soi.food_item_id, bi.food_item_id) = fi.id \
     AND \
-    r.id = CASE WHEN o.ispublicsector =True THEN  coalesce(o.public_restaurant_id,fi.restaurant_id) ELSE fi.restaurant_id END \
+    r.id = CASE WHEN (CASE WHEN (so.time) <= '2017-11-20' Then o.ispublicsector else o.ispublicsectorprioraugust END)=True  THEN  coalesce(o.public_restaurant_id,fi.restaurant_id) ELSE fi.restaurant_id END \
     ORDER BY bill_no asc";
 
         var query_params = [bill_date, outlet_id];
@@ -328,7 +328,8 @@ function get_bill_restaurant_details(outlet_id, bill_date, grouped, callback) {
             return;
         }
         var query = "select r.* from outlet o inner join restaurant r on o.public_restaurant_id = r.id where o.id =$1 and 'true' = ";
-        if (bill_date >= '2017-08-01') {
+        if (bill_date >= '2017-08-01' && bill_date < '2017-11-20')
+        {
             query += "ispublicsector";
         } else {
             query += "ispublicsectorprioraugust";
@@ -345,6 +346,7 @@ function get_bill_restaurant_details(outlet_id, bill_date, grouped, callback) {
                     return;
                 } else {
                     done();
+                    console.log(result.rows);
                     callback(null, result.rows, grouped);
                 }
             }
