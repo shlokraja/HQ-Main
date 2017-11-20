@@ -14,6 +14,8 @@ var randomstring = require('randomstring');
 var report_utils = require('./reports_utils');
 var accounts_reports_helpers = require('./accounts_reports_helpers');
 var dbUtils = require('../models/dbUtils');
+var config = require('../models/config');
+var conString = config.dbConn;
 
 
 router.get('/', IsAuthenticated, function(req, res, next){

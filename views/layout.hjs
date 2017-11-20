@@ -288,7 +288,7 @@
                                 <li><a id="home" href="/accounts">Operations</a></li>
                                 <li><a id="fin_ops_report" href="/fin_ops_reports">Non-Trading &nbsp;Report</a></li>
                                 <li><a id="transit_report" href="/transit_report">Trading &nbsp;Report</a></li>
-                                <li><a id="transit_payment" href="/transaction">Payment</a></li>                                
+                                <li><a id="transit_payment" href="/transaction">Trading Payment</a></li>                                
                                 <li>
                                     <a id="monthly_reconcile" href="#"> Monthly &nbsp;Reconciliation</a>
                                     <ul>
