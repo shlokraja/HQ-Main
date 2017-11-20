@@ -15,7 +15,7 @@ var report_utils = require('./reports_utils');
 var accounts_reports_helpers = require('./accounts_reports_helpers');
 var dbUtils = require('../models/dbUtils');
  
-
+ 
 router.get('/', IsAuthenticated, function(req, res, next){
  var user = req.user;
  
