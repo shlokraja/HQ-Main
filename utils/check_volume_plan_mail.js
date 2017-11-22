@@ -139,7 +139,7 @@ function check_volume_plan_mail() {
     });
 }
 
-function send_pivot_mail(date_selected, restaurant_id, subject, city_response) {
+function send_pivot_mail(date_selected, restaurant_id, subject, city_response,condition_string) {
     console.log("send_pivot_mail");
     console.log("RRRRRRRRRRRRRRRRRRRRRRRRRRR" + restaurant_id);
     pg.connect(conString, function (err, client, done) {
@@ -184,16 +184,20 @@ function send_pivot_mail(date_selected, restaurant_id, subject, city_response) {
 			    
 			    //sleep(3000);
                             transporter.sendMail(mailOptions, function (error, info) {
-                                if (error) {
-                                    transporter.sendMail(mailOptions, function (error, info) {
-                                        if (error) {
-                                            return console.log(error);
-                                        }
-                                        console.log('Message sent: ' + info.response);
-                                    });
+                                if (error) {                                    
                                     return console.log(error);
                                 }
                                 console.log('Message sent: ' + info.response);
+                                client.query('UPDATE volume_plan_automation_master set mail_date=now(),updation_mail = now() \
+                                where restaurant_id= '+ restaurant_id + ' and vp_avail_date=' + condition_string + '',
+                                      function (query_err, result) {
+                                          console.log("***************************updated:- " + JSON.stringify(result));
+                                          done();
+                                          if (query_err) {
+                                              console.log("*************************** updation error" + query_err);
+                                              return;
+                                          }
+                                      });
                             });
                         });
                     } else {
@@ -572,23 +576,15 @@ function send_mail(mail_status, condition_string, vp_avail_date, restaurant_id) 
                                     return console.log(error);
                                 }
                                 console.log('Message sent: ' + info.response);
+                                send_pivot_mail(vp_avail_date, restaurant_id, subject_to_mail, city_response,condition_string);
                             })
-                            send_pivot_mail(vp_avail_date, restaurant_id, subject_to_mail, city_response);
+                            
                         });
                     })
 
 
                     //Then set all rows in menu_plans as sent = t
-                    client.query('UPDATE volume_plan_automation_master set mail_date=now(),updation_mail = now() \
-                  where restaurant_id= '+ restaurant_id + ' and vp_avail_date=' + condition_string + '',
-                        function (query_err, result) {
-                            console.log("***************************updated:- " + JSON.stringify(result));
-                            done();
-                            if (query_err) {
-                                console.log("*************************** updation error" + query_err);
-                                return;
-                            }
-                        });
+                    
                 }
             });
     });
