@@ -288,6 +288,7 @@
                                 <li><a id="transit_payment" href="/transit_payment">Transit&nbsp;Payment</a></li>
                                 <li><a id="chargeback" href="/chargeback_report">Charge&nbsp;Back</a></li>
                                 <li><a id="invoice" href="/invoice">Invoice</a></li>
+				<li><a id="tataReports" href="/daily_reports">Daily Reports</a></li>  
                                 <li><a id="logout" href="/login">Logout</a></li>
                             </ul>
                             <!-- Adding From August Menus-->

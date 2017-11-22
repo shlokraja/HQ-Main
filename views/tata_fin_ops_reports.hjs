@@ -9,6 +9,7 @@
     <input type="hidden" value="{{reportAugust}}" id="reportAugust" />
     <input type="hidden" value="{{restaurants}}" id="restaurant_id" />
     <input type="hidden" value="{{istrading}}" id="istrading" />
+    
     <div class="row">
         <div class="large-12 columns" id="reports_div">
             <div class="row">
@@ -242,7 +243,10 @@ $("#restaurant_id option[value='0']").remove();
         });
     }
 
-
+if ($("#usertype").val()!='HQ')
+        {
+            $("#report_output_sales th:contains('MobileNo')").hide();
+        }
 
 $("#get_reports").click(function() {
 	var outlet_id = $("#outlet_id").val();
@@ -295,6 +299,42 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
     $("#err_daterange").text("");
 
     }
+    //gst date validation
+    var gst_date='2017-07-01';
+    var sale_gst='2017-08-01';
+    var sale_gst_nov='2017-11-20'; // to be changed to  2017-11-20
+     if($("#reportAugust").val()=='after_august')
+    {
+     
+        if (from_date< sale_gst || to_date <sale_gst)
+        {
+           toastr.error('Report Only Available from August 2017 to Novemeber 19th 2017');
+            return;
+        }
+          if (from_date>= sale_gst_nov || to_date >= sale_gst_nov)
+        {
+           toastr.error('Report Only Available from August 2017 to Novemeber 19th 2017');
+            return;
+        }
+    }
+    else if ( $("#reportAugust").val()=='prior_august')
+    {
+        if (from_date> sale_gst || to_date >sale_gst)
+        {
+            toastr.error('Report Only Available Upto  July 2017');
+            return;
+        }
+    }
+    else  // novemeber validation
+    {
+          if (from_date < sale_gst_nov || to_date <sale_gst_nov)
+        {
+           toastr.error('Report Only Available from November 20th 2017');
+            return;
+        }
+        
+    }
+    
     var outlet_id = $("#outlet_id").val();
     var restaurant_id = $("#restaurant_id").val();
     var reportUrl= location.origin + '/daily_reports/get_purchase_details';
@@ -349,6 +389,7 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
         $("#report_div_purchase").addClass("hide");        
         $("#report_div_sales").removeClass("hide");
         $("#report_div_sales").addClass("show");
+       
         
         if(result[item].salesid!=""){
           $('#report_output_sales tbody').append('<tr class="GridviewScrollItem"><td style="line-height: 30px;">'+result[item].salesid+ 
@@ -359,7 +400,7 @@ if((document.getElementById("from_date").value == "") && (document.getElementByI
           '<td style="text-align:right" >'+result[item].gst+'</td> <td style="text-align:right" >'+result[item].unitprice+'</td>'+
           '<td style="text-align:right" >'+result[item].total+'</td><td style="text-align:left" >'+result[item].restaurant+ 
           ' </td><td style="text-align:left" >'+result[item].outlet+'</td><td style="text-align:left" >'+result[item].paymenttype+ '</td>'+
-          ' <td>'+result[item].mobileno +' </td>'+ ' <td>'+result[item].billslot +' </td>'+ ' <td>'+result[item].billhour +' </td>'+
+          (($("#usertype").val()=='HQ')? ' <td>':'<td style="display:none">')  + result[item].mobileno +' </td>'+ ' <td>'+result[item].billslot +' </td>'+ ' <td>'+result[item].billhour +' </td>'+
           ' </tr>');
            }   
            else  
