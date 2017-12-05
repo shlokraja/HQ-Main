@@ -13,6 +13,23 @@ var async = require('async');
 
 
 // Prepare cash settlement for an outlet.
+
+router.get('/generateBills/:outlet_id/:date',function(req,res,next)
+{
+  console.log("Generating bills Generating bills Generating bills");
+  var outlet_id = req.params.outlet_id;
+  var date = req.params.date;
+  console.log("Generating bills Generating bills Generating bills"+outlet_id+" date:"+date);
+  bill_generator_utils.prepare_and_store_bill_data(date, outlet_id, function(result,err)
+{
+  if (err)
+  {
+    console.log("error:"+ JSON.stringify( err));
+  }
+  res.send("Sucess");
+});
+}
+);
 router.get('/:outlet_id/:date/', function(req, res, next){
   debugger;
   var outlet_id = req.params.outlet_id;

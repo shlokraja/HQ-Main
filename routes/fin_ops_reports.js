@@ -195,7 +195,7 @@ router.post('/get_restaurant_details', function (req, res) {
                 query += "restaurant_details_summary_gst";
             }
         }
-        var transit = req.user.login_report_type != 'prior_august';
+        var transit = req.user.login_report_type != 'after_august';
         if (restaurant_id == 0 && (report_type == "restaurant_payment" || report_type == "restaurant_payment_gst")) {
             query += "('" + from_dt + "','" + to_dt + "'," + transit + ")";
             isSummary = true;

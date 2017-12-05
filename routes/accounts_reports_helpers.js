@@ -1225,7 +1225,7 @@ var FV_REPORTS_November = {
         name: "Bill Bundles",
         generator: generate_bill_bundle_fv_link
     },
-    daily_receipts_gst: {
+    daily_receipts_gst_Nov: {
         name: "Daily Receipts GST",
         generator: compute_daily_receipt_for_single_entity_gst
     },
