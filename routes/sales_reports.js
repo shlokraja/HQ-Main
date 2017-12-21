@@ -35,6 +35,7 @@ function IsAuthenticated(req, res, next)
 }
 router.get('/', IsAuthenticated, function (req, res, next)
 {
+    console.log("Sales Analytics report");
     var istrading = false;
     istrading = (req.user.login_report_type == 'after_august') ? true : false;
     console.log("tata report");
@@ -131,7 +132,7 @@ router.get('/', IsAuthenticated, function (req, res, next)
                 user: user,
                 reportAugust: req.user.login_report_type,
             };
-            res.render('tata_fin_ops_reports', context);
+            res.render('sales_report', context);
         });
 
 });
@@ -154,44 +155,41 @@ router.post('/get_sales_details', function (req, res)
             console.log('**************get sales order details Error ' + JSON.stringify(err));
             return;
         }
-        var query = " select s.id as SalesId,(select bill_no from bill_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1) as BillNo, to_date(substring(barcode,13,8),'ddmmyyyy') +s.time::time  as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-        s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
-        f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-        inner join sales_order_items b on b.sales_order_id=s.id\
-        inner join food_item f on f.id=b.food_item_id and f.location='dispenser'\
-        inner join restaurant r on r.id=f.restaurant_id\
-        inner join outlet o on o.id=f.outlet_id\
-        where substring(barcode,13,2)<>'xx' and  to_date(substring(barcode,13,8),'ddmmyyyy')  between $1 and  $2";
-        if (restaurant_id != '-1')
-        {
-            query += " and r.id=" + restaurant_id;
-        }
-        if (outlet_id != '-1')
-        {
-            query += " and s.outlet_id=" + outlet_id;
-        }
-        //query += "  order by s.time,billno ";
-
-  var query2 = " select s.id as SalesId,bill_no as BillNo,  case when s.time::time  between \'00:00\' and \'03:00\' then s.time + interval \'-1 day\' else  s.time end as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-            s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
-            f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-            inner join bill_items b on b.sales_order_id=s.id\
-            inner join food_item f on f.id=b.food_item_id and f.location='outside'\
-            inner join restaurant r on r.id=f.restaurant_id\
-            inner join outlet o on o.id=f.outlet_id\
-            where s.time between $1::date + interval \'03:00\' and  $2::date + interval \'1 day\' +\'03:00\'";
-        if (restaurant_id != '-1')
-        {
-            query2 += " and r.id=" + restaurant_id;
-        }
-        if (outlet_id != '-1')
-        {
-            query2 += " and s.outlet_id=" + outlet_id;
-        }
-      //  query2 += "  order by s.time,billno ";
-query =query+ " union all " +query2;
+        var query="with salesdetails as (\
+            select session,foodname,foodid,sold ,sum(por.quantity) as Taken  ,(sold::numeric/sum(por.quantity)::numeric *100 )::integer as Conversion,bill_time,SalesTimeDifference,\
+            case when (sold::numeric/sum(por.quantity)::numeric *100 )::integer =100 then 'Best ' else case when  (sold::numeric/sum(por.quantity)::numeric *100 )::integer >75 then 'Mid' else 'Low' end end as ConversionTag \
+             from \
+            ( select session,foodid,foodname,poid,sum(saldetails.quantity) as Sold,max(SalesDate::time) bill_time,avg(SalesTimeDifference) SalesTimeDifference from \
+                        (select *,salesdate - lag(salesdate) over ( partition by session,foodid order by session,foodid,salesdate) as SalesTimeDifference from( \
+                         select \
+                        (select  substring(barcode,27,8) from sales_order_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1)::integer as poid,\
+                        (select m.name from purchase_order p \
+                        inner join menu_bands m on m.outlet_id=p.outlet_id and p.scheduled_delivery_time::time between start_time and end_time \
+                        where p.outlet_id=o.id and p.id= \
+                        (select  substring(barcode,27,8) from sales_order_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1)::integer) as session,  \
+                        s.id as SalesId,bill_no as BillNo, s.time as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType,             s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,\
+                        to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/             f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s           \
+                        inner join bill_items b on b.sales_order_id=s.id            \
+                        inner join food_item f on f.id=b.food_item_id            \
+                        inner join restaurant r on r.id=f.restaurant_id           \
+                        inner join outlet o on o.id=f.outlet_id            \
+                        where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\' and s.outlet_id=$3  order by s.time,b.bill_no\
+                        ) as saldetails ) as saldetails		group by session,poid,foodid,foodname \
+            ) as saleGrouped \
+            inner join purchase_order_reconcile por on por.po_id=saleGrouped.poid and por.item_id=saleGrouped.foodid \
+            group by session,foodid,foodname,sold,bill_time,SalesTimeDifference) \
+            select *, case when  (sold::numeric/maxSold::numeric*100)::numeric between 1 and 33 then 'Low' else case when (sold::numeric/maxSold::numeric*100)::numeric between 33 and 67 \
+             then 'Medium' else 'High' end end as HighestSalesTag, \
+            case when fastest_sale<= totalcount/3 then 'Fast' else case when  fastest_sale<= totalcount/3*2 then 'Medium' else 'Slow' end end as Fastest_Sale_Tag  ,\
+            case when Fastest_moving<= totalcount/3 then 'Fast' else case when  Fastest_moving<= totalcount/3*2 then 'Medium' else 'Slow' end end as Fast_Moving_Tag  \
+              from (\
+            select *, row_number() over (partition by ss1.session order by SalesTimeDifference ) as Fastest_moving,row_number() over (partition by ss1.session order by bill_time) as Fastest_Sale from \
+            ( \
+            select *,Row_number() over ( partition by session order by session desc,sold desc) as HighestSales from salesdetails) ss1) ss \
+            inner join (select session,max(sold) as maxSold,count(*) as totalcount from salesdetails group by session) gs on gs.session=ss.session"
+        
         console.log("**************sales  QUERY******" + query);
-        client.query(query, [from_dt , to_dt],
+        client.query(query, [from_dt + ' 02:30', to_dt,outlet_id],
             function (query_err, result)
             {
                 console.log("purchase query executed")
@@ -317,30 +315,35 @@ function generate_sales_rows(result)
     {
         //   console.log(result_data[value]);
         var item = {};
-        item["salesid"] = result_data[value].salesid;
-        item["billno"] = result_data[value].billno;
-        item["salesdate"] = moment(result_data[value].salesdate).format('DD-MM-YYYY');
-        item["billtime"] = moment(result_data[value].salesdate).format('HH:mm');
+        console.log("result_data[value].bill_time");
+console.log(result_data[value].bill_time);
+console.log(result_data[value].salestimedifference);
+        item["session"] = result_data[value].session;
         item["foodid"] = result_data[value].foodid;
         item["foodname"] = result_data[value].foodname;
-        item["quantity"] = result_data[value].quantity;
-        item["unitprice"] = result_data[value].unitprice.toFixed(2);
-        item["total"] = (result_data[value].unitprice * result_data[value].quantity).toFixed(2);
-        item["restaurant"] = result_data[value].restaurant;
-        item["outlet"] = result_data[value].outlet;
-        item["paymenttype"] = result_data[value].paymenttype;
-        // new fields  added 
-        item["mobileno"] = result_data[value].mobile_num;
-        item["billslot"] = result_data[value].bill_slot;
-        item["billhour"] = result_data[value].bill_hour;
-        // item["takeaway"] = result_data[value].take_away;
-
-        item["sellingprice"] = result_data[value].sellingprice.toFixed(2);
-        item["gst"] = result_data[value].gst.toFixed(2);
-
+        item["sold"] = result_data[value].sold;
+        item["taken"] = result_data[value].taken;
+        item["conversion"] = result_data[value].conversion;
+        item["bill_time"] = result_data[value].bill_time;
+        item["salestimedifference"] = moment( result_data[value].salestimedifference).format("HH:mm:ss");
+        if (item["salestimedifference"] =="Invalid date") 
+        {
+            item["salestimedifference"]='00:00:00';
+        }
+        item["conversiontag"] = result_data[value].conversiontag;
+       item["highestsales"] = result_data[value].highestsales ;
+        item["fastest_moving"] = result_data[value].fastest_moving ;
+        item["fastest_sale"] = result_data[value].fastest_sale ;
+        /*item["session"] = result_data[value].session ;
+        item["maxsold"] = result_data[value].maxsold ;
+        item["totalcount"] = result_data[value].totalcount ;*/
+        item["highestsalestag"] = result_data[value].highestsalestag ;
+        item["fastest_sale_tag"] = result_data[value].fastest_sale_tag ;
+        item["fast_moving_tag"] = result_data[value].fast_moving_tag ;
+        
         rows.push(item);
-        //    console.log("item:");
-        //  console.log(item);
+        console.log("item:");
+        console.log(item);
     }
     var aggregates = null;
     if (!_.isEmpty(rows))
@@ -366,7 +369,7 @@ function generate_sales_rows(result)
         item["gst"] = aggregateByColumn(rows, 'gst').toFixed(2);
 
 
-        rows.push(item);
+        //rows.push(item);
         //console.log("***result_rows aggregates****" + JSON.stringify(rows));
     }
 
@@ -615,46 +618,50 @@ router.get('/downloadcsv', function (req, res)
     var csvOutput = true;
     var outlet_id = req.query.outlet_id;
 
-    var reportName = report_type + '-from-' + req.query.from_date + '.csv';
+    var reportName = "Sales_Analytics" + '-from-' + req.query.from_date + '.csv';
     //console.log("Generating " + report_type + ", from: " + from_date  + ", to: " + to_date + ", restaurant_id: " + restaurant_id, "report_type:" + report_type);
 
-    var query = " select s.id as SalesId,(select bill_no from bill_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1) as BillNo, to_date(substring(barcode,13,8),'ddmmyyyy') +s.time::time  as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-    s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
-    f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-    inner join sales_order_items b on b.sales_order_id=s.id\
-    inner join food_item f on f.id=b.food_item_id and f.location='dispenser'\
-    inner join restaurant r on r.id=f.restaurant_id\
-    inner join outlet o on o.id=f.outlet_id\
-    where substring(barcode,13,2)<>'xx' and  to_date(substring(barcode,13,8),'ddmmyyyy')  between $1 and  $2";
-if (restaurant_id != '-1')
-{
-    query += " and r.id=" + restaurant_id;
-}
-if (outlet_id != '-1')
-{
-    query += " and s.outlet_id=" + outlet_id;
-}
-//query += "  order by s.time,billno ";
+    var query="with salesdetails as (\
+        select session,foodname,foodid,sold ,sum(por.quantity) as Taken  ,(sold::numeric/sum(por.quantity)::numeric *100 )::integer as Conversion,bill_time,SalesTimeDifference,\
+        case when (sold::numeric/sum(por.quantity)::numeric *100 )::integer =100 then 'Best ' else case when  (sold::numeric/sum(por.quantity)::numeric *100 )::integer >75 then 'Mid' else 'Low' end end as ConversionTag \
+         from \
+        ( select session,foodid,foodname,poid,sum(saldetails.quantity) as Sold,max(SalesDate::time) bill_time,avg(SalesTimeDifference) SalesTimeDifference from \
+                    (select *,salesdate - lag(salesdate) over ( partition by session,foodid order by session,foodid,salesdate) as SalesTimeDifference from( \
+                     select \
+                    (select  substring(barcode,27,8) from sales_order_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1)::integer as poid,\
+                    (select m.name from purchase_order p \
+                    inner join menu_bands m on m.outlet_id=p.outlet_id and p.scheduled_delivery_time::time between start_time and end_time \
+                    where p.outlet_id=o.id and p.id= \
+                    (select  substring(barcode,27,8) from sales_order_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1)::integer) as session,  \
+                    s.id as SalesId,bill_no as BillNo, s.time as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType,             s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,\
+                    to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/             f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s           \
+                    inner join bill_items b on b.sales_order_id=s.id            \
+                    inner join food_item f on f.id=b.food_item_id            \
+                    inner join restaurant r on r.id=f.restaurant_id           \
+                    inner join outlet o on o.id=f.outlet_id            \
+                    where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\' and s.outlet_id=$3  order by s.time,b.bill_no\
+                    ) as saldetails ) as saldetails		group by session,poid,foodid,foodname \
+        ) as saleGrouped";
+        if (new Date(from_date+ ' 23:59') > new Date()  )
+        {
+            query+=" inner join purchase_order_master_list por on por.purchase_order_id=saleGrouped.poid and por.food_item_id=saleGrouped.foodid ";
 
-var query2 = " select s.id as SalesId,bill_no as BillNo,  case when s.time::time  between \'00:00\' and \'03:00\' then s.time + interval \'-1 day\' else  s.time end as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-    s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour, /*f.take_away,*/ \
-    f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-    inner join bill_items b on b.sales_order_id=s.id\
-    inner join food_item f on f.id=b.food_item_id and f.location='outside'\
-    inner join restaurant r on r.id=f.restaurant_id\
-    inner join outlet o on o.id=f.outlet_id\
-    where s.time between $1::date + interval \'03:00\' and  $2::date + interval \'1 day\' +\'03:00\'";
-if (restaurant_id != '-1')
-{
-    query2 += " and r.id=" + restaurant_id;
-}
-if (outlet_id != '-1')
-{
-    query2 += " and s.outlet_id=" + outlet_id;
-}
-//  query2 += "  order by s.time,billno ";
-query =query+ " union all " +query2;
-console.log(query);
+        }
+            else
+            {
+        query+=" inner join purchase_order_reconcile por on por.po_id=saleGrouped.poid and por.item_id=saleGrouped.foodid ";
+            }
+ query+="        group by session,foodid,foodname,sold,bill_time,SalesTimeDifference) \
+        select *, case when  (sold::numeric/maxSold::numeric*100)::numeric between 1 and 33 then 'Low' else case when (sold::numeric/maxSold::numeric*100)::numeric between 33 and 67 \
+         then 'Medium' else 'High' end end as HighestSalesTag, \
+        case when fastest_sale<= totalcount/3 then 'Fast' else case when  fastest_sale<= totalcount/3*2 then 'Medium' else 'Slow' end end as Fastest_Sale_Tag  ,\
+        case when Fastest_moving<= totalcount/3 then 'Fast' else case when  Fastest_moving<= totalcount/3*2 then 'Medium' else 'Slow' end end as Fast_Moving_Tag  \
+          from (\
+        select *, row_number() over (partition by ss1.session order by SalesTimeDifference ) as Fastest_moving,row_number() over (partition by ss1.session order by bill_time) as Fastest_Sale from \
+        ( \
+        select *,Row_number() over ( partition by session order by session desc,sold desc) as HighestSales from salesdetails) ss1) ss \
+        inner join (select session,max(sold) as maxSold,count(*) as totalcount from salesdetails group by session) gs on gs.session=ss.session";
+   
     pg.connect(conString, function (err, client, done)
     {
         if (err)
@@ -662,7 +669,7 @@ console.log(query);
             console.log('**************get_restaurant_details Error1 ' + JSON.stringify(err));
             return;
         }
-        client.query(query, [from_date , to_date],
+        client.query(query, [from_date + ' 02:30', to_date,outlet_id],
             function (query_err, result)
             {
                 if (query_err)
@@ -675,18 +682,9 @@ console.log(query);
                     done();
                     var rows = [];
                     var resut_data = result.rows;
-                    if (report_type == "purchase")
-                    {
-                        rows = generate_purchase_rows(resut_data);
-                    }
-                    else if (report_type == "sales")
-                    {
-                        rows = generate_sales_rows(resut_data);
-                    }
-                    else if (report_type == "closing")
-                    {
-                        rows = generate_closingstock_rows(resut_data);
-                    }
+                    
+                    rows = generate_sales_rows(resut_data);
+                   
 
                     //console.log('************** select convert data Scuccess rows' + JSON.stringify(rows));
                     csvOut(reportName, rows, report_type, res);
@@ -698,28 +696,12 @@ console.log(query);
 });
 function csvOut(reportName, reportJson, report_type, res)
 {
-    var fields;
-    var fieldNames;
-    if (report_type == "purchase")
-    {
-        fields = ["Id", "PurchaseDate", "RestaurantName", "FoodName", "Quantity"];
-        fieldNames = ["PO ID", "PO Date", "Restaurant Name", "Food Name", "Quantity"];
-    }
-    else if (report_type == "sales")
-    {
-        fields = ["salesid", "billno", "salesdate", "billtime", "foodid", "foodname", "quantity", "sellingprice", "gst", "unitprice", "total", "restaurant", "outlet", "paymenttype", "mobileno", "billslot", "billhour"];
-        fieldNames = ["Sales Order Id", "Bill No", "Bill Date", "Bill Time", "Item Id", "Item Name", "Quantity", "Price without GST", "GST Amount", "MRP", "Bill Amount", "Restaurant", "Outlet", "Payment Type", "Mobile Number", "Bill Slot", "Bill Hour"];
-    }
-    else if (report_type == "closing")
-    {
-        fields = ["purchase_date", "purchase_id", "sale_date", "fid", "food_name", "purchase_quantity", "sales_quantity", "closing_balance"];
-        fieldNames = ["Purchase Date", "PO ID", "Bill Date", "Item ID", "Item Name", "Opening Stock", "Bill Quantity", "Closing Stock"];
-    }
-
-
-
+    
+    
+    var fields = ["session",    "foodname","foodid","sold","taken","conversion",   "bill_time",     "salestimedifference","highestsales","fastest_sale", "fastest_moving", "conversiontag","highestsalestag","fastest_sale_tag","fast_moving_tag"];
+    var fieldNames = ["Session","Name",    "Id",    "Sold","Taken","Conversion %",  "Last bill time","Time Diff",      "Rank Highest","Rank Fastest", "Rank FastMoving","Conversion",   "Highest",        "Fastest",         "Fast_Moving"];
     var data = reportJson;
-    data.push(reportJson.aggregates);
+   // data.push(reportJson.aggregates);
     json2csv({ data: data, fields: fields, fieldNames: fieldNames }, function (err, csvData)
     {
         if (err)
