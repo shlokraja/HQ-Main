@@ -39,7 +39,7 @@ function checkForEOD() {
       }
       done();
       result.rows.map(function(item) {
-        var END_OF_DAY_CALC_URL = 'http://localhost:' + process.env.PORT + '/outlet/eod_calc/{}'.format(item.id);
+        var END_OF_DAY_CALC_URL = 'https://' + process.env.HQ_DOMAIN + ':' + process.env.PORT + '/outlet/eod_calc/{}'.format(item.id);
         debug("Triggering EOD for- ", item.name);
         request({
         url: END_OF_DAY_CALC_URL,

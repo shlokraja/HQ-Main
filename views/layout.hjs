@@ -2,13 +2,13 @@
 <head>
     <link href="/css/jquery-confirm.css" rel="stylesheet" />
     <script src="/js/vendor/modernizr.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <!--Adding Toastr for showing notification and errors
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>-->
+    <script src="//code.jquery.com/jquery-1.9.1.min.js"></script>-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/js/toastr.js"></script>
     <meta charset="utf-8">
@@ -351,7 +351,7 @@
     <script src="/js/vendor/jquery.blockUI.js"></script>
     <script src="/js/vendor/download.js"></script>
     <script src="/js/vendor/moment.min.js"></script>
-    <script src="http://underscorejs.org/underscore-min.js"></script>
+    <script src="/js/vendor/underscore-min.js"></script>
     <script src="https://apis.google.com/js/client.js?onload=checkAuth"></script>
     <link rel="stylesheet" href="/css/gridviewScroll.css" />
     <link rel="stylesheet" type="text/css" href="/css/jquery.datetimepicker.css"/ >

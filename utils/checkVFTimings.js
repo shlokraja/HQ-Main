@@ -46,7 +46,7 @@ function checkVFTimings() {
 
         // send the mail giving the link
         var content = 'Please prepare Menu Plans for {0} - {1}'.format(item.name,
-             'http://' + process.env.LOCAL_IP + ":" + process.env.PORT + '/menu_planning/' + item.outlet_id);
+             'https://' + process.env.HQ_DOMAIN + ':' + process.env.PORT + '/menu_planning/' + item.outlet_id);
         var mailOptions = {
           from: 'no-reply@atchayam.in', // sender address
           to: process.env.SEND_VFMP_ADDRESS, // list of receivers

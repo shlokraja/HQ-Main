@@ -107,7 +107,7 @@ router.post('/DirectBill', function (req, res, next) {
         var total_quantity = 0;
         var barcode_dict = {};
         var total_price = 0;
-        var userid = queueItem.userid;
+        var userid = req.body.userid;
         for (var i = 0; i < order_barcodes.length; i++) {
             if (order_barcodes[i] in barcode_dict) {
                 barcode_dict[order_barcodes[i]]++;
@@ -1927,7 +1927,7 @@ router.post('/eod_calc/:outlet_id', function (req, res, next) {
                         console.log("***************************************date_obj.rows.length" + date_obj.rows.length);
                         var cash_settlement_date = date_obj.rows.length > 0 ? date_obj.rows[0].action_time : new Date(moment().format('YYYY-MM-DD HH:mm:ss'));
                         console.log("*************************************** date object" + JSON.stringify(cash_settlement_date));
-                        var requestString = 'http://127.0.0.1:' + process.env.PORT + '/cash_settlement/{}/{}/'.format(outlet_id, cash_settlement_date.yyyymmdd());
+                        var requestString = 'https://' + process.env.HQ_DOMAIN + ':' + process.env.PORT + '/cash_settlement/{}/{}/'.format(outlet_id, cash_settlement_date.yyyymmdd());
                         console.log("*************************************** requestString" + requestString);
                         request(requestString, {
                             timeout: 600000
@@ -1982,7 +1982,7 @@ router.post('/eod_calc/:outlet_id', function (req, res, next) {
 
                                     if (outlet_id == maxOutletId) {
                                         debug("Doing FTR call for city ", targetCity);
-                                        var requestString = 'http://127.0.0.1:' + process.env.PORT +
+                                        var requestString = 'https://' + process.env.HQ_DOMAIN +':' + process.env.PORT +
                                             '/ftr/{}/{}/'.format(targetCity, date_obj.yyyymmdd());
                                         request(requestString, {
                                             timeout: 600000

@@ -49,7 +49,7 @@ var conString = "postgres://atchayam:foodbox123@localhost/foodbox";
 var firebase_connection = "https://atp-chat.firebaseio.com";
 var firebase_connection_outlet = "https://torrid-fire-8553.firebaseio.com";
 var imagepath = process.env.IMAGES_FOLDER;
-server_ip_address = "115.114.95.35";
+server_ip_address = "frshly.co";
 server_port = '9099';
 var router = express();
 var hq_port = '8008';
@@ -166,7 +166,7 @@ router.listen(9091, function () {
 //});
 
 format.extend(String.prototype);
-var hq_url = 'http://' + server_ip_address + ':' + hq_port;
+var hq_url = 'https://' + server_ip_address + ':' + hq_port;
 
 var client = new pg.Client(conString);
 client.connect();

@@ -48,7 +48,7 @@ function checkPoTimings() {
         content += "<tr><td>" + row.rest_name +
                   "</td><td>" + row.outlet_id +
                   "</td><td>" + row.target_ts + "</td><td>";
-        content += 'http://' + process.env.LOCAL_IP + ":" + process.env.PORT + "/po_editor?outlet_id=" +
+        content += 'https://' + process.env.HQ_DOMAIN + ":" + process.env.PORT + "/po_editor?outlet_id=" +
             row.outlet_id + "&fv_id=" + row.fv_id + "&menu_band_id="
             + row.menu_band_id + "&target_ts=" + target_ts + "</td></tr>";
         hasData = true;
