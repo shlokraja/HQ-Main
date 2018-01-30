@@ -362,6 +362,7 @@ $('#loader').hide()
         }
 
         $.post( "/volume_planning/save_volume_plan_details",{"selected_date":date_selected,"city_selected":city_selected}, function(data) {
+            console.log(data);
             console.log("success");
 $('#loader').hide()
             $.alert({

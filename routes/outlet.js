@@ -107,7 +107,7 @@ router.post('/DirectBill', function (req, res, next) {
         var total_quantity = 0;
         var barcode_dict = {};
         var total_price = 0;
-
+        var userid = queueItem.userid;
         for (var i = 0; i < order_barcodes.length; i++) {
             if (order_barcodes[i] in barcode_dict) {
                 barcode_dict[order_barcodes[i]]++;
@@ -130,10 +130,16 @@ router.post('/DirectBill', function (req, res, next) {
                 total_price += sides[item_id].price;
             }
         }
-        config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,is_mobile_order)\
-      VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8) \
+
+        if (userid == undefined || userid == null || userid == 0)
+        {
+            userid = 1;
+        }
+
+        config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,is_mobile_order,userid)\
+      VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8,$9) \
       RETURNING id',
-            [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id, is_mobile_order],
+            [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id, is_mobile_order,userid],
             function (query_err, result) {
                 if (query_err) {
                     console.error(query_err);
@@ -607,7 +613,7 @@ var queue = new Queue(queueRef, function (data, progress, resolve, reject) {
     if (queueItem.name == "ORDER_DETAILS") {
         // process the order details
         debug("ORDER_DETAILS");
-        console.log(order_details);
+        console.log("queueItem" + queueItem);
         var order_details = queueItem.order_details;
         var sides = queueItem.sides;
         var counter_code = queueItem.counter_code;
@@ -627,6 +633,7 @@ var queue = new Queue(queueRef, function (data, progress, resolve, reject) {
         var total_quantity = 0;
         var barcode_dict = {};
         var total_price = 0;
+        var userid = queueItem.userid;
 
         for (var i = 0; i < order_barcodes.length; i++) {
             if (order_barcodes[i] in barcode_dict) {
@@ -651,10 +658,17 @@ var queue = new Queue(queueRef, function (data, progress, resolve, reject) {
             }
         }
 
-        config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,is_mobile_order)\
-      VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8) \
+        //console.log(req.body);
+        console.log("Place Order - User ID : " + userid);
+        if (userid == undefined || userid == null || userid == 0)
+        {
+            userid = 1;
+        }
+
+        config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,is_mobile_order,userid)\
+      VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8,$9) \
       RETURNING id',
-            [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id, is_mobile_order],
+            [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id, is_mobile_order, userid],
             function (query_err, result) {
                 if (query_err) {
                     console.error(query_err);
@@ -855,6 +869,7 @@ router.post('/place_order', function (req, res, next) {
     var credit_card_no = req.body.credit_card_no;
     var cardholder_name = req.body.cardholder_name;
     var unique_random_id = req.body.unique_random_id != undefined ? req.body.unique_random_id : '';
+    var userid = req.body.userid;
     var barcode_dict = {};
 
     if (order_barcodes != null || order_barcodes != undefined) {
@@ -880,10 +895,19 @@ router.post('/place_order', function (req, res, next) {
     }
 
 
-    config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key)\
-    VALUES($1, now(), $2, $3, $4, $5, $6,$7) \
+    console.log(req.body);
+    console.log("Place Order - User ID : " + userid);
+
+    if (userid == undefined || userid == null || userid == 0)
+    {
+        userid = 1;
+    }
+
+
+    config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,userid)\
+    VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8) \
     RETURNING id',
-        [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id],
+        [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id,userid],
         function (query_err, result) {
             if (query_err) {
 
@@ -3216,7 +3240,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
     console.log("outlet.js :: save_reconcile_data: " + JSON.stringify(req.body));
 
     var request_data = req.body.reconcile_items;
-
+    var userid = req.body.userid;
+    console.log("User ID : - reconcile: " + userid);
     pg.connect(conString, function (err, client, done) {
         if (err) {
             handleError(client, done, res, 'error fetching client from pool' + err);
@@ -3243,8 +3268,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
             console.log("outlet.js :: po_id: " + po_id);
             if (scanned_qty > 0) {
                 // Save scanned data in database
-                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by)VALUES($1,$2,$3,\'scanned\',now(),$4);',
-                    [po_id, food_item_id, scanned_qty, processed_by],
+                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,userid)VALUES($1,$2,$3,\'scanned\',now(),$4,$5);',
+                    [po_id, food_item_id, scanned_qty, processed_by, userid],
                     function (query_err, result) {
                         if (query_err) {
                             handleError(client, done, res, 'error running query Save scanned data::' + query_err);
@@ -3257,8 +3282,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
 
             if (unscanned_qty > 0) {
                 // Save unscanned data in database
-                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by)VALUES($1,$2,$3,\'unscanned\',now(),$4);',
-                    [po_id, food_item_id, unscanned_qty, processed_by],
+                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,userid)VALUES($1,$2,$3,\'unscanned\',now(),$4,$5);',
+                    [po_id, food_item_id, unscanned_qty, processed_by, userid],
                     function (query_err, result) {
                         if (query_err) {
                             handleError(client, done, res, 'error running query :: Save unscanned data :' + query_err);
@@ -3271,8 +3296,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
 
             if (damaged_qty > 0) {
                 // Save damaged data in database
-                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by)VALUES($1,$2,$3,\'damaged\',now(),$4);',
-                    [po_id, food_item_id, damaged_qty, processed_by],
+                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,userid)VALUES($1,$2,$3,\'damaged\',now(),$4,$5);',
+                    [po_id, food_item_id, damaged_qty, processed_by, userid],
                     function (query_err, result) {
                         if (query_err) {
                             handleError(client, done, res, 'error running query :: Save damaged data :' + query_err);
@@ -3285,8 +3310,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
 
             if (expiry_qty > 0) {
                 // Save unscanned data in database
-                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by)VALUES($1,$2,$3,\'expiry\',now(),$4);',
-                    [po_id, food_item_id, expiry_qty, processed_by],
+                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,userid)VALUES($1,$2,$3,\'expiry\',now(),$4,$5);',
+                    [po_id, food_item_id, expiry_qty, processed_by, userid],
                     function (query_err, result) {
                         if (query_err) {
                             handleError(client, done, res, 'error running query :: Save unscanned data :' + query_err);
@@ -3299,8 +3324,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
 
             if (undelivered_qty > 0) {
                 // Save undelivered_qty data in database
-                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by)VALUES($1,$2,$3,\'undelivered\',now(),$4);',
-                    [po_id, food_item_id, undelivered_qty, processed_by],
+                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,userid)VALUES($1,$2,$3,\'undelivered\',now(),$4,$5);',
+                    [po_id, food_item_id, undelivered_qty, processed_by, userid],
                     function (query_err, result) {
                         if (query_err) {
                             handleError(client, done, res, 'error running query :: Save undelivered_qty data :' + query_err);
@@ -3313,8 +3338,8 @@ router.post('/save_reconcile_data', function (req, res, next) {
 
             if (rest_fault_qty > 0) {
                 // Save unscanned data in database
-                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,remarks)VALUES($1,$2,$3,\'restaurantfault\',now(),$4,$5);',
-                    [po_id, food_item_id, rest_fault_qty, processed_by, remarks],
+                client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,processed_by,remarks,userid)VALUES($1,$2,$3,\'restaurantfault\',now(),$4,$5,$6);',
+                    [po_id, food_item_id, rest_fault_qty, processed_by, remarks, userid],
                     function (query_err, result) {
                         if (query_err) {
                             handleError(client, done, res, 'error running query :: Save unscanned data :' + query_err);
@@ -3324,32 +3349,6 @@ router.post('/save_reconcile_data', function (req, res, next) {
                         done();
                     });
             }
-
-            //if (rest_scan_fault_ctrl > 0) {
-            //    // Save unscanned data in database
-            //    client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date,remarks)VALUES($1,$2,$3,\'restaurantscanfault\',now(),$4);',
-            //[po_id, food_item_id, rest_scan_fault_ctrl, remarks],
-            //function (query_err, result) {
-            //    if (query_err) {
-            //        handleError(client, done, res, 'error running query :: Save rest_scan_fault data :' + query_err);
-            //        return;
-            //    }
-            //    done();
-            //});
-            //}
-
-            //if (damaged_scan_qty > 0) {
-            //    // Save unscanned data in database
-            //    client.query('INSERT INTO purchase_order_reconcile(po_id, item_id, quantity, status,reconcile_date)VALUES($1,$2,$3,\'damaged_scan_qty\',now());',
-            //[po_id, food_item_id, damaged_scan_qty],
-            //function (query_err, result) {
-            //    if (query_err) {
-            //        handleError(client, done, res, 'error running query :: Save damaged_scan_qty data :' + query_err);
-            //        return;
-            //    }
-            //    done();
-            //});
-            //}
         }
 
         res.send('success');
