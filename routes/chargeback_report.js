@@ -63,7 +63,7 @@ router.get('/', IsAuthenticated, function (req, res, next) {
     var user = req.user.usertype;
     console.log("user entity details: " + user);
     var query = "SELECT id,name FROM restaurant where 1=1  ";
-    if( req.user.login_report_type == 'after_august')
+    if( req.user.login_report_type == 'after_august' || req.user.login_report_type == 'after_november' )
         {
             query+=" and active=true ";
         }

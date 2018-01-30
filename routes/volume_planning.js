@@ -42,7 +42,7 @@ var transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
         user: 'no-reply@atchayam.in',
-        pass: 'Atchayam123'
+        pass: 'Atchayam1234'
     }
 });
 
@@ -813,24 +813,7 @@ router.post('/save_volume_plan_details', function (req, res) {
                                             }
                                         });
 
-                                    //var quer = "INSERT into volume_plan_automation_master(restaurant_id,vp_avail_date) \
-                                    //VALUES("+restaurant_id+","+ formated_date +")"
-                                    //console.log("#############################Query:" + quer)
-
-                                    //  client.query('INSERT into volume_plan_automation_master(restaurant_id,vp_avail_date) \
-                                    //                   VALUES($1,$2)',
-                                    //  [restaurant_id, formated_date],
-                                    //function (query_err, result) {
-                                    //    done();
-                                    //    if (query_err) {
-                                    //        console.log(client, done, res, 'error running query' + query_err);
-                                    //        return;
-                                    //    }
-                                    //});
-
-
-                                    //console.log(formated_date,restaurant_id);   
-                                    //vp_avail_dates.push({ restaurant_id: restaurant_id, vp_avail_date: formated_date });
+                                   
                                 }
                             }
 
@@ -869,13 +852,15 @@ router.post('/save_volume_plan_details', function (req, res) {
 
                                             transporter.sendMail(mailOptions, function (error, info) {
                                                 if (error) {
-						    console.log("date :"+date_selected+ "city:"+ city_selected);
-                                                    return console.log(error);
+                            console.log("date :"+date_selected+ "city:"+ city_selected);
+                                           
+                                            res.status(500).send("Mail Sending failed... Please save Again!!!");
+                                                   
                                                 }
+                                                else
+                                                {
                                                 console.log('Message OverAll Volume Plan sent: ' + info.response);
-                                            });
-
-                                            client.query('delete from volume_plan_automation_temp where date=$1 and city_id=$2',
+                                                client.query('delete from volume_plan_automation_temp where date=$1 and city_id=$2',
                                                 [date_selected, city_selected],
                                                 function (query_err, result) {
                                                     done();
@@ -887,6 +872,9 @@ router.post('/save_volume_plan_details', function (req, res) {
                                                         res.send('success');
                                                     }
                                                 })
+                                                }
+                                            });                                           
+                                            
                                         });
                                     }
                                     else {
