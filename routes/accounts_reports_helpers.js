@@ -807,8 +807,6 @@ var compute_daily_revenue_analysis_gst = function (date, outlet,
                 var refunds = aggregateByColumn(purchases, 'refund_qty');
                 item["sold"] = item["taken"] + refunds;
                 item["rev_share"] = item["sold"] * base_fee;
-                item["rest_gst"] = item["rev_share"] * (rest_cgst_percent + rest_sgst_percent) / 100;
-                item["rev_share_rest_gst"] = item["rev_share"] + item["rest_gst"];
                 //mrp
                 item["mrp_price"] = (first["mrp"]).toFixed(2);
                 item["wastage_qty"] = (-1) * refunds;

@@ -154,14 +154,14 @@ router.post('/get_sales_details', function (req, res)
             console.log('**************get sales order details Error ' + JSON.stringify(err));
             return;
         }
-        var query = " select s.id as SalesId,(select bill_no from bill_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1) as BillNo, to_date(substring(barcode,13,8),'ddmmyyyy') +s.time::time  as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-        s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
-        f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-        inner join sales_order_items b on b.sales_order_id=s.id\
-        inner join food_item f on f.id=b.food_item_id and f.location='dispenser'\
-        inner join restaurant r on r.id=f.restaurant_id\
-        inner join outlet o on o.id=f.outlet_id\
-        where substring(barcode,13,2)<>'xx' and  to_date(substring(barcode,13,8),'ddmmyyyy')  between $1 and  $2";
+        var query = " select s.id as SalesId,bill_no as BillNo, s.time as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
+            s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
+            f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
+            inner join bill_items b on b.sales_order_id=s.id\
+            inner join food_item f on f.id=b.food_item_id\
+            inner join restaurant r on r.id=f.restaurant_id\
+            inner join outlet o on o.id=f.outlet_id\
+            where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\'";
         if (restaurant_id != '-1')
         {
             query += " and r.id=" + restaurant_id;
@@ -170,28 +170,9 @@ router.post('/get_sales_details', function (req, res)
         {
             query += " and s.outlet_id=" + outlet_id;
         }
-        //query += "  order by s.time,billno ";
-
-  var query2 = " select s.id as SalesId,bill_no as BillNo,  case when s.time::time  between \'00:00\' and \'03:00\' then s.time + interval \'-1 day\' else  s.time end as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-            s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
-            f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-            inner join bill_items b on b.sales_order_id=s.id\
-            inner join food_item f on f.id=b.food_item_id and f.location='outside'\
-            inner join restaurant r on r.id=f.restaurant_id\
-            inner join outlet o on o.id=f.outlet_id\
-            where s.time between $1::date + interval \'03:00\' and  $2::date + interval \'1 day\' +\'03:00\'";
-        if (restaurant_id != '-1')
-        {
-            query2 += " and r.id=" + restaurant_id;
-        }
-        if (outlet_id != '-1')
-        {
-            query2 += " and s.outlet_id=" + outlet_id;
-        }
-      //  query2 += "  order by s.time,billno ";
-query =query+ " union all " +query2;
+        query += "  order by s.time,b.bill_no ";
         console.log("**************sales  QUERY******" + query);
-        client.query(query, [from_dt , to_dt],
+        client.query(query, [from_dt + ' 02:30', to_dt],
             function (query_err, result)
             {
                 console.log("purchase query executed")
@@ -618,43 +599,23 @@ router.get('/downloadcsv', function (req, res)
     var reportName = report_type + '-from-' + req.query.from_date + '.csv';
     //console.log("Generating " + report_type + ", from: " + from_date  + ", to: " + to_date + ", restaurant_id: " + restaurant_id, "report_type:" + report_type);
 
-    var query = " select s.id as SalesId,(select bill_no from bill_items where sales_order_id=s.id and food_item_id=b.food_item_id limit 1) as BillNo, to_date(substring(barcode,13,8),'ddmmyyyy') +s.time::time  as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-    s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
-    f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-    inner join sales_order_items b on b.sales_order_id=s.id\
-    inner join food_item f on f.id=b.food_item_id and f.location='dispenser'\
-    inner join restaurant r on r.id=f.restaurant_id\
-    inner join outlet o on o.id=f.outlet_id\
-    where substring(barcode,13,2)<>'xx' and  to_date(substring(barcode,13,8),'ddmmyyyy')  between $1 and  $2";
-if (restaurant_id != '-1')
-{
-    query += " and r.id=" + restaurant_id;
-}
-if (outlet_id != '-1')
-{
-    query += " and s.outlet_id=" + outlet_id;
-}
-//query += "  order by s.time,billno ";
-
-var query2 = " select s.id as SalesId,bill_no as BillNo,  case when s.time::time  between \'00:00\' and \'03:00\' then s.time + interval \'-1 day\' else  s.time end as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
-    s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour, /*f.take_away,*/ \
-    f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
-    inner join bill_items b on b.sales_order_id=s.id\
-    inner join food_item f on f.id=b.food_item_id and f.location='outside'\
-    inner join restaurant r on r.id=f.restaurant_id\
-    inner join outlet o on o.id=f.outlet_id\
-    where s.time between $1::date + interval \'03:00\' and  $2::date + interval \'1 day\' +\'03:00\'";
-if (restaurant_id != '-1')
-{
-    query2 += " and r.id=" + restaurant_id;
-}
-if (outlet_id != '-1')
-{
-    query2 += " and s.outlet_id=" + outlet_id;
-}
-//  query2 += "  order by s.time,billno ";
-query =query+ " union all " +query2;
-console.log(query);
+    var query = " select s.id as SalesId,bill_no as BillNo, s.time as SalesDate,b.food_item_id as FoodId,f.name as FoodName,b.quantity as Quantity,f.mrp as UnitPrice,r.name as Restaurant,o.short_name as Outlet, s.method as PaymentType, \
+            s.mobile_num, to_char(s.time::time ,'HH24')||':00 to'||  to_char(s.time::time + interval '1 hour' ,'HH24') ||':00' as Bill_Slot ,to_char(s.time::time ,'HH24')||':00' as bill_hour,/*f.take_away,*/ \
+            f.selling_price as SellingPrice,f.mrp-f.selling_price as GST from sales_order s\
+            inner join bill_items b on b.sales_order_id=s.id\
+            inner join food_item f on f.id=b.food_item_id\
+            inner join restaurant r on r.id=f.restaurant_id\
+            inner join outlet o on o.id=f.outlet_id\
+            where s.time between $1 and  $2::date + interval \'1 day\' +\'02:30\'";
+    if (restaurant_id != '-1')
+    {
+        query += " and r.id=" + restaurant_id;
+    }
+    if (outlet_id != '-1')
+    {
+        query += " and s.outlet_id=" + outlet_id;
+    }
+    query += "  order by s.time,b.bill_no ";
     pg.connect(conString, function (err, client, done)
     {
         if (err)
@@ -662,7 +623,7 @@ console.log(query);
             console.log('**************get_restaurant_details Error1 ' + JSON.stringify(err));
             return;
         }
-        client.query(query, [from_date , to_date],
+        client.query(query, [from_date + ' 02:30', to_date],
             function (query_err, result)
             {
                 if (query_err)

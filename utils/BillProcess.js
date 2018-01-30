@@ -295,7 +295,6 @@ function ProcessSales(data) {
             var total_quantity = 0;
             var barcode_dict = {};
             var total_price = 0;
-            var userid = queueItem.userid;
 
             for (var i = 0; i < order_barcodes.length; i++) {
                 if (order_barcodes[i] in barcode_dict) {
@@ -319,16 +318,10 @@ function ProcessSales(data) {
                     total_price += sides[item_id].price;
                 }
             }
-
-            if (userid == undefined || userid == null || userid == 0)
-            {
-                userid = 1;
-            }
-
-            config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,is_mobile_order,userid)\
-      VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8,$9) \
+            config.query('INSERT INTO sales_order (outlet_id, time, counter_code, method, mobile_num, cardholder_name, card_no,unique_random_key,is_mobile_order)\
+      VALUES($1, now(), $2, $3, $4, $5, $6,$7,$8) \
       RETURNING id',
-                [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id, is_mobile_order, userid],
+                [outlet_id, counter_code, payment_method, mobile_num, cardholder_name, credit_card_no, unique_random_id, is_mobile_order],
                 function (query_err, result) {
                     if (query_err) {
                         console.error(query_err);
